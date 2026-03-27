@@ -1,0 +1,30 @@
+services:
+  web:
+    build: .
+    container_name: barbersoft_web
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: barbersoft_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: barbersoft
+      MYSQL_USER: barbersoft_user
+      MYSQL_PASSWORD: barbersoft_pass
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

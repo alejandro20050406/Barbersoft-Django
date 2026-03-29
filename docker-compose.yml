@@ -13,7 +13,7 @@ services:
       - db
 
   db:
-    image: mariadb:10.4
+    image: mariadb:10.11
     container_name: barbersoft_db
     restart: always
     environment:
@@ -24,7 +24,7 @@ services:
     ports:
       - "3307:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mariadb_data:/var/lib/mysql
 
 volumes:
   mariadb_data:

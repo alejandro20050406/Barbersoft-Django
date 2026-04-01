@@ -13,18 +13,18 @@ services:
       - db
 
   db:
-    image: mysql:8.0
+    image: mariadb:10.11
     container_name: barbersoft_db
     restart: always
     environment:
-      MYSQL_DATABASE: barbersoft
-      MYSQL_USER: barbersoft_user
-      MYSQL_PASSWORD: barbersoft_pass
-      MYSQL_ROOT_PASSWORD: rootpass
+      MARIADB_DATABASE: barbersoft
+      MARIADB_USER: barbersoft_user
+      MARIADB_PASSWORD: barbersoft_pass
+      MARIADB_ROOT_PASSWORD: rootpass
     ports:
       - "3307:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mariadb_data:/var/lib/mysql
 
 volumes:
-  mysql_data:
+  mariadb_data:

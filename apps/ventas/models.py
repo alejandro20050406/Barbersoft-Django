@@ -55,7 +55,7 @@ class VentaDetalleProducto(models.Model):
         decimal_places=2, 
         verbose_name='Precio Unitario'
     )
-    subototal=models.DecimalField(
+    subtotal=models.DecimalField(
         max_digits=10,
         decimal_places=2,
         verbose_name='Subtotal'

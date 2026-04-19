@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}BarberSoft{% endblock title %}</title>
+    <link rel="stylesheet" href="{% static 'css/ui.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand-mark">B</span>
+            <div>
+                <p class="brand-title">BarberSoft</p>
+                <p class="brand-subtitle">Panel de trabajo</p>
+            </div>
+        </div>
+        <nav class="main-nav">
+            <a href="{% url 'accounts:home' %}">Inicio</a>
+            <a href="{% url 'catalogos:dashboard' %}">Catalogos</a>
+            <a href="{% url 'clientes:lista' %}">Clientes</a>
+            <a href="{% url 'empleados:lista' %}">Empleados</a>
+            <a href="{% url 'ventas:dashboard' %}">Ventas</a>
+            <a href="{% url 'reportes:dashboard' %}">Reportes</a>
+            <a href="/admin/">Admin Django</a>
+        </nav>
+    </header>
+
+    <main class="page-shell">
+        {% block content %}{% endblock content %}
+    </main>
+</body>
+</html>

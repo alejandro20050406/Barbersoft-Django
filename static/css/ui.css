@@ -1,0 +1,253 @@
+:root {
+    --bg: #f5efe4;
+    --paper: #fffaf2;
+    --ink: #1f1f1f;
+    --muted: #5f5a50;
+    --accent: #b4422e;
+    --accent-dark: #7e2c1f;
+    --line: #dfd6c5;
+    --radius: 14px;
+    --shadow: 0 10px 25px rgba(96, 65, 34, 0.12);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: radial-gradient(circle at top left, #fdf8ef, var(--bg));
+    color: var(--ink);
+    font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+}
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: linear-gradient(120deg, #2e261e, #3a2f25);
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.85rem 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.brand-mark {
+    width: 2rem;
+    height: 2rem;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    background: var(--accent);
+    border-radius: 8px;
+}
+
+.brand-title {
+    margin: 0;
+    font-weight: 700;
+}
+
+.brand-subtitle {
+    margin: 0;
+    color: #d3c4b0;
+    font-size: 0.85rem;
+}
+
+.main-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.main-nav a {
+    color: #f4ede2;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.45rem 0.65rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.main-nav a:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.page-shell {
+    max-width: 1120px;
+    margin: 1.5rem auto;
+    padding: 0 1rem 2rem;
+}
+
+.hero {
+    background: linear-gradient(135deg, #30261d, #593924);
+    color: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.35rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.hero h1 {
+    margin: 0.25rem 0 0.5rem;
+}
+
+.hero p {
+    margin: 0;
+}
+
+.hero-badge {
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 10px;
+    padding: 0.8rem;
+    min-width: 220px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.hero-badge p {
+    font-size: 0.85rem;
+    color: #f1dfc7;
+}
+
+.hero-badge strong {
+    display: block;
+    margin-top: 0.4rem;
+}
+
+.eyebrow {
+    color: #ffb98f;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+}
+
+.section-header {
+    margin: 1.1rem 0;
+}
+
+.section-header h1 {
+    margin: 0 0 0.3rem;
+}
+
+.section-header p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.stats-grid,
+.module-grid,
+.split-grid {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 1rem;
+}
+
+.stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.module-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.split-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.panel,
+.stat-card,
+.module-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.panel {
+    padding: 1rem;
+}
+
+.stat-card {
+    padding: 0.8rem;
+}
+
+.stat-card h3 {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.stat-card p {
+    margin: 0.45rem 0 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent-dark);
+}
+
+.module-card {
+    text-decoration: none;
+    color: inherit;
+    padding: 1rem;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.module-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+}
+
+.module-card h2 {
+    margin: 0 0 0.4rem;
+    font-size: 1.1rem;
+}
+
+.module-card p {
+    margin: 0;
+    color: var(--muted);
+}
+
+table.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    text-align: left;
+    padding: 0.55rem;
+    border-bottom: 1px solid #ece2d2;
+    font-size: 0.92rem;
+}
+
+.table th {
+    background: #f6ecdc;
+    color: #44362a;
+}
+
+.panel ul {
+    margin: 0;
+    padding-left: 1.2rem;
+}
+
+.panel li {
+    margin-bottom: 0.3rem;
+}
+
+@media (max-width: 700px) {
+    .topbar {
+        position: static;
+    }
+}

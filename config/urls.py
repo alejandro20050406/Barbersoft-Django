@@ -1,13 +1,13 @@
 from django.contrib import admin
-from django.http import HttpResponse
-from django.urls import path
-
-
-def inicio(request):
-    return HttpResponse("BarberSoft funcionando correctamente")
+from django.urls import include, path
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", inicio),
+    path("", include("apps.accounts.urls")),
+    path("catalogos/", include("apps.catalogos.urls")),
+    path("clientes/", include("apps.clientes.urls")),
+    path("empleados/", include("apps.empleados.urls")),
+    path("ventas/", include("apps.ventas.urls")),
+    path("reportes/", include("apps.reportes.urls")),
 ]

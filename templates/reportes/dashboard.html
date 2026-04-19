@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Reportes | BarberSoft{% endblock title %}
+
+{% block content %}
+<section class="section-header">
+    <h1>Reportes</h1>
+    <p>Base para construir reportes por rango de fechas y corte de caja.</p>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card"><h3>Total ventas</h3><p>{{ total_ventas }}</p></article>
+    <article class="stat-card"><h3>Total pagos</h3><p>{{ total_pagos }}</p></article>
+    <article class="stat-card"><h3>Ingreso en ventas</h3><p>${{ ingresos_venta }}</p></article>
+    <article class="stat-card"><h3>Ingreso en pagos</h3><p>${{ ingresos_pago }}</p></article>
+</section>
+
+<article class="panel">
+    <h2>Siguiente paso sugerido</h2>
+    <p>
+        Implementar filtros por fecha, tablas por empleado y comparacion de ingresos por metodo de pago.
+        Esta vista ya esta lista para conectar esos componentes.
+    </p>
+</article>
+{% endblock content %}

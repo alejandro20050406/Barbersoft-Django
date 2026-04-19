@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Catalogos | BarberSoft{% endblock title %}
+
+{% block content %}
+<section class="section-header">
+    <h1>Catalogos</h1>
+    <p>Vista inicial para arrancar CRUDs y formularios de entidades maestras.</p>
+</section>
+
+<section class="split-grid">
+    <article class="panel">
+        <h2>Categorias de producto</h2>
+        <ul>
+            {% for item in categorias %}
+            <li>{{ item.nombre }}</li>
+            {% empty %}
+            <li>Sin registros todavia.</li>
+            {% endfor %}
+        </ul>
+    </article>
+    <article class="panel">
+        <h2>Metodos de pago</h2>
+        <ul>
+            {% for item in metodos_pago %}
+            <li>{{ item.nombre }}</li>
+            {% empty %}
+            <li>Sin registros todavia.</li>
+            {% endfor %}
+        </ul>
+    </article>
+    <article class="panel">
+        <h2>Tipos de servicio</h2>
+        <ul>
+            {% for item in tipos_servicio %}
+            <li>{{ item.nombre }}</li>
+            {% empty %}
+            <li>Sin registros todavia.</li>
+            {% endfor %}
+        </ul>
+    </article>
+</section>
+
+<section class="split-grid">
+    <article class="panel">
+        <h2>Productos recientes</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Categoria</th>
+                    <th>Precio venta</th>
+                    <th>Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos_recientes %}
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.categoria.nombre }}</td>
+                    <td>${{ producto.precio_venta }}</td>
+                    <td>{{ producto.stock }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">Sin productos capturados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </article>
+    <article class="panel">
+        <h2>Servicios recientes</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Tipo</th>
+                    <th>Precio</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for servicio in servicios_recientes %}
+                <tr>
+                    <td>{{ servicio.nombre }}</td>
+                    <td>{{ servicio.tipo.nombre }}</td>
+                    <td>${{ servicio.precio }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3">Sin servicios capturados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </article>
+</section>
+{% endblock content %}

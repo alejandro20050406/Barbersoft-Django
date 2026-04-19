@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Ventas | BarberSoft{% endblock title %}
+
+{% block content %}
+<section class="section-header">
+    <h1>Ventas</h1>
+    <p>Panel inicial para conectar formularios de venta de servicio y producto.</p>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card"><h3>Ventas</h3><p>{{ total_ventas }}</p></article>
+    <article class="stat-card"><h3>Pagos</h3><p>{{ total_pagos }}</p></article>
+    <article class="stat-card"><h3>Visitas</h3><p>{{ total_visitas }}</p></article>
+    <article class="stat-card"><h3>Comisiones</h3><p>{{ total_comisiones }}</p></article>
+</section>
+
+<article class="panel">
+    <h2>Ultimas ventas</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Empleado</th>
+                <th>Metodo de pago</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for venta in ultimas_ventas %}
+            <tr>
+                <td>#{{ venta.id }}</td>
+                <td>{{ venta.fecha|date:"Y-m-d" }}</td>
+                <td>{{ venta.cliente }}</td>
+                <td>{{ venta.empleado }}</td>
+                <td>{{ venta.metodo_de_pago }}</td>
+                <td>${{ venta.total }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">No hay ventas registradas.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</article>
+{% endblock content %}

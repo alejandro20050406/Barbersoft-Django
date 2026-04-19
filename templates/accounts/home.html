@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio | BarberSoft{% endblock title %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <p class="eyebrow">Arranque UI</p>
+        <h1>Base visual lista para construir el sistema</h1>
+        <p>Este tablero unifica los modulos para que el equipo implemente pantallas por bloque sin empezar desde cero.</p>
+    </div>
+    <div class="hero-badge">
+        <p>Estado</p>
+        <strong>Interfaz inicial activa</strong>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card"><h3>Categorias</h3><p>{{ stats.categorias }}</p></article>
+    <article class="stat-card"><h3>Metodos de pago</h3><p>{{ stats.metodos_pago }}</p></article>
+    <article class="stat-card"><h3>Productos</h3><p>{{ stats.productos }}</p></article>
+    <article class="stat-card"><h3>Servicios</h3><p>{{ stats.servicios }}</p></article>
+    <article class="stat-card"><h3>Clientes</h3><p>{{ stats.clientes }}</p></article>
+    <article class="stat-card"><h3>Empleados</h3><p>{{ stats.empleados }}</p></article>
+    <article class="stat-card"><h3>Ventas</h3><p>{{ stats.ventas }}</p></article>
+</section>
+
+<section class="module-grid">
+    <a class="module-card" href="{% url 'catalogos:dashboard' %}">
+        <h2>Catalogos</h2>
+        <p>Productos, servicios, categorias y metodos de pago.</p>
+    </a>
+    <a class="module-card" href="{% url 'clientes:lista' %}">
+        <h2>Clientes</h2>
+        <p>Base de clientes para ventas y visitas.</p>
+    </a>
+    <a class="module-card" href="{% url 'empleados:lista' %}">
+        <h2>Empleados</h2>
+        <p>Datos laborales y comisiones.</p>
+    </a>
+    <a class="module-card" href="{% url 'ventas:dashboard' %}">
+        <h2>Ventas</h2>
+        <p>Operacion diaria y flujo transaccional.</p>
+    </a>
+    <a class="module-card" href="{% url 'reportes:dashboard' %}">
+        <h2>Reportes</h2>
+        <p>Metricas de ingresos y validaciones finales.</p>
+    </a>
+</section>
+{% endblock content %}

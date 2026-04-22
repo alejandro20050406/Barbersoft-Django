@@ -1,0 +1,28 @@
+{% extends "crud_base.html" %}
+
+{% block title %}{{ tipo_servicio }} - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">{{ tipo_servicio.nombre }}</h1>
+    <div class="action-buttons">
+        <a href="{% url 'catalogos:tiposervicio-list' %}" class="btn btn-secondary">← Volver</a>
+        <a href="{% url 'catalogos:tiposervicio-update' tipo_servicio.pk %}" class="btn btn-secondary">Editar</a>
+    </div>
+</div>
+
+<div class="detail-section">
+    <div class="detail-grid">
+        <div class="detail-item"><span class="detail-label">ID</span><span class="detail-value">#{{ tipo_servicio.id }}</span></div>
+        <div class="detail-item"><span class="detail-label">Nombre</span><span class="detail-value">{{ tipo_servicio.nombre }}</span></div>
+    </div>
+    {% if tipo_servicio.descripcion %}<p>{{ tipo_servicio.descripcion }}</p>{% endif %}
+</div>
+
+{% if tipo_servicio.servicios.exists %}
+    <div class="detail-section">
+        <h3>Servicios</h3>
+        <ul>{% for svc in tipo_servicio.servicios.all %}<li>{{ svc.nombre }} - ${{ svc.precio }}</li>{% endfor %}</ul>
+    </div>
+{% endif %}
+{% endblock %}

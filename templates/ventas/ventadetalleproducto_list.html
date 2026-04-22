@@ -1,0 +1,33 @@
+{% extends "crud_base.html" %}
+
+{% block title %}Detalles de Productos - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Detalles de Productos en Ventas</h1>
+</div>
+
+{% if detalles_productos %}
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Venta</th><th>Producto</th><th>Cantidad</th><th>Precio Unitario</th><th>Subtotal</th><th>Acciones</th></tr></thead>
+            <tbody>
+                {% for det in detalles_productos %}
+                    <tr>
+                        <td>#{{ det.venta.id }}</td>
+                        <td>{{ det.producto.nombre }}</td>
+                        <td>{{ det.cantidad }}</td>
+                        <td>${{ det.precio_unitario }}</td>
+                        <td>${{ det.subtotal }}</td>
+                        <td>
+                            <a href="{% url 'ventas:ventadetalleproducto-delete' det.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state"><h3>No hay detalles de productos</h3></div>
+{% endif %}
+{% endblock %}

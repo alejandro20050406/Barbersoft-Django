@@ -1,0 +1,48 @@
+{% extends "crud_base.html" %}
+{% load static %}
+
+{% block title %}{{ categoria }} - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{{ categoria.nombre }}</h1>
+    </div>
+    <div class="action-buttons">
+        <a href="{% url 'catalogos:categoria-list' %}" class="btn btn-secondary">← Volver</a>
+        <a href="{% url 'catalogos:categoria-update' categoria.pk %}" class="btn btn-secondary">Editar</a>
+        <a href="{% url 'catalogos:categoria-delete' categoria.pk %}" class="btn btn-danger">Eliminar</a>
+    </div>
+</div>
+
+<div class="detail-section">
+    <div class="detail-grid">
+        <div class="detail-item">
+            <span class="detail-label">ID</span>
+            <span class="detail-value">#{{ categoria.id }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Nombre</span>
+            <span class="detail-value">{{ categoria.nombre }}</span>
+        </div>
+    </div>
+</div>
+
+{% if categoria.descripcion %}
+    <div class="detail-section">
+        <h3>Descripción</h3>
+        <p>{{ categoria.descripcion }}</p>
+    </div>
+{% endif %}
+
+{% if categoria.productos.exists %}
+    <div class="detail-section">
+        <h3>Productos en esta categoría</h3>
+        <ul>
+            {% for producto in categoria.productos.all %}
+                <li><strong>{{ producto.nombre }}</strong> - ${{ producto.precio_venta }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+{% endblock %}

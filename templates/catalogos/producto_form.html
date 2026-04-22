@@ -1,0 +1,81 @@
+{% extends "crud_base.html" %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Producto - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Producto</h1>
+    </div>
+</div>
+
+<div class="form-section">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                <strong>Errores:</strong>
+                <ul>{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            </div>
+        {% endif %}
+
+        <fieldset>
+            <legend>Información General</legend>
+            <div class="form-row">
+                <div class="form-group">
+                    {{ form.nombre.label_tag }}
+                    {{ form.nombre }}
+                    {% if form.nombre.errors %}<span style="color: #dc3545; font-size: 0.85rem;">{{ form.nombre.errors.0 }}</span>{% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.categoria.label_tag }}
+                    {{ form.categoria }}
+                    {% if form.categoria.errors %}<span style="color: #dc3545; font-size: 0.85rem;">{{ form.categoria.errors.0 }}</span>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-group form-row full">
+                {{ form.descripcion.label_tag }}
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}<span style="color: #dc3545; font-size: 0.85rem;">{{ form.descripcion.errors.0 }}</span>{% endif %}
+            </div>
+        </fieldset>
+
+        <fieldset style="margin-top: 2rem;">
+            <legend>Precios e Inventario</legend>
+            <div class="form-row">
+                <div class="form-group">
+                    {{ form.precio_compra.label_tag }}
+                    {{ form.precio_compra }}
+                    {% if form.precio_compra.errors %}<span style="color: #dc3545; font-size: 0.85rem;">{{ form.precio_compra.errors.0 }}</span>{% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.precio_venta.label_tag }}
+                    {{ form.precio_venta }}
+                    {% if form.precio_venta.errors %}<span style="color: #dc3545; font-size: 0.85rem;">{{ form.precio_venta.errors.0 }}</span>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    {{ form.stock.label_tag }}
+                    {{ form.stock }}
+                    {% if form.stock.errors %}<span style="color: #dc3545; font-size: 0.85rem;">{{ form.stock.errors.0 }}</span>{% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.activo.label_tag }}
+                    {{ form.activo }}
+                    {% if form.activo.errors %}<span style="color: #dc3545; font-size: 0.85rem;">{{ form.activo.errors.0 }}</span>{% endif %}
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="form-buttons">
+            <a href="{% url 'catalogos:producto-list' %}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

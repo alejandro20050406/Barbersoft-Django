@@ -1,0 +1,37 @@
+{% extends "crud_base.html" %}
+
+{% block title %}Pagos - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div><h1 class="page-title">Pagos</h1></div>
+    <a href="{% url 'ventas:pago-create' %}" class="btn btn-primary">+ Registrar Pago</a>
+</div>
+
+{% if pagos %}
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Venta</th><th>Método de Pago</th><th>Monto</th><th>Fecha</th><th>Acciones</th></tr></thead>
+            <tbody>
+                {% for pago in pagos %}
+                    <tr>
+                        <td>#{{ pago.venta.id }}</td>
+                        <td>{{ pago.metodo_de_pago.nombre }}</td>
+                        <td>${{ pago.monto }}</td>
+                        <td>{{ pago.fecha|date:"d/m/Y" }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{% url 'ventas:pago-detail' pago.pk %}" class="btn btn-secondary btn-sm">Ver</a>
+                                <a href="{% url 'ventas:pago-update' pago.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+                                <a href="{% url 'ventas:pago-delete' pago.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state"><h3>No hay pagos</h3></div>
+{% endif %}
+{% endblock %}

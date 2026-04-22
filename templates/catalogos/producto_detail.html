@@ -1,0 +1,73 @@
+{% extends "crud_base.html" %}
+{% load static %}
+
+{% block title %}{{ producto }} - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{{ producto.nombre }}</h1>
+        <p class="page-subtitle">{{ producto.categoria.nombre }}</p>
+    </div>
+    <div class="action-buttons">
+        <a href="{% url 'catalogos:producto-list' %}" class="btn btn-secondary">← Volver</a>
+        <a href="{% url 'catalogos:producto-update' producto.pk %}" class="btn btn-secondary">Editar</a>
+        <a href="{% url 'catalogos:producto-delete' producto.pk %}" class="btn btn-danger">Eliminar</a>
+    </div>
+</div>
+
+<div class="detail-section">
+    <h3>Información General</h3>
+    <div class="detail-grid">
+        <div class="detail-item">
+            <span class="detail-label">ID</span>
+            <span class="detail-value">#{{ producto.id }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Categoría</span>
+            <span class="detail-value">{{ producto.categoria.nombre }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Estado</span>
+            <span class="detail-value">
+                {% if producto.activo %}<span class="badge badge-success">Activo</span>{% else %}<span class="badge badge-danger">Inactivo</span>{% endif %}
+            </span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Registrado</span>
+            <span class="detail-value">{{ producto.fecha_registro|date:"d/m/Y H:i" }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="detail-section">
+    <h3>Precios e Inventario</h3>
+    <div class="detail-grid">
+        <div class="detail-item">
+            <span class="detail-label">Precio de Compra</span>
+            <span class="detail-value">${{ producto.precio_compra }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Precio de Venta</span>
+            <span class="detail-value">${{ producto.precio_venta }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Stock Disponible</span>
+            <span class="detail-value">{{ producto.stock }} unidades</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Margen de Ganancia</span>
+            <span class="detail-value">
+                {% widthratio producto.precio_venta producto.precio_compra 100 %}%
+            </span>
+        </div>
+    </div>
+</div>
+
+{% if producto.descripcion %}
+    <div class="detail-section">
+        <h3>Descripción</h3>
+        <p>{{ producto.descripcion }}</p>
+    </div>
+{% endif %}
+{% endblock %}

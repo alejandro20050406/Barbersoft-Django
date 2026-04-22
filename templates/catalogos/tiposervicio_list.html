@@ -1,0 +1,35 @@
+{% extends "crud_base.html" %}
+
+{% block title %}Tipos de Servicio - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div><h1 class="page-title">Tipos de Servicio</h1></div>
+    <a href="{% url 'catalogos:tiposervicio-create' %}" class="btn btn-primary">+ Crear</a>
+</div>
+
+{% if tipos_servicio %}
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Nombre</th><th>Descripción</th><th>Acciones</th></tr></thead>
+            <tbody>
+                {% for tipo in tipos_servicio %}
+                    <tr>
+                        <td><strong>{{ tipo.nombre }}</strong></td>
+                        <td>{{ tipo.descripcion|truncatewords:10 }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{% url 'catalogos:tiposervicio-detail' tipo.pk %}" class="btn btn-secondary btn-sm">Ver</a>
+                                <a href="{% url 'catalogos:tiposervicio-update' tipo.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+                                <a href="{% url 'catalogos:tiposervicio-delete' tipo.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state"><h3>No hay tipos de servicio</h3></div>
+{% endif %}
+{% endblock %}

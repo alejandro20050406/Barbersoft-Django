@@ -1,0 +1,55 @@
+{% extends "crud_base.html" %}
+
+{% block title %}Empleados - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div><h1 class="page-title">Empleados</h1><p class="page-subtitle">Gestionar empleados</p></div>
+    <a href="{% url 'empleados:empleado-create' %}" class="btn btn-primary">+ Crear Empleado</a>
+</div>
+
+<div class="filters-section">
+    <form method="get">
+        <div class="filter-group">
+            <div class="form-group" style="flex: 1;">
+                <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Buscar...">
+            </div>
+            <div class="form-group">
+                <select name="estado">
+                    <option value="">-- Todos --</option>
+                    {% for val, label in estados %}<option value="{{ val }}" {% if request.GET.estado == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-secondary btn-sm">Buscar</button>
+        </div>
+    </form>
+</div>
+
+{% if empleados %}
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Nombre</th><th>Teléfono</th><th>Comisión</th><th>Estado</th><th>Ingreso</th><th>Acciones</th></tr></thead>
+            <tbody>
+                {% for emp in empleados %}
+                    <tr>
+                        <td><strong>{{ emp.nombre }} {{ emp.apellido }}</strong></td>
+                        <td>{{ emp.telefono|default:"-" }}</td>
+                        <td>{{ emp.porcentaje_comision }}%</td>
+                        <td><span class="badge {% if emp.estado == 'activo' %}badge-success{% else %}badge-danger{% endif %}">{{ emp.get_estado_display }}</span></td>
+                        <td>{{ emp.fecha_ingreso|date:"d/m/Y"|default:"-" }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{% url 'empleados:empleado-detail' emp.pk %}" class="btn btn-secondary btn-sm">Ver</a>
+                                <a href="{% url 'empleados:empleado-update' emp.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+                                <a href="{% url 'empleados:empleado-delete' emp.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state"><h3>No hay empleados</h3></div>
+{% endif %}
+{% endblock %}

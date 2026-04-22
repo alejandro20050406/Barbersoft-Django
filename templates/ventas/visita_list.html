@@ -1,0 +1,37 @@
+{% extends "crud_base.html" %}
+
+{% block title %}Visitas - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div><h1 class="page-title">Visitas</h1></div>
+    <a href="{% url 'ventas:visita-create' %}" class="btn btn-primary">+ Registrar Visita</a>
+</div>
+
+{% if visitas %}
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Cliente</th><th>Empleado</th><th>Venta</th><th>Fecha</th><th>Acciones</th></tr></thead>
+            <tbody>
+                {% for visita in visitas %}
+                    <tr>
+                        <td>{{ visita.cliente.nombre }}</td>
+                        <td>{{ visita.empleado.nombre }}</td>
+                        <td>#{{ visita.venta.id }}</td>
+                        <td>{{ visita.fecha|date:"d/m/Y" }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{% url 'ventas:visita-detail' visita.pk %}" class="btn btn-secondary btn-sm">Ver</a>
+                                <a href="{% url 'ventas:visita-update' visita.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+                                <a href="{% url 'ventas:visita-delete' visita.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state"><h3>No hay visitas</h3></div>
+{% endif %}
+{% endblock %}

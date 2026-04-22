@@ -1,0 +1,50 @@
+{% extends "crud_base.html" %}
+
+{% block title %}Ventas - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div><h1 class="page-title">Ventas</h1><p class="page-subtitle">Gestionar ventas</p></div>
+    <a href="{% url 'ventas:venta-create' %}" class="btn btn-primary">+ Nueva Venta</a>
+</div>
+
+<div class="filters-section">
+    <form method="get">
+        <div class="filter-group">
+            <div class="form-group" style="flex: 1;">
+                <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Buscar por cliente o empleado...">
+            </div>
+            <button type="submit" class="btn btn-secondary btn-sm">Buscar</button>
+        </div>
+    </form>
+</div>
+
+{% if ventas %}
+    <div class="table-container">
+        <table>
+            <thead><tr><th>ID</th><th>Cliente</th><th>Empleado</th><th>Fecha</th><th>Método de Pago</th><th>Total</th><th>Acciones</th></tr></thead>
+            <tbody>
+                {% for venta in ventas %}
+                    <tr>
+                        <td><strong>#{{ venta.id }}</strong></td>
+                        <td>{{ venta.cliente.nombre }}</td>
+                        <td>{{ venta.empleado.nombre }}</td>
+                        <td>{{ venta.fecha|date:"d/m/Y" }}</td>
+                        <td>{{ venta.metodo_de_pago.nombre }}</td>
+                        <td>${{ venta.total }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{% url 'ventas:venta-detail' venta.pk %}" class="btn btn-secondary btn-sm">Ver</a>
+                                <a href="{% url 'ventas:venta-update' venta.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+                                <a href="{% url 'ventas:venta-delete' venta.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state"><h3>No hay ventas</h3></div>
+{% endif %}
+{% endblock %}

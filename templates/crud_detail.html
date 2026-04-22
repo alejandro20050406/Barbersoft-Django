@@ -1,0 +1,38 @@
+{% extends "crud_base.html" %}
+{% load static %}
+
+{% block title %}{{ object }} - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{{ object }}</h1>
+    </div>
+    <div class="action-buttons">
+        <a href="{{ back_url }}" class="btn btn-secondary">← Volver</a>
+        <a href="{% url edit_url object.pk %}" class="btn btn-secondary">Editar</a>
+        <a href="{% url delete_url object.pk %}" class="btn btn-danger">Eliminar</a>
+    </div>
+</div>
+
+<div class="detail-section">
+    {% for field_name, field_label, field_value in details %}
+        {% if forloop.first %}
+            <div class="detail-grid">
+        {% endif %}
+        
+        <div class="detail-item">
+            <span class="detail-label">{{ field_label }}</span>
+            <span class="detail-value">{{ field_value|default:"-" }}</span>
+        </div>
+
+        {% if forloop.counter|divisibleby:2 %}
+            </div>
+            {% if not forloop.last %}<div class="detail-grid">{% endif %}
+        {% endif %}
+    {% endfor %}
+    {% if details|length|remainder:2 != 0 %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

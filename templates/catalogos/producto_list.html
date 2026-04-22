@@ -1,0 +1,106 @@
+{% extends "crud_base.html" %}
+{% load static %}
+
+{% block title %}Productos - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Productos</h1>
+        <p class="page-subtitle">Gestionar catálogo de productos</p>
+    </div>
+    <div class="action-buttons">
+        <a href="{% url 'catalogos:producto-create' %}" class="btn btn-primary">+ Crear Producto</a>
+    </div>
+</div>
+
+<div class="filters-section">
+    <form method="get" class="filter-group">
+        <div class="form-group" style="flex: 1;">
+            <label for="id_search">Buscar</label>
+            <input type="text" name="search" id="id_search" value="{{ request.GET.search }}" placeholder="Buscar por nombre o descripción...">
+        </div>
+        <div class="form-group">
+            <label for="id_categoria">Categoría</label>
+            <select name="categoria" id="id_categoria">
+                <option value="">-- Todas --</option>
+                {% for cat in categorias %}
+                    <option value="{{ cat.id }}" {% if request.GET.categoria|add:"0" == cat.id %}selected{% endif %}>{{ cat.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-secondary btn-sm">Buscar</button>
+    </form>
+</div>
+
+{% if productos %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Precio Compra</th>
+                    <th>Precio Venta</th>
+                    <th>Stock</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                    <tr>
+                        <td><strong>{{ producto.nombre }}</strong></td>
+                        <td>{{ producto.categoria.nombre }}</td>
+                        <td>${{ producto.precio_compra }}</td>
+                        <td>${{ producto.precio_venta }}</td>
+                        <td>
+                            {% if producto.stock <= 5 %}
+                                <span class="badge badge-danger">{{ producto.stock }} unidades</span>
+                            {% elif producto.stock <= 20 %}
+                                <span class="badge badge-warning">{{ producto.stock }} unidades</span>
+                            {% else %}
+                                <span class="badge badge-success">{{ producto.stock }} unidades</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if producto.activo %}
+                                <span class="badge badge-success">Activo</span>
+                            {% else %}
+                                <span class="badge badge-danger">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{% url 'catalogos:producto-detail' producto.pk %}" class="btn btn-secondary btn-sm">Ver</a>
+                                <a href="{% url 'catalogos:producto-update' producto.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+                                <a href="{% url 'catalogos:producto-delete' producto.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if is_paginated %}
+        <nav class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">« Primera</a>
+                <a href="?page={{ page_obj.previous_page_number }}">‹ Anterior</a>
+            {% endif %}
+            <span class="current">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Siguiente ›</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">Última »</a>
+            {% endif %}
+        </nav>
+    {% endif %}
+{% else %}
+    <div class="empty-state">
+        <h3>No hay productos</h3>
+        <p>No se encontraron productos para mostrar.</p>
+        <a href="{% url 'catalogos:producto-create' %}" class="btn btn-primary">Crear el primero</a>
+    </div>
+{% endif %}
+{% endblock %}

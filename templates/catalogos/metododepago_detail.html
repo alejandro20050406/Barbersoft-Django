@@ -1,0 +1,20 @@
+{% extends "crud_base.html" %}
+
+{% block title %}{{ metodo_pago }} - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">{{ metodo_pago.nombre }}</h1>
+    <div class="action-buttons">
+        <a href="{% url 'catalogos:metodopago-list' %}" class="btn btn-secondary">← Volver</a>
+        <a href="{% url 'catalogos:metodopago-update' metodo_pago.pk %}" class="btn btn-secondary">Editar</a>
+    </div>
+</div>
+
+<div class="detail-section">
+    <div class="detail-grid">
+        <div class="detail-item"><span class="detail-label">ID</span><span class="detail-value">#{{ metodo_pago.id }}</span></div>
+        <div class="detail-item"><span class="detail-label">Estado</span><span class="detail-value"><span class="badge {% if metodo_pago.activo %}badge-success{% else %}badge-danger{% endif %}">{% if metodo_pago.activo %}Activo{% else %}Inactivo{% endif %}</span></span></div>
+    </div>
+</div>
+{% endblock %}

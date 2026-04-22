@@ -1,0 +1,56 @@
+{% extends "crud_base.html" %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Categoría - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Categoría de Producto</h1>
+    </div>
+</div>
+
+<div class="form-section">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                <div>
+                    <strong>Errores en el formulario:</strong>
+                    <ul>
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            {{ form.nombre.label_tag }}
+            {{ form.nombre }}
+            {% if form.nombre.errors %}
+                <div class="error-messages">
+                    {% for error in form.nombre.errors %}<span style="color: #dc3545; font-size: 0.85rem;">{{ error }}</span>{% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group form-row full">
+            {{ form.descripcion.label_tag }}
+            {{ form.descripcion }}
+            {% if form.descripcion.errors %}
+                <div class="error-messages">
+                    {% for error in form.descripcion.errors %}<span style="color: #dc3545; font-size: 0.85rem;">{{ error }}</span>{% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-buttons">
+            <a href="{% url 'catalogos:categoria-list' %}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

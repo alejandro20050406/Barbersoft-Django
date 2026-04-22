@@ -1,0 +1,23 @@
+{% extends "crud_base.html" %}
+
+{% block title %}Visita #{{ visita.id }} - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div><h1 class="page-title">Visita #{{ visita.id }}</h1></div>
+    <div class="action-buttons">
+        <a href="{% url 'ventas:visita-list' %}" class="btn btn-secondary">← Volver</a>
+        <a href="{% url 'ventas:visita-update' visita.pk %}" class="btn btn-secondary">Editar</a>
+    </div>
+</div>
+
+<div class="detail-section">
+    <div class="detail-grid">
+        <div class="detail-item"><span class="detail-label">Cliente</span><span class="detail-value">{{ visita.cliente.nombre }}</span></div>
+        <div class="detail-item"><span class="detail-label">Empleado</span><span class="detail-value">{{ visita.empleado.nombre }}</span></div>
+        <div class="detail-item"><span class="detail-label">Venta</span><span class="detail-value">#{{ visita.venta.id }}</span></div>
+        <div class="detail-item"><span class="detail-label">Fecha</span><span class="detail-value">{{ visita.fecha|date:"d/m/Y" }}</span></div>
+    </div>
+    {% if visita.observaciones %}<p>{{ visita.observaciones }}</p>{% endif %}
+</div>
+{% endblock %}

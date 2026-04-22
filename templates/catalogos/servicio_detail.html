@@ -1,0 +1,32 @@
+{% extends "crud_base.html" %}
+
+{% block title %}{{ servicio }} - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{{ servicio.nombre }}</h1>
+        <p class="page-subtitle">{{ servicio.tipo.nombre }}</p>
+    </div>
+    <div class="action-buttons">
+        <a href="{% url 'catalogos:servicio-list' %}" class="btn btn-secondary">← Volver</a>
+        <a href="{% url 'catalogos:servicio-update' servicio.pk %}" class="btn btn-secondary">Editar</a>
+    </div>
+</div>
+
+<div class="detail-section">
+    <div class="detail-grid">
+        <div class="detail-item"><span class="detail-label">ID</span><span class="detail-value">#{{ servicio.id }}</span></div>
+        <div class="detail-item"><span class="detail-label">Tipo</span><span class="detail-value">{{ servicio.tipo.nombre }}</span></div>
+        <div class="detail-item"><span class="detail-label">Precio</span><span class="detail-value">${{ servicio.precio }}</span></div>
+        <div class="detail-item"><span class="detail-label">Estado</span><span class="detail-value"><span class="badge {% if servicio.activo %}badge-success{% else %}badge-danger{% endif %}">{% if servicio.activo %}Activo{% else %}Inactivo{% endif %}</span></span></div>
+    </div>
+</div>
+
+{% if servicio.descripcion %}
+    <div class="detail-section">
+        <h3>Descripción</h3>
+        <p>{{ servicio.descripcion }}</p>
+    </div>
+{% endif %}
+{% endblock %}

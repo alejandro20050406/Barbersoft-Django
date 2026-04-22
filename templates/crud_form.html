@@ -1,0 +1,57 @@
+{% extends "crud_base.html" %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Crear{% endif %} {{ title }} - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{% if form.instance.pk %}Editar{% else %}Crear{% endif %} {{ title }}</h1>
+    </div>
+</div>
+
+<div class="form-section">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                <div>
+                    <strong>Errores en el formulario:</strong>
+                    <ul>
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+
+        {% for field in form %}
+            {% if field.field.widget.input_type == "hidden" %}
+                {{ field }}
+            {% else %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {% if field.help_text %}
+                        <small>{{ field.help_text|safe }}</small>
+                    {% endif %}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="error-messages">
+                            {% for error in field.errors %}
+                                <span style="color: #dc3545; font-size: 0.85rem;">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <div class="form-buttons">
+            <a href="{{ back_url }}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

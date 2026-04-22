@@ -1,0 +1,23 @@
+{% extends "crud_base.html" %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Detalle de Servicio - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="form-section" style="max-width: 600px; margin: 2rem auto;">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-row">
+            <div class="form-group">{{ form.venta.label_tag }}{{ form.venta }}</div>
+            <div class="form-group">{{ form.servicio.label_tag }}{{ form.servicio }}</div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">{{ form.precio_unitario.label_tag }}{{ form.precio_unitario }}</div>
+            <div class="form-group">{{ form.subtotal.label_tag }}{{ form.subtotal }}</div>
+        </div>
+        <div class="form-buttons">
+            <a href="{% url 'ventas:ventadetalleservicio-list' %}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

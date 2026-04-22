@@ -1,0 +1,35 @@
+{% extends "crud_base.html" %}
+
+{% block title %}Métodos de Pago - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div><h1 class="page-title">Métodos de Pago</h1></div>
+    <a href="{% url 'catalogos:metodopago-create' %}" class="btn btn-primary">+ Crear</a>
+</div>
+
+{% if metodos_pago %}
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Nombre</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody>
+                {% for metodo in metodos_pago %}
+                    <tr>
+                        <td><strong>{{ metodo.nombre }}</strong></td>
+                        <td><span class="badge {% if metodo.activo %}badge-success{% else %}badge-danger{% endif %}">{% if metodo.activo %}Activo{% else %}Inactivo{% endif %}</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{% url 'catalogos:metodopago-detail' metodo.pk %}" class="btn btn-secondary btn-sm">Ver</a>
+                                <a href="{% url 'catalogos:metodopago-update' metodo.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+                                <a href="{% url 'catalogos:metodopago-delete' metodo.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state"><h3>No hay métodos de pago</h3></div>
+{% endif %}
+{% endblock %}

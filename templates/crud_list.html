@@ -1,0 +1,104 @@
+{% extends "crud_base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{{ title }}</h1>
+        {% if subtitle %}<p class="page-subtitle">{{ subtitle }}</p>{% endif %}
+    </div>
+    <div class="action-buttons">
+        {% if add_url %}
+            <a href="{{ add_url }}" class="btn btn-primary">+ Nuevo</a>
+        {% endif %}
+    </div>
+</div>
+
+{% if search_form %}
+<div class="filters-section">
+    <form method="get" class="filter-group">
+        <div class="form-group" style="flex: 1;">
+            <label for="id_search">Buscar</label>
+            <input type="text" name="search" id="id_search" value="{{ request.GET.search }}" placeholder="Ingrese términos de búsqueda...">
+        </div>
+        {% if filter_select %}
+        <div class="form-group">
+            <label for="id_filter">Filtrar</label>
+            <select name="{{ filter_name }}" id="id_filter">
+                <option value="">-- Todos --</option>
+                {% for value, label in filter_options %}
+                    <option value="{{ value }}" {% if request.GET|get_item:filter_name == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        <button type="submit" class="btn btn-secondary btn-sm">Buscar</button>
+    </form>
+</div>
+{% endif %}
+
+{% if object_list %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    {% for column in columns %}
+                        <th>{{ column }}</th>
+                    {% endfor %}
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for object in object_list %}
+                    <tr>
+                        {% for field in fields %}
+                            <td>{{ object|getattr:field }}</td>
+                        {% endfor %}
+                        <td>
+                            <div class="table-actions">
+                                {% if detail_url %}
+                                    <a href="{% url detail_url object.pk %}" class="btn btn-secondary btn-sm">Ver</a>
+                                {% endif %}
+                                {% if update_url %}
+                                    <a href="{% url update_url object.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+                                {% endif %}
+                                {% if delete_url %}
+                                    <a href="{% url delete_url object.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if is_paginated %}
+        <nav class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">« Primera</a>
+                <a href="?page={{ page_obj.previous_page_number }}">‹ Anterior</a>
+            {% endif %}
+
+            <span class="current">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Siguiente ›</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">Última »</a>
+            {% endif %}
+        </nav>
+    {% endif %}
+{% else %}
+    <div class="empty-state">
+        <h3>No hay registros</h3>
+        <p>No se encontraron {{ title|lower }} para mostrar.</p>
+        {% if add_url %}
+            <a href="{{ add_url }}" class="btn btn-primary">Crear el primero</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

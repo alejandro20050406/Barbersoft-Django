@@ -1,0 +1,48 @@
+{% extends "crud_base.html" %}
+
+{% block title %}Clientes - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div><h1 class="page-title">Clientes</h1><p class="page-subtitle">Gestionar clientes</p></div>
+    <a href="{% url 'clientes:cliente-create' %}" class="btn btn-primary">+ Crear Cliente</a>
+</div>
+
+<div class="filters-section">
+    <form method="get">
+        <div class="filter-group">
+            <div class="form-group" style="flex: 1;">
+                <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Buscar por nombre, teléfono o email...">
+            </div>
+            <button type="submit" class="btn btn-secondary btn-sm">Buscar</button>
+        </div>
+    </form>
+</div>
+
+{% if clientes %}
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Registrado</th><th>Acciones</th></tr></thead>
+            <tbody>
+                {% for cliente in clientes %}
+                    <tr>
+                        <td><strong>{{ cliente.nombre }} {{ cliente.apellido }}</strong></td>
+                        <td>{{ cliente.telefono|default:"-" }}</td>
+                        <td>{{ cliente.correo|default:"-" }}</td>
+                        <td>{{ cliente.fecha_registro|date:"d/m/Y" }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{% url 'clientes:cliente-detail' cliente.pk %}" class="btn btn-secondary btn-sm">Ver</a>
+                                <a href="{% url 'clientes:cliente-update' cliente.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+                                <a href="{% url 'clientes:cliente-delete' cliente.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state"><h3>No hay clientes</h3></div>
+{% endif %}
+{% endblock %}

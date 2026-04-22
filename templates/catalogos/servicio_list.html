@@ -1,0 +1,66 @@
+{% extends "crud_base.html" %}
+{% load static %}
+
+{% block title %}Servicios - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Servicios</h1>
+        <p class="page-subtitle">Gestionar catálogo de servicios</p>
+    </div>
+    <div class="action-buttons">
+        <a href="{% url 'catalogos:servicio-create' %}" class="btn btn-primary">+ Crear Servicio</a>
+    </div>
+</div>
+
+<div class="filters-section">
+    <form method="get" class="filter-group">
+        <div class="form-group" style="flex: 1;">
+            <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Buscar servicios...">
+        </div>
+        <div class="form-group">
+            <select name="tipo">
+                <option value="">-- Todos --</option>
+                {% for t in tipos_servicio %}<option value="{{ t.id }}" {% if request.GET.tipo|add:"0" == t.id %}selected{% endif %}>{{ t.nombre }}</option>{% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-secondary btn-sm">Buscar</button>
+    </form>
+</div>
+
+{% if servicios %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Tipo</th>
+                    <th>Precio</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for servicio in servicios %}
+                    <tr>
+                        <td><strong>{{ servicio.nombre }}</strong></td>
+                        <td>{{ servicio.tipo.nombre }}</td>
+                        <td>${{ servicio.precio }}</td>
+                        <td><span class="badge {% if servicio.activo %}badge-success{% else %}badge-danger{% endif %}">{% if servicio.activo %}Activo{% else %}Inactivo{% endif %}</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{% url 'catalogos:servicio-detail' servicio.pk %}" class="btn btn-secondary btn-sm">Ver</a>
+                                <a href="{% url 'catalogos:servicio-update' servicio.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+                                <a href="{% url 'catalogos:servicio-delete' servicio.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state"><h3>No hay servicios</h3></div>
+{% endif %}
+{% endblock %}

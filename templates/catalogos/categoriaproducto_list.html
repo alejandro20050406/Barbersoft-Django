@@ -1,0 +1,79 @@
+{% extends "crud_base.html" %}
+{% load static %}
+
+{% block title %}Categorías de Productos - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Categorías de Productos</h1>
+        <p class="page-subtitle">Gestionar categorías de productos</p>
+    </div>
+    <div class="action-buttons">
+        <a href="{% url 'catalogos:categoria-create' %}" class="btn btn-primary">+ Crear Categoría</a>
+    </div>
+</div>
+
+<div class="filters-section">
+    <form method="get" class="filter-group">
+        <div class="form-group" style="flex: 1;">
+            <label for="id_search">Buscar</label>
+            <input type="text" name="search" id="id_search" value="{{ request.GET.search }}" placeholder="Buscar por nombre...">
+        </div>
+        <button type="submit" class="btn btn-secondary btn-sm">Buscar</button>
+    </form>
+</div>
+
+{% if categorias %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for categoria in categorias %}
+                    <tr>
+                        <td>#{{ categoria.id }}</td>
+                        <td><strong>{{ categoria.nombre }}</strong></td>
+                        <td>{{ categoria.descripcion|truncatewords:10 }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{% url 'catalogos:categoria-detail' categoria.pk %}" class="btn btn-secondary btn-sm">Ver</a>
+                                <a href="{% url 'catalogos:categoria-update' categoria.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+                                <a href="{% url 'catalogos:categoria-delete' categoria.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if is_paginated %}
+        <nav class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">« Primera</a>
+                <a href="?page={{ page_obj.previous_page_number }}">‹ Anterior</a>
+            {% endif %}
+
+            <span class="current">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Siguiente ›</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">Última »</a>
+            {% endif %}
+        </nav>
+    {% endif %}
+{% else %}
+    <div class="empty-state">
+        <h3>No hay categorías</h3>
+        <p>No se encontraron categorías de productos para mostrar.</p>
+        <a href="{% url 'catalogos:categoria-create' %}" class="btn btn-primary">Crear la primera</a>
+    </div>
+{% endif %}
+{% endblock %}

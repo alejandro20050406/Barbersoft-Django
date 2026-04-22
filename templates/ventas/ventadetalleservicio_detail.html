@@ -1,0 +1,14 @@
+{% extends "crud_base.html" %}
+
+{% block title %}Detalle de Servicio #{{ detalle_servicio.id }} - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="detail-section">
+    <div class="detail-grid">
+        <div class="detail-item"><span class="detail-label">Venta</span><span class="detail-value">#{{ detalle_servicio.venta.id }}</span></div>
+        <div class="detail-item"><span class="detail-label">Servicio</span><span class="detail-value">{{ detalle_servicio.servicio.nombre }}</span></div>
+        <div class="detail-item"><span class="detail-label">Precio Unitario</span><span class="detail-value">${{ detalle_servicio.precio_unitario }}</span></div>
+        <div class="detail-item"><span class="detail-label">Subtotal</span><span class="detail-value">${{ detalle_servicio.subtotal }}</span></div>
+    </div>
+</div>
+{% endblock %}

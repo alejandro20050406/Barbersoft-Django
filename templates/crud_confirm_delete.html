@@ -1,0 +1,20 @@
+{% extends "crud_base.html" %}
+{% load static %}
+
+{% block title %}Eliminar - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="confirm-delete">
+    <h2>⚠️ Eliminar registro</h2>
+    <p>¿Está seguro de que desea eliminar <strong>{{ object }}</strong>?</p>
+    <p style="color: #dc3545; font-weight: 600;">Esta acción no se puede deshacer.</p>
+    
+    <form method="post" style="margin-top: 2rem;">
+        {% csrf_token %}
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="{{ back_url }}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

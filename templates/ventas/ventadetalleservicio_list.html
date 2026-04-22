@@ -1,0 +1,32 @@
+{% extends "crud_base.html" %}
+
+{% block title %}Detalles de Servicios - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Detalles de Servicios en Ventas</h1>
+</div>
+
+{% if detalles_servicios %}
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Venta</th><th>Servicio</th><th>Precio Unitario</th><th>Subtotal</th><th>Acciones</th></tr></thead>
+            <tbody>
+                {% for det in detalles_servicios %}
+                    <tr>
+                        <td>#{{ det.venta.id }}</td>
+                        <td>{{ det.servicio.nombre }}</td>
+                        <td>${{ det.precio_unitario }}</td>
+                        <td>${{ det.subtotal }}</td>
+                        <td>
+                            <a href="{% url 'ventas:ventadetalleservicio-delete' det.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state"><h3>No hay detalles de servicios</h3></div>
+{% endif %}
+{% endblock %}

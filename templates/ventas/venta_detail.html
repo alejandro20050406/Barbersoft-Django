@@ -1,0 +1,61 @@
+{% extends "crud_base.html" %}
+
+{% block title %}Venta #{{ venta.id }} - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Venta #{{ venta.id }}</h1>
+    <div class="action-buttons">
+        <a href="{% url 'ventas:venta-list' %}" class="btn btn-secondary">← Volver</a>
+        <a href="{% url 'ventas:venta-update' venta.pk %}" class="btn btn-secondary">Editar</a>
+    </div>
+</div>
+
+<div class="detail-section">
+    <h3>Información de la Venta</h3>
+    <div class="detail-grid">
+        <div class="detail-item"><span class="detail-label">Venta</span><span class="detail-value">#{{ venta.id }}</span></div>
+        <div class="detail-item"><span class="detail-label">Fecha</span><span class="detail-value">{{ venta.fecha|date:"d/m/Y H:i" }}</span></div>
+        <div class="detail-item"><span class="detail-label">Cliente</span><span class="detail-value">{{ venta.cliente.nombre }} {{ venta.cliente.apellido }}</span></div>
+        <div class="detail-item"><span class="detail-label">Empleado</span><span class="detail-value">{{ venta.empleado.nombre }} {{ venta.empleado.apellido }}</span></div>
+        <div class="detail-item"><span class="detail-label">Método de Pago</span><span class="detail-value">{{ venta.metodo_de_pago.nombre }}</span></div>
+        <div class="detail-item"><span class="detail-label">Total</span><span class="detail-value" style="font-weight: bold; font-size: 1.2rem;">${{ venta.total }}</span></div>
+    </div>
+</div>
+
+{% if detalles_productos %}
+    <div class="detail-section">
+        <h3>Productos</h3>
+        <table style="width: 100%;">
+            <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio Unitario</th><th>Subtotal</th></tr></thead>
+            <tbody>
+                {% for det in detalles_productos %}<tr><td>{{ det.producto.nombre }}</td><td>{{ det.cantidad }}</td><td>${{ det.precio_unitario }}</td><td>${{ det.subtotal }}</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+
+{% if detalles_servicios %}
+    <div class="detail-section">
+        <h3>Servicios</h3>
+        <table style="width: 100%;">
+            <thead><tr><th>Servicio</th><th>Precio</th><th>Subtotal</th></tr></thead>
+            <tbody>
+                {% for det in detalles_servicios %}<tr><td>{{ det.servicio.nombre }}</td><td>${{ det.precio_unitario }}</td><td>${{ det.subtotal }}</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+
+{% if pagos %}
+    <div class="detail-section">
+        <h3>Pagos</h3>
+        <table style="width: 100%;">
+            <thead><tr><th>Método</th><th>Monto</th><th>Fecha</th></tr></thead>
+            <tbody>
+                {% for pago in pagos %}<tr><td>{{ pago.metodo_de_pago.nombre }}</td><td>${{ pago.monto }}</td><td>{{ pago.fecha|date:"d/m/Y" }}</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+{% endblock %}

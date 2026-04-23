@@ -3,28 +3,45 @@
 {% block title %}Menu del Administrador | BarberSoft{% endblock title %}
 
 {% block content %}
-<section class="legacy-auth-shell">
-    <article class="legacy-window">
-        <div class="legacy-window-title">Administrador | Menu Principal</div>
-        <div class="legacy-window-body">
-            <p class="legacy-copy">
-                Accesos de administracion disponibles segun el diagrama del sistema.
-            </p>
+<section class="section-header">
+    <p class="eyebrow">Administrador</p>
+    <h1>Menu Principal</h1>
+    <p>Accesos de administracion disponibles segun el diagrama del sistema.</p>
+</section>
 
-            <div class="legacy-module-grid">
-                <a class="legacy-btn legacy-btn-main" href="{% url 'ventas:venta-create' %}">Venta de Producto</a>
-                <a class="legacy-btn legacy-btn-main" href="{% url 'ventas:venta-create' %}">Venta de Servicio</a>
-                <a class="legacy-btn legacy-btn-main" href="{% url 'empleados:empleado-list' %}">Gestion de Empleados</a>
-                <a class="legacy-btn legacy-btn-main" href="{% url 'catalogos:producto-list' %}">Gestion de Productos</a>
-                <a class="legacy-btn legacy-btn-main" href="{% url 'catalogos:servicio-list' %}">Gestion de Servicios</a>
-                <a class="legacy-btn legacy-btn-main" href="{% url 'catalogos:categoria-list' %}">Categorias de Productos</a>
-                <a class="legacy-btn legacy-btn-main" href="{% url 'catalogos:tiposervicio-list' %}">Categorias de Servicios</a>
-                <a class="legacy-btn legacy-btn-main" href="{% url 'clientes:cliente-list' %}">Gestion de Clientes</a>
-                <a class="legacy-btn legacy-btn-main" href="{% url 'ventas:venta-list' %}">Gestion de Ventas</a>
-                <a class="legacy-btn legacy-btn-main" href="{% url 'reportes:dashboard' %}">Reportes</a>
-                <a class="legacy-btn legacy-btn-secondary" href="{% url 'accounts:home' %}">Dashboard General</a>
-            </div>
-        </div>
-    </article>
+<section class="module-grid">
+    <a class="module-card" href="{% url 'ventas:venta-create' %}">
+        <h2>Venta de Producto</h2>
+    </a>
+    <a class="module-card" href="{% url 'ventas:venta-create' %}">
+        <h2>Venta de Servicio</h2>
+    </a>
+    <a class="module-card" href="{% url 'empleados:empleado-list' %}">
+        <h2>Gestion de Empleados</h2>
+    </a>
+    <a class="module-card" href="{% url 'catalogos:producto-list' %}">
+        <h2>Gestion de Productos</h2>
+    </a>
+    <a class="module-card" href="{% url 'catalogos:servicio-list' %}">
+        <h2>Gestion de Servicios</h2>
+    </a>
+    <a class="module-card" href="{% url 'catalogos:categoria-list' %}">
+        <h2>Categorias de Productos</h2>
+    </a>
+    <a class="module-card" href="{% url 'catalogos:tiposervicio-list' %}">
+        <h2>Categorias de Servicios</h2>
+    </a>
+    <a class="module-card" href="{% url 'clientes:cliente-list' %}">
+        <h2>Gestion de Clientes</h2>
+    </a>
+    <a class="module-card" href="{% url 'ventas:venta-list' %}">
+        <h2>Gestion de Ventas</h2>
+    </a>
+    <a class="module-card" href="{% url 'reportes:dashboard' %}">
+        <h2>Reportes</h2>
+    </a>
+    <a class="module-card" href="{% url 'accounts:home' %}">
+        <h2>Dashboard General</h2>
+    </a>
 </section>
 {% endblock content %}

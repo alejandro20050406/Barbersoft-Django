@@ -3,21 +3,24 @@
 {% block title %}Menu del Empleado | BarberSoft{% endblock title %}
 
 {% block content %}
-<section class="legacy-auth-shell">
-    <article class="legacy-window">
-        <div class="legacy-window-title">Empleado | Menu Principal</div>
-        <div class="legacy-window-body">
-            <p class="legacy-copy">
-                Accesos operativos disponibles para empleado normal.
-            </p>
+<section class="section-header">
+    <p class="eyebrow">Empleado</p>
+    <h1>Menu Principal</h1>
+    <p>Accesos operativos disponibles para empleado normal.</p>
+</section>
 
-            <div class="legacy-module-grid legacy-module-grid-small">
-                <a class="legacy-btn legacy-btn-main" href="{% url 'ventas:venta-create' %}">Venta de Producto</a>
-                <a class="legacy-btn legacy-btn-main" href="{% url 'ventas:venta-create' %}">Venta de Servicio</a>
-                <a class="legacy-btn legacy-btn-main" href="{% url 'ventas:dashboard' %}">Corte de Caja</a>
-                <a class="legacy-btn legacy-btn-main" href="{% url 'ventas:venta-list' %}">Mis Ventas</a>
-            </div>
-        </div>
-    </article>
+<section class="module-grid">
+    <a class="module-card" href="{% url 'ventas:venta-create' %}">
+        <h2>Venta de Producto</h2>
+    </a>
+    <a class="module-card" href="{% url 'ventas:venta-create' %}">
+        <h2>Venta de Servicio</h2>
+    </a>
+    <a class="module-card" href="{% url 'ventas:dashboard' %}">
+        <h2>Corte de Caja</h2>
+    </a>
+    <a class="module-card" href="{% url 'ventas:venta-list' %}">
+        <h2>Mis Ventas</h2>
+    </a>
 </section>
 {% endblock content %}

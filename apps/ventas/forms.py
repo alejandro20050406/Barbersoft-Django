@@ -9,7 +9,7 @@ class VentaForm(forms.ModelForm):
         fields = ["empleado", "cliente", "metodo_de_pago", "fecha", "total"]
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date'}),
-            'total': forms.NumberInput(attrs={'step': '0.01'}),
+            'total': forms.NumberInput(attrs={'step': '0.01', 'readonly': 'readonly'}),
         }
 
 

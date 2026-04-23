@@ -3,14 +3,18 @@ from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
 from django.urls import reverse_lazy
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
+from django.http import HttpResponseRedirect
+from decimal import Decimal
 
 from .models import Comision, Pago, Venta, Visita, VentaDetalleProducto, VentaDetalleServicio
 from .forms import (
     ComisionForm, PagoForm, VentaForm, VisitaForm,
     VentaDetalleProductoForm, VentaDetalleServicioForm
 )
+from apps.catalogos.models import Producto, Servicio
 
 
 def dashboard_ventas(request):
@@ -66,6 +70,81 @@ class VentaCreateView(SuccessMessageMixin, CreateView):
     success_url = reverse_lazy('ventas:venta-list')
     success_message = "Venta creada exitosamente"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['productos'] = list(
+            Producto.objects.filter(activo=True).values('id', 'nombre', 'precio_venta')
+        )
+        context['servicios'] = list(
+            Servicio.objects.filter(activo=True).values('id', 'nombre', 'precio')
+        )
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        item_types = self.request.POST.getlist('item_type')
+        item_ids = self.request.POST.getlist('item_id')
+        item_quantities = self.request.POST.getlist('item_quantity')
+
+        tiene_items = any(
+            item_type and item_id and item_quantity
+            for item_type, item_id, item_quantity in zip(item_types, item_ids, item_quantities)
+        )
+        if not tiene_items:
+            form.add_error(None, 'Agrega al menos un producto o servicio para esta venta.')
+            return self.form_invalid(form)
+
+        total = Decimal('0.00')
+        self.object.total = total
+        self.object.save()
+
+        for item_type, item_id, item_quantity in zip(item_types, item_ids, item_quantities):
+            if not item_type or not item_id or not item_quantity:
+                continue
+            try:
+                quantity = int(item_quantity)
+            except ValueError:
+                continue
+            if quantity <= 0:
+                continue
+
+            if item_type == 'producto':
+                producto = Producto.objects.filter(id=item_id, activo=True).first()
+                if not producto:
+                    continue
+                precio = producto.precio_venta
+                subtotal = precio * quantity
+                VentaDetalleProducto.objects.create(
+                    venta=self.object,
+                    producto=producto,
+                    cantidad=quantity,
+                    precio_unitario=precio,
+                    subtotal=subtotal,
+                )
+            elif item_type == 'servicio':
+                servicio = Servicio.objects.filter(id=item_id, activo=True).first()
+                if not servicio:
+                    continue
+                precio = servicio.precio
+                subtotal = precio * quantity
+                VentaDetalleServicio.objects.create(
+                    venta=self.object,
+                    servicio=servicio,
+                    precio_unitario=precio,
+                    subtotal=subtotal,
+                )
+            else:
+                continue
+
+            total += subtotal
+
+        self.object.total = total
+        self.object.save(update_fields=['total'])
+        success_message = self.get_success_message(form.cleaned_data)
+        if success_message:
+            messages.success(self.request, success_message)
+        return HttpResponseRedirect(self.get_success_url())
+
 
 class VentaUpdateView(SuccessMessageMixin, UpdateView):
     model = Venta
@@ -73,6 +152,16 @@ class VentaUpdateView(SuccessMessageMixin, UpdateView):
     template_name = 'ventas/venta_form.html'
     success_url = reverse_lazy('ventas:venta-list')
     success_message = "Venta actualizada exitosamente"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['productos'] = list(
+            Producto.objects.filter(activo=True).values('id', 'nombre', 'precio_venta')
+        )
+        context['servicios'] = list(
+            Servicio.objects.filter(activo=True).values('id', 'nombre', 'precio')
+        )
+        return context
 
 
 class VentaDeleteView(SuccessMessageMixin, DeleteView):

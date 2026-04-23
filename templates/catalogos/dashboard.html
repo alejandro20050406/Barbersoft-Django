@@ -53,7 +53,7 @@
 <section class="split-grid">
     <article class="panel">
         <div class="panel-header">
-            <h2>Productos recientes</h2>
+            <h2>Productos</h2>
             <a href="{% url 'catalogos:producto-create' %}" class="btn-add">+ Añadir</a>
         </div>
         <table class="table">
@@ -66,7 +66,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for producto in productos_recientes %}
+                {% for producto in productos %}
                 <tr>
                     <td>{{ producto.nombre }}</td>
                     <td>{{ producto.categoria.nombre }}</td>
@@ -81,7 +81,7 @@
     </article>
     <article class="panel">
         <div class="panel-header">
-            <h2>Servicios recientes</h2>
+            <h2>Servicios</h2>
             <a href="{% url 'catalogos:servicio-create' %}" class="btn-add">+ Añadir</a>
         </div>
         <table class="table">
@@ -93,7 +93,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for servicio in servicios_recientes %}
+                {% for servicio in servicios %}
                 <tr>
                     <td>{{ servicio.nombre }}</td>
                     <td>{{ servicio.tipo.nombre }}</td>

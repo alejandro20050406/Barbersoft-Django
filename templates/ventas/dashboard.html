@@ -15,6 +15,13 @@
     <article class="stat-card"><h3>Comisiones</h3><p>{{ total_comisiones }}</p></article>
 </section>
 
+<section class="actions-grid">
+    <a href="{% url 'ventas:venta-list' %}" class="btn btn-primary">Gestionar Ventas</a>
+    <a href="{% url 'ventas:pago-list' %}" class="btn btn-primary">Gestionar Pagos</a>
+    <a href="{% url 'ventas:visita-list' %}" class="btn btn-primary">Gestionar Visitas</a>
+    <a href="{% url 'ventas:comision-list' %}" class="btn btn-primary">Gestionar Comisiones</a>
+</section>
+
 <article class="panel">
     <h2>Ultimas ventas</h2>
     <table class="table">

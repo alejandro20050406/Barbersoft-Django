@@ -56,8 +56,7 @@ class VisitaForm(forms.ModelForm):
 class ComisionForm(forms.ModelForm):
     class Meta:
         model = Comision
-        fields = ["empleado", "venta", "venta_detalle_producto", "venta_detalle_servicio", "porcentaje", "monto"]
+        fields = ["empleado", "venta", "venta_detalle_producto", "venta_detalle_servicio", "porcentaje"]
         widgets = {
             'porcentaje': forms.NumberInput(attrs={'step': '0.01'}),
-            'monto': forms.NumberInput(attrs={'step': '0.01'}),
         }

@@ -191,6 +191,7 @@ class Comision(models.Model):
     porcentaje=models.DecimalField(
         max_digits=5,
         decimal_places=2, 
+        default=85.00,
         verbose_name='Porcentaje (%)'
     )
     monto=models.DecimalField(
@@ -218,6 +219,16 @@ class Comision(models.Model):
                 'Una comisión no puede estar asociada simultáneamente '
                 'a un detalle de producto y a un detalle de servicio.'
             )
+
+    def save(self, *args, **kwargs):
+        if self.venta_detalle_producto:
+            base = self.venta_detalle_producto.subtotal
+        elif self.venta_detalle_servicio:
+            base = self.venta_detalle_servicio.subtotal
+        else:
+            base = 0
+        self.monto = (self.porcentaje / 100) * base
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'Comisión #{self.pk} — Empleado {self.empleado_id}'  

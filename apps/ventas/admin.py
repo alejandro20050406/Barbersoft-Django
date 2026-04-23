@@ -117,6 +117,7 @@ class ComisionAdmin(admin.ModelAdmin):
     list_filter = ('empleado', 'venta__fecha')
     search_fields = ('empleado__nombre', 'venta__id')
     list_per_page = 20
+    readonly_fields = ('monto',)
     
     fieldsets = (
         ('Información de la comisión', {

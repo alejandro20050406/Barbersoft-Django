@@ -10,7 +10,10 @@
 
 <section class="split-grid">
     <article class="panel">
-        <h2>Categorias de producto</h2>
+        <div class="panel-header">
+            <h2>Categorias de producto</h2>
+            <a href="{% url 'catalogos:categoria-create' %}" class="btn-add">+ Añadir</a>
+        </div>
         <ul>
             {% for item in categorias %}
             <li>{{ item.nombre }}</li>
@@ -20,7 +23,10 @@
         </ul>
     </article>
     <article class="panel">
-        <h2>Metodos de pago</h2>
+        <div class="panel-header">
+            <h2>Metodos de pago</h2>
+            <a href="{% url 'catalogos:metodopago-create' %}" class="btn-add">+ Añadir</a>
+        </div>
         <ul>
             {% for item in metodos_pago %}
             <li>{{ item.nombre }}</li>
@@ -30,7 +36,10 @@
         </ul>
     </article>
     <article class="panel">
-        <h2>Tipos de servicio</h2>
+        <div class="panel-header">
+            <h2>Tipos de servicio</h2>
+            <a href="{% url 'catalogos:tiposervicio-create' %}" class="btn-add">+ Añadir</a>
+        </div>
         <ul>
             {% for item in tipos_servicio %}
             <li>{{ item.nombre }}</li>
@@ -43,7 +52,10 @@
 
 <section class="split-grid">
     <article class="panel">
-        <h2>Productos recientes</h2>
+        <div class="panel-header">
+            <h2>Productos recientes</h2>
+            <a href="{% url 'catalogos:producto-create' %}" class="btn-add">+ Añadir</a>
+        </div>
         <table class="table">
             <thead>
                 <tr>
@@ -68,7 +80,10 @@
         </table>
     </article>
     <article class="panel">
-        <h2>Servicios recientes</h2>
+        <div class="panel-header">
+            <h2>Servicios recientes</h2>
+            <a href="{% url 'catalogos:servicio-create' %}" class="btn-add">+ Añadir</a>
+        </div>
         <table class="table">
             <thead>
                 <tr>

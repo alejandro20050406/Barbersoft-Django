@@ -32,15 +32,11 @@ class VentaAdmin(admin.ModelAdmin):
     search_fields = ('cliente__nombre', 'cliente__apellido', 'empleado__nombre')
     ordering = ('-fecha',)
     list_per_page = 20
-    readonly_fields = ('fecha_registro',)
+    readonly_fields = ()
     
     fieldsets = (
         ('Información de la venta', {
             'fields': ('cliente', 'empleado', 'metodo_de_pago', 'fecha', 'total')
-        }),
-        ('Auditoría', {
-            'fields': ('fecha_registro',),
-            'classes': ('collapse',)
         }),
     )
     

@@ -278,3 +278,354 @@ table.table {
 .btn-add:hover {
     background: var(--accent-dark);
 }
+
+.alerts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.alert {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--line);
+    background: #f3eee5;
+}
+
+.alert-success {
+    background: #e7f4e8;
+    border-color: #cde3cf;
+    color: #245a2f;
+}
+
+.alert-error,
+.alert-danger {
+    background: #fdebec;
+    border-color: #efc7cb;
+    color: #7e2c1f;
+}
+
+.alert-info {
+    background: #e5f0fb;
+    border-color: #c7dbf0;
+    color: #1f4f7e;
+}
+
+.alert-warning {
+    background: #fff5d8;
+    border-color: #ecd9a0;
+    color: #7f5b0d;
+}
+
+.alert .close {
+    background: transparent;
+    border: 0;
+    font-size: 1rem;
+    cursor: pointer;
+    color: inherit;
+}
+
+.auth-shell {
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+.auth-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.auth-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.1rem;
+}
+
+.auth-card h1,
+.auth-card h2 {
+    margin: 0.2rem 0 0.55rem;
+}
+
+.auth-card p {
+    margin: 0 0 0.8rem;
+    color: var(--muted);
+}
+
+.auth-card-form {
+    margin: 1rem auto;
+}
+
+.role-chip {
+    display: inline-block;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #3d3124;
+    background: #efe5d6;
+}
+
+.role-chip-admin {
+    background: #f8e6de;
+    border-color: #e4bea9;
+    color: #7e2c1f;
+}
+
+.role-chip-employee {
+    background: #e5f1eb;
+    border-color: #bdd8cb;
+    color: #245a45;
+}
+
+.auth-form {
+    display: grid;
+    gap: 0.85rem;
+    margin-top: 1rem;
+}
+
+.auth-form .form-row {
+    display: grid;
+    gap: 0.4rem;
+}
+
+.auth-form label {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.form-control {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.6rem 0.7rem;
+    font: inherit;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(180, 66, 46, 0.12);
+}
+
+.field-error {
+    color: #8b2e25;
+    font-size: 0.82rem;
+}
+
+.auth-actions {
+    display: flex;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+}
+
+.auth-menu-centered .section-header {
+    text-align: center;
+}
+
+.auth-menu-centered .auth-card {
+    text-align: center;
+}
+
+.auth-menu-centered .auth-actions {
+    justify-content: center;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-secondary-inline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.55rem 0.95rem;
+    border-radius: 10px;
+    text-decoration: none;
+    border: 1px solid transparent;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: var(--accent-dark);
+}
+
+.btn-secondary,
+.btn-secondary-inline {
+    background: #fff;
+    color: #3f352a;
+    border-color: var(--line);
+}
+
+.btn-secondary:hover,
+.btn-secondary-inline:hover {
+    border-color: var(--accent);
+}
+
+/* Legacy interface style for access/login menus */
+.legacy-auth-shell {
+    max-width: 980px;
+    margin: 1rem auto 0;
+}
+
+.legacy-window {
+    border: 1px solid #7d7d7d;
+    background: #d8d8d8;
+    box-shadow: 0 12px 24px rgba(42, 32, 20, 0.2);
+    font-family: Tahoma, "Segoe UI", Verdana, sans-serif;
+}
+
+.legacy-window-login {
+    max-width: 620px;
+    margin: 0 auto;
+}
+
+.legacy-window-title {
+    background: linear-gradient(180deg, #1a36c8, #0e2390);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.98rem;
+    padding: 0.5rem 0.8rem;
+    letter-spacing: 0.01em;
+}
+
+.legacy-window-body {
+    padding: 1rem 1.05rem 1.2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.legacy-copy {
+    margin: 0 0 1rem;
+    color: #2f2f2f;
+    font-size: 0.93rem;
+}
+
+.legacy-role-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0.9rem;
+}
+
+.legacy-role-card {
+    background: #ececec;
+    border: 1px solid #9f9f9f;
+    padding: 0.8rem;
+}
+
+.legacy-role-card h2 {
+    margin: 0 0 0.45rem;
+    font-size: 1.08rem;
+    color: #142578;
+}
+
+.legacy-role-card p {
+    margin: 0 0 0.85rem;
+    font-size: 0.9rem;
+    color: #3c3c3c;
+}
+
+.legacy-form {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.legacy-form-row {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 0.65rem;
+    align-items: center;
+}
+
+.legacy-form-row label {
+    color: #202020;
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.legacy-form-row .form-control {
+    border-radius: 0;
+    border: 1px solid #7f7f7f;
+    background: #fff;
+    padding: 0.44rem 0.52rem;
+    box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.06);
+    font-family: Tahoma, "Segoe UI", Verdana, sans-serif;
+}
+
+.legacy-form-row .form-control:focus {
+    border-color: #1a36c8;
+    box-shadow: 0 0 0 2px rgba(26, 54, 200, 0.12);
+}
+
+.legacy-actions {
+    display: flex;
+    gap: 0.7rem;
+    margin-top: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.legacy-module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 0.7rem;
+}
+
+.legacy-module-grid-small {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.legacy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.35rem;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid #7f7f7f;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #141414;
+    background: linear-gradient(180deg, #f7f7f7, #d9d9d9);
+    box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 rgba(0, 0, 0, 0.16);
+    cursor: pointer;
+}
+
+.legacy-btn:hover {
+    filter: brightness(0.98);
+    border-color: #5f5f5f;
+}
+
+.legacy-btn:active {
+    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.22);
+    transform: translateY(1px);
+}
+
+.legacy-btn-main {
+    color: #102063;
+}
+
+.legacy-btn-secondary {
+    color: #263a28;
+}
+
+@media (max-width: 680px) {
+    .legacy-window-body {
+        padding: 0.85rem;
+    }
+
+    .legacy-form-row {
+        grid-template-columns: 1fr;
+        gap: 0.35rem;
+    }
+}

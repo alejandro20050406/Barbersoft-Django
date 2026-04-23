@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Menu del Administrador | BarberSoft{% endblock title %}
+
+{% block content %}
+<section class="legacy-auth-shell">
+    <article class="legacy-window">
+        <div class="legacy-window-title">Administrador | Menu Principal</div>
+        <div class="legacy-window-body">
+            <p class="legacy-copy">
+                Accesos de administracion disponibles segun el diagrama del sistema.
+            </p>
+
+            <div class="legacy-module-grid">
+                <a class="legacy-btn legacy-btn-main" href="{% url 'ventas:venta-create' %}">Venta de Producto</a>
+                <a class="legacy-btn legacy-btn-main" href="{% url 'ventas:venta-create' %}">Venta de Servicio</a>
+                <a class="legacy-btn legacy-btn-main" href="{% url 'empleados:empleado-list' %}">Gestion de Empleados</a>
+                <a class="legacy-btn legacy-btn-main" href="{% url 'catalogos:producto-list' %}">Gestion de Productos</a>
+                <a class="legacy-btn legacy-btn-main" href="{% url 'catalogos:servicio-list' %}">Gestion de Servicios</a>
+                <a class="legacy-btn legacy-btn-main" href="{% url 'catalogos:categoria-list' %}">Categorias de Productos</a>
+                <a class="legacy-btn legacy-btn-main" href="{% url 'catalogos:tiposervicio-list' %}">Categorias de Servicios</a>
+                <a class="legacy-btn legacy-btn-main" href="{% url 'clientes:cliente-list' %}">Gestion de Clientes</a>
+                <a class="legacy-btn legacy-btn-main" href="{% url 'ventas:venta-list' %}">Gestion de Ventas</a>
+                <a class="legacy-btn legacy-btn-main" href="{% url 'reportes:dashboard' %}">Reportes</a>
+                <a class="legacy-btn legacy-btn-secondary" href="{% url 'accounts:home' %}">Dashboard General</a>
+            </div>
+        </div>
+    </article>
+</section>
+{% endblock content %}

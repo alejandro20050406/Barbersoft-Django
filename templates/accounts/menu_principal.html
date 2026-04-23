@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}BarberSoft | Menu Principal{% endblock title %}
+
+{% block content %}
+<div class="auth-shell auth-menu-centered">
+    <section class="section-header">
+        <h1>BarberSoft | Menu Principal</h1>
+        <p>Selecciona el tipo de acceso para iniciar sesion en el sistema.</p>
+    </section>
+
+    <section class="auth-grid">
+        <article class="auth-card">
+            <span class="role-chip role-chip-admin">Administrador</span>
+            <h2>Administrador</h2>
+            <p>Gestion total del sistema: ventas, catalogos, clientes, empleados y reportes.</p>
+            <div class="auth-actions">
+                <a class="btn-primary" href="{% url 'accounts:login-admin' %}">
+                    Iniciar sesion como Administrador
+                </a>
+            </div>
+        </article>
+
+        <article class="auth-card">
+            <span class="role-chip role-chip-employee">Empleado</span>
+            <h2>Empleado</h2>
+            <p>Operacion diaria: venta de productos y servicios, corte de caja y consulta de ventas.</p>
+            <div class="auth-actions">
+                <a class="btn-primary" href="{% url 'accounts:login-empleado' %}">
+                    Iniciar sesion como Empleado
+                </a>
+            </div>
+        </article>
+    </section>
+</div>
+{% endblock content %}

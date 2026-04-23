@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Menu del Empleado | BarberSoft{% endblock title %}
+
+{% block content %}
+<section class="legacy-auth-shell">
+    <article class="legacy-window">
+        <div class="legacy-window-title">Empleado | Menu Principal</div>
+        <div class="legacy-window-body">
+            <p class="legacy-copy">
+                Accesos operativos disponibles para empleado normal.
+            </p>
+
+            <div class="legacy-module-grid legacy-module-grid-small">
+                <a class="legacy-btn legacy-btn-main" href="{% url 'ventas:venta-create' %}">Venta de Producto</a>
+                <a class="legacy-btn legacy-btn-main" href="{% url 'ventas:venta-create' %}">Venta de Servicio</a>
+                <a class="legacy-btn legacy-btn-main" href="{% url 'ventas:dashboard' %}">Corte de Caja</a>
+                <a class="legacy-btn legacy-btn-main" href="{% url 'ventas:venta-list' %}">Mis Ventas</a>
+            </div>
+        </div>
+    </article>
+</section>
+{% endblock content %}

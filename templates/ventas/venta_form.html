@@ -33,6 +33,8 @@
 
         {{ productos|json_script:"productos-data" }}
         {{ servicios|json_script:"servicios-data" }}
+        {{ categorias_producto|json_script:"categorias-producto-data" }}
+        {{ tipos_servicio|json_script:"tipos-servicio-data" }}
 
         <template id="item-row-template">
             <div class="sale-item-row">
@@ -43,6 +45,12 @@
                             <option value="">Seleccionar</option>
                             <option value="producto">Producto</option>
                             <option value="servicio">Servicio</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="item-group-label">Categoria / Tipo</label>
+                        <select class="item-group form-control">
+                            <option value="">Seleccionar primero tipo</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -80,6 +88,9 @@
 <script>
     const productos = JSON.parse(document.getElementById('productos-data').textContent);
     const servicios = JSON.parse(document.getElementById('servicios-data').textContent);
+    const categoriasProducto = JSON.parse(document.getElementById('categorias-producto-data').textContent);
+    const tiposServicio = JSON.parse(document.getElementById('tipos-servicio-data').textContent);
+    const initialItemType = '{{ initial_item_type|default:""|escapejs }}';
     const itemsList = document.getElementById('items-list');
     const itemTemplate = document.getElementById('item-row-template');
     const totalInput = document.getElementById('id_total');
@@ -88,10 +99,28 @@
         return Number(value).toFixed(2);
     }
 
-    function buildOptions(type) {
+    function buildGroupOptions(type) {
+        const options = ['<option value="">Seleccionar</option>'];
+        const list = type === 'producto' ? categoriasProducto : tiposServicio;
+        list.forEach(group => {
+            options.push(`<option value="${group.id}">${group.nombre}</option>`);
+        });
+        return options.join('');
+    }
+
+    function buildItemOptions(type, groupId) {
         const options = ['<option value="">Seleccionar</option>'];
         const list = type === 'producto' ? productos : servicios;
-        list.forEach(item => {
+        const filteredList = list.filter(item => {
+            if (!groupId) {
+                return false;
+            }
+            if (type === 'producto') {
+                return String(item.categoria_id) === String(groupId);
+            }
+            return String(item.tipo_id) === String(groupId);
+        });
+        filteredList.forEach(item => {
             const price = type === 'producto' ? item.precio_venta : item.precio;
             options.push(`<option value="${item.id}" data-price="${price}">${item.nombre} ($${formatMoney(price)})</option>`);
         });
@@ -125,19 +154,36 @@
         }
     }
 
-    function createItemRow() {
+    function createItemRow(applyInitialSelection = false) {
         const clone = itemTemplate.content.cloneNode(true);
         const row = clone.querySelector('.sale-item-row');
         const typeInput = row.querySelector('.item-type');
+        const groupLabel = row.querySelector('.item-group-label');
+        const groupInput = row.querySelector('.item-group');
         const idInput = row.querySelector('.item-id');
         const quantityInput = row.querySelector('.item-quantity');
         const removeButton = row.querySelector('.remove-item');
 
         typeInput.addEventListener('change', () => {
             if (!typeInput.value) {
+                groupLabel.textContent = 'Categoria / Tipo';
+                groupInput.innerHTML = '<option value="">Seleccionar primero tipo</option>';
+                groupInput.disabled = true;
                 idInput.innerHTML = '<option value="">Seleccionar primero tipo</option>';
             } else {
-                idInput.innerHTML = buildOptions(typeInput.value);
+                groupLabel.textContent = typeInput.value === 'producto' ? 'Categoria de producto' : 'Tipo de servicio';
+                groupInput.innerHTML = buildGroupOptions(typeInput.value);
+                groupInput.disabled = false;
+                idInput.innerHTML = '<option value="">Seleccionar primero categoria/tipo</option>';
+            }
+            updateItemRow(row);
+        });
+
+        groupInput.addEventListener('change', () => {
+            if (!typeInput.value || !groupInput.value) {
+                idInput.innerHTML = '<option value="">Seleccionar primero categoria/tipo</option>';
+            } else {
+                idInput.innerHTML = buildItemOptions(typeInput.value, groupInput.value);
             }
             updateItemRow(row);
         });
@@ -150,10 +196,15 @@
         });
 
         itemsList.appendChild(row);
+
+        if (applyInitialSelection && initialItemType && (initialItemType === 'producto' || initialItemType === 'servicio')) {
+            typeInput.value = initialItemType;
+        }
+        typeInput.dispatchEvent(new Event('change'));
     }
 
-    document.getElementById('add-item').addEventListener('click', createItemRow);
-    createItemRow();
+    document.getElementById('add-item').addEventListener('click', () => createItemRow(false));
+    createItemRow(true);
 </script>
 {% endif %}
 {% endblock %}

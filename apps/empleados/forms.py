@@ -1,4 +1,4 @@
-import re
+﻿import re
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -19,23 +19,34 @@ class EmpleadoForm(forms.ModelForm):
             "fecha_ingreso",
         ]
         widgets = {
-            "nombre":               forms.TextInput(attrs={"class": "form-control"}),
-            "apellido":             forms.TextInput(attrs={"class": "form-control"}),
-            "telefono":             forms.TextInput(attrs={"class": "form-control", "placeholder": "312-185-4639"}),
-            "correo":               forms.EmailInput(attrs={"class": "form-control"}),
-            "porcentaje_comision":  forms.NumberInput(attrs={"class": "form-control", "min": "0", "max": "100", "step": "0.01"}),
-            "estado":               forms.Select(attrs={"class": "form-select"}),
-            "fecha_ingreso":        forms.DateInput(attrs={"class": "form-control", "type": "date"}),
+            "nombre": forms.TextInput(attrs={"class": "form-control"}),
+            "apellido": forms.TextInput(attrs={"class": "form-control"}),
+            "telefono": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "312-185-4639"}
+            ),
+            "correo": forms.EmailInput(attrs={"class": "form-control"}),
+            "porcentaje_comision": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": "0",
+                    "max": "100",
+                    "step": "0.01",
+                }
+            ),
+            "estado": forms.Select(attrs={"class": "form-select"}),
+            "fecha_ingreso": forms.DateInput(
+                attrs={"class": "form-control", "type": "date"}
+            ),
         }
 
     def clean_nombre(self):
         nombre = self.cleaned_data.get("nombre", "").strip()
         if not nombre:
-            raise ValidationError("El nombre no puede estar vacío.")
+            raise ValidationError("El nombre no puede estar vacio.")
         if len(nombre) < 2:
             raise ValidationError("El nombre debe tener al menos 2 caracteres.")
         if any(char.isdigit() for char in nombre):
-            raise ValidationError("El nombre no puede contener números.")
+            raise ValidationError("El nombre no puede contener numeros.")
         return nombre
 
     def clean_apellido(self):
@@ -45,30 +56,45 @@ class EmpleadoForm(forms.ModelForm):
         if len(apellido) < 2:
             raise ValidationError("El apellido debe tener al menos 2 caracteres.")
         if any(char.isdigit() for char in apellido):
-            raise ValidationError("El apellido no puede contener números.")
+            raise ValidationError("El apellido no puede contener numeros.")
         return apellido
 
     def clean_telefono(self):
         telefono = self.cleaned_data.get("telefono", "")
         if not telefono:
-            return telefono  # opcional
+            return telefono
         telefono = telefono.strip()
-        if not re.match(r'^[\d\s\-\(\)\+]{7,20}$', telefono):
-            raise ValidationError("Ingresa un número de teléfono válido (ej: 312-185-4639).")
+        if not re.match(r"^[\d\s\-\(\)\+]{7,20}$", telefono):
+            raise ValidationError(
+                "Ingresa un numero de telefono valido (ej: 312-185-4639)."
+            )
         return telefono
 
     def clean_correo(self):
         correo = self.cleaned_data.get("correo", "")
         if not correo:
-            return correo  # opcional
-        return correo.strip().lower()
+            return correo
+
+        correo = correo.strip().lower()
+        qs = Empleado.objects.filter(correo__iexact=correo)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise ValidationError("Ya existe un empleado con ese correo.")
+        return correo
 
     def clean_porcentaje_comision(self):
         porcentaje = self.cleaned_data.get("porcentaje_comision")
         if porcentaje is None:
-            raise ValidationError("El porcentaje de comisión es obligatorio.")
+            raise ValidationError("El porcentaje de comision es obligatorio.")
         if porcentaje < 0:
             raise ValidationError("El porcentaje no puede ser negativo.")
         if porcentaje > 100:
             raise ValidationError("El porcentaje no puede ser mayor a 100.")
         return porcentaje
+
+    def clean_fecha_ingreso(self):
+        fecha_ingreso = self.cleaned_data.get("fecha_ingreso")
+        if fecha_ingreso is None:
+            raise ValidationError("La fecha de ingreso es obligatoria.")
+        return fecha_ingreso

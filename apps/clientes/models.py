@@ -1,11 +1,14 @@
+﻿import re
+
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
 class Cliente(models.Model):
     nombre = models.CharField(max_length=100, verbose_name="Nombre")
     apellido = models.CharField(max_length=100, blank=True, null=True, verbose_name="Apellido")
-    telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
-    correo = models.EmailField(blank=True, null=True, verbose_name="Correo electrónico")
+    telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Telefono")
+    correo = models.EmailField(blank=True, null=True, verbose_name="Correo electronico")
     fecha_registro = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de registro")
 
     class Meta:
@@ -26,3 +29,13 @@ class Cliente(models.Model):
             self.apellido = self.apellido.strip()
         if self.telefono:
             self.telefono = self.telefono.strip()
+        if self.correo:
+            self.correo = self.correo.strip().lower()
+
+        if not self.nombre:
+            raise ValidationError({"nombre": "El nombre es obligatorio."})
+
+        if self.telefono and not re.match(r"^[\d\s\-\(\)\+]{7,20}$", self.telefono):
+            raise ValidationError(
+                {"telefono": "Ingresa un numero de telefono valido."}
+            )

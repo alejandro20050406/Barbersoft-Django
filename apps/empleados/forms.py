@@ -29,7 +29,7 @@ class EmpleadoForm(forms.ModelForm):
                     "minlength": "10",
                     "inputmode": "numeric",
                     "pattern": r"\d{10}",
-                    "title": "Ingresa exactamente 10 digitos",
+                    "title": "Ingresa exactamente 10 dígitos",
                 }
             ),
             "correo": forms.EmailInput(attrs={"class": "form-control"}),
@@ -50,11 +50,11 @@ class EmpleadoForm(forms.ModelForm):
     def clean_nombre(self):
         nombre = self.cleaned_data.get("nombre", "").strip()
         if not nombre:
-            raise ValidationError("El nombre no puede estar vacio.")
+            raise ValidationError("El nombre no puede estar vacío.")
         if len(nombre) < 2:
             raise ValidationError("El nombre debe tener al menos 2 caracteres.")
         if any(char.isdigit() for char in nombre):
-            raise ValidationError("El nombre no puede contener numeros.")
+            raise ValidationError("El nombre no puede contener números.")
         return nombre
 
     def clean_apellido(self):
@@ -64,7 +64,7 @@ class EmpleadoForm(forms.ModelForm):
         if len(apellido) < 2:
             raise ValidationError("El apellido debe tener al menos 2 caracteres.")
         if any(char.isdigit() for char in apellido):
-            raise ValidationError("El apellido no puede contener numeros.")
+            raise ValidationError("El apellido no puede contener números.")
         return apellido
 
     def clean_telefono(self):
@@ -73,7 +73,7 @@ class EmpleadoForm(forms.ModelForm):
             return telefono
         telefono_limpio = re.sub(r"\D", "", telefono.strip())
         if len(telefono_limpio) != 10:
-            raise ValidationError("Numero de telefono invalido. Debe tener exactamente 10 digitos.")
+            raise ValidationError("Número de teléfono inválido. Debe tener exactamente 10 dígitos.")
         return telefono_limpio
 
     def clean_correo(self):
@@ -92,7 +92,7 @@ class EmpleadoForm(forms.ModelForm):
     def clean_porcentaje_comision(self):
         porcentaje = self.cleaned_data.get("porcentaje_comision")
         if porcentaje is None:
-            raise ValidationError("El porcentaje de comision es obligatorio.")
+            raise ValidationError("El porcentaje de comisión es obligatorio.")
         if porcentaje < 0:
             raise ValidationError("El porcentaje no puede ser negativo.")
         if porcentaje > 100:

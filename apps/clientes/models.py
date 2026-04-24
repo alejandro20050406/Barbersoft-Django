@@ -7,8 +7,8 @@ from django.db import models
 class Cliente(models.Model):
     nombre = models.CharField(max_length=100, verbose_name="Nombre")
     apellido = models.CharField(max_length=100, blank=True, null=True, verbose_name="Apellido")
-    telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Telefono")
-    correo = models.EmailField(blank=True, null=True, verbose_name="Correo electronico")
+    telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
+    correo = models.EmailField(blank=True, null=True, verbose_name="Correo electrónico")
     fecha_registro = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de registro")
 
     class Meta:
@@ -31,7 +31,7 @@ class Cliente(models.Model):
             telefono_limpio = re.sub(r"\D", "", self.telefono.strip())
             if len(telefono_limpio) != 10:
                 raise ValidationError(
-                    {"telefono": "Numero de telefono invalido. Debe tener exactamente 10 digitos."}
+                    {"telefono": "Número de teléfono inválido. Debe tener exactamente 10 dígitos."}
                 )
             self.telefono = telefono_limpio
         if self.correo:

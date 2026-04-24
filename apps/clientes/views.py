@@ -34,6 +34,9 @@ class ClienteListView(ListView):
                 Q(telefono__icontains=search) |
                 Q(correo__icontains=search)
             )
+        order = self.request.GET.get('order')
+        if order == 'historial':
+            queryset = queryset.order_by('-total_visitas')
         return queryset
 
 

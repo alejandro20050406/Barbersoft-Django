@@ -6,13 +6,14 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q, Sum
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
 from apps.accounts.roles import is_admin_user, is_employee_user
 from apps.catalogos.models import CategoriaProducto, Producto, Servicio, TipoServicio
+from apps.clientes.models import Cliente
 from apps.empleados.models import Empleado
 
 from .forms import (
@@ -850,3 +851,29 @@ class VentaDetalleServicioDeleteView(SuccessMessageMixin, DeleteView):
         context = super().get_context_data(**kwargs)
         context["back_url"] = self.success_url
         return context
+
+
+def api_clientes_search(request):
+    """API endpoint que devuelve clientes filtrados por búsqueda."""
+    query = request.GET.get('q', '').strip()
+    if not query or len(query) < 2:
+        return JsonResponse({'results': []})
+    
+    clientes = Cliente.objects.filter(
+        Q(nombre__icontains=query) | Q(apellido__icontains=query)
+    ).values('id', 'nombre', 'apellido', 'telefono')[:20]
+    
+    results = []
+    for cliente in clientes:
+        full_name = cliente['nombre']
+        if cliente['apellido']:
+            full_name += f" {cliente['apellido']}"
+        if cliente['telefono']:
+            full_name += f" ({cliente['telefono']})"
+        
+        results.append({
+            'id': cliente['id'],
+            'text': full_name
+        })
+    
+    return JsonResponse({'results': results})

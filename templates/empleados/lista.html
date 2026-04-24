@@ -5,7 +5,7 @@
 {% block content %}
 <section class="section-header">
     <h1>Empleados</h1>
-    <p>Listado inicial para construir altas, bajas y control de comisiones.</p>
+    <p>Listado inicial para construir altas, bajas y control de empleados.</p>
 </section>
 
 <article class="panel">
@@ -14,9 +14,8 @@
             <tr>
                 <th>Nombre</th>
                 <th>Apellido</th>
-                <th>Telefono</th>
+                <th>Teléfono</th>
                 <th>Correo</th>
-                <th>Comision</th>
                 <th>Estado</th>
             </tr>
         </thead>
@@ -27,11 +26,10 @@
                 <td>{{ empleado.apellido|upper }}</td>
                 <td>{{ empleado.telefono|default:"-" }}</td>
                 <td>{{ empleado.correo|default:"-" }}</td>
-                <td>{{ empleado.porcentaje_comision }}%</td>
                 <td>{{ empleado.estado }}</td>
             </tr>
             {% empty %}
-            <tr><td colspan="6">Sin empleados registrados.</td></tr>
+            <tr><td colspan="5">Sin empleados registrados.</td></tr>
             {% endfor %}
         </tbody>
     </table>

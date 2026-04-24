@@ -63,22 +63,6 @@ class EmpleadoUpdateView(SuccessMessageMixin, UpdateView):
     success_url = reverse_lazy("empleados:empleado-list")
     success_message = "Empleado actualizado exitosamente"
 
-    def form_valid(self, form):
-        empleado_actual = self.get_object()
-        nuevo_porcentaje = form.cleaned_data.get("porcentaje_comision")
-
-        if (
-            empleado_actual.comisiones.exists()
-            and nuevo_porcentaje != empleado_actual.porcentaje_comision
-        ):
-            form.add_error(
-                "porcentaje_comision",
-                "No puedes modificar la comision porque ya existen comisiones historicas.",
-            )
-            return self.form_invalid(form)
-
-        return super().form_valid(form)
-
 
 class EmpleadoDeleteView(SuccessMessageMixin, DeleteView):
     model = Empleado

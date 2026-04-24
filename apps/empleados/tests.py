@@ -13,7 +13,6 @@ class EmpleadoTelefonoValidationTests(SimpleTestCase):
                 "apellido": "Rocha",
                 "telefono": "3123431",
                 "correo": "",
-                "porcentaje_comision": "10.00",
                 "estado": "activo",
                 "fecha_ingreso": "2026-04-23",
             }
@@ -29,7 +28,6 @@ class EmpleadoTelefonoValidationTests(SimpleTestCase):
                 "apellido": "Castellanos",
                 "telefono": "312-887-9000",
                 "correo": "",
-                "porcentaje_comision": "0.00",
                 "estado": "activo",
                 "fecha_ingreso": "2026-04-23",
             }

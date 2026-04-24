@@ -14,7 +14,6 @@ class EmpleadoForm(forms.ModelForm):
             "apellido",
             "telefono",
             "correo",
-            "porcentaje_comision",
             "estado",
             "fecha_ingreso",
         ]
@@ -33,14 +32,6 @@ class EmpleadoForm(forms.ModelForm):
                 }
             ),
             "correo": forms.EmailInput(attrs={"class": "form-control"}),
-            "porcentaje_comision": forms.NumberInput(
-                attrs={
-                    "class": "form-control",
-                    "min": "0",
-                    "max": "100",
-                    "step": "0.01",
-                }
-            ),
             "estado": forms.Select(attrs={"class": "form-select"}),
             "fecha_ingreso": forms.DateInput(
                 attrs={"class": "form-control", "type": "date"}
@@ -88,16 +79,6 @@ class EmpleadoForm(forms.ModelForm):
         if qs.exists():
             raise ValidationError("Ya existe un empleado con ese correo.")
         return correo
-
-    def clean_porcentaje_comision(self):
-        porcentaje = self.cleaned_data.get("porcentaje_comision")
-        if porcentaje is None:
-            raise ValidationError("El porcentaje de comisión es obligatorio.")
-        if porcentaje < 0:
-            raise ValidationError("El porcentaje no puede ser negativo.")
-        if porcentaje > 100:
-            raise ValidationError("El porcentaje no puede ser mayor a 100.")
-        return porcentaje
 
     def clean_fecha_ingreso(self):
         fecha_ingreso = self.cleaned_data.get("fecha_ingreso")

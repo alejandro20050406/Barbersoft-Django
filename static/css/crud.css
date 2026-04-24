@@ -132,6 +132,13 @@
     min-height: 100px;
 }
 
+.error-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.35rem;
+}
+
 /* Tables */
 .table-container {
     overflow-x: auto;

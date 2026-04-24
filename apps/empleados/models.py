@@ -1,4 +1,4 @@
-import re
+﻿import re
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -58,6 +58,6 @@ class Empleado(models.Model):
             telefono_limpio = re.sub(r"\D", "", self.telefono.strip())
             if len(telefono_limpio) != 10:
                 raise ValidationError(
-                    {"telefono": "El numero de telefono debe tener exactamente 10 digitos."}
+                    {"telefono": "Número de teléfono inválido. Debe tener exactamente 10 dígitos."}
                 )
             self.telefono = telefono_limpio

@@ -1,4 +1,4 @@
-import re
+﻿import re
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -55,7 +55,7 @@ class ClienteForm(forms.ModelForm):
 
         telefono_limpio = re.sub(r"\D", "", telefono.strip())
         if len(telefono_limpio) != 10:
-            raise ValidationError("El numero de telefono debe tener exactamente 10 digitos.")
+            raise ValidationError("Numero de telefono invalido. Debe tener exactamente 10 digitos.")
         return telefono_limpio
 
     def clean_correo(self):

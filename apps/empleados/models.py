@@ -1,4 +1,4 @@
-import re
+﻿import re
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -6,7 +6,7 @@ from django.db import models
 
 def validar_porcentaje(value):
     if value < 0 or value > 100:
-        raise ValidationError("El porcentaje de comisión debe estar entre 0 y 100.")
+        raise ValidationError("El porcentaje de comisiÃ³n debe estar entre 0 y 100.")
 
 
 class Empleado(models.Model):
@@ -21,14 +21,14 @@ class Empleado(models.Model):
 
     nombre = models.CharField(max_length=100, verbose_name="Nombre")
     apellido = models.CharField(max_length=100, verbose_name="Apellido")
-    telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
-    correo = models.EmailField(blank=True, null=True, verbose_name="Correo electrónico")
+    telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="TelÃ©fono")
+    correo = models.EmailField(blank=True, null=True, verbose_name="Correo electrÃ³nico")
     porcentaje_comision = models.DecimalField(
         max_digits=5,
         decimal_places=2,
         default=0.00,
         validators=[validar_porcentaje],
-        verbose_name="Porcentaje de comisión (%)",
+        verbose_name="Porcentaje de comisiÃ³n (%)",
         help_text="Valor entre 0.00 y 100.00",
     )
     estado = models.CharField(
@@ -58,6 +58,6 @@ class Empleado(models.Model):
             telefono_limpio = re.sub(r"\D", "", self.telefono.strip())
             if len(telefono_limpio) != 10:
                 raise ValidationError(
-                    {"telefono": "El numero de telefono debe tener exactamente 10 digitos."}
+                    {"telefono": "Numero de telefono invalido. Debe tener exactamente 10 digitos."}
                 )
             self.telefono = telefono_limpio

@@ -1,5 +1,6 @@
 ﻿from django import forms
 from django.core.exceptions import ValidationError
+from decimal import Decimal
 
 from apps.catalogos.models import MetodoDePago
 from apps.empleados.models import Empleado
@@ -24,9 +25,13 @@ class VentaForm(forms.ModelForm):
 
     def __init__(self, *args, request_user=None, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.request_user = request_user
         self.fields["empleado"].queryset = Empleado.objects.filter(estado=Empleado.ACTIVO)
         self.fields["metodo_de_pago"].queryset = MetodoDePago.objects.filter(activo=True)
+        if getattr(self.instance, "total", None) is None:
+            # El total definitivo se calcula con los items en la vista.
+            self.instance.total = Decimal("0.00")
 
     def clean_empleado(self):
         empleado = self.cleaned_data.get("empleado")

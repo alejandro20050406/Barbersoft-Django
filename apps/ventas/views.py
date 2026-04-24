@@ -251,6 +251,32 @@ def _apply_lines_to_sale(venta, lines):
             )
 
 
+def _ensure_visit_for_sale(venta):
+    visita = Visita.objects.filter(venta=venta).order_by("id").first()
+    if visita is None:
+        Visita.objects.create(
+            cliente=venta.cliente,
+            empleado=venta.empleado,
+            venta=venta,
+            fecha=venta.fecha,
+        )
+        return
+
+    update_fields = []
+    if visita.cliente_id != venta.cliente_id:
+        visita.cliente = venta.cliente
+        update_fields.append("cliente")
+    if visita.empleado_id != venta.empleado_id:
+        visita.empleado = venta.empleado
+        update_fields.append("empleado")
+    if visita.fecha != venta.fecha:
+        visita.fecha = venta.fecha
+        update_fields.append("fecha")
+
+    if update_fields:
+        visita.save(update_fields=update_fields)
+
+
 def _recalculate_sale_total(venta):
     total_productos = (
         venta.detalles_productos.aggregate(total=Sum("subtotal")).get("total")
@@ -420,6 +446,7 @@ class VentaCreateView(SuccessMessageMixin, CreateView):
 
                 venta.total = total
                 venta.save(update_fields=["total"])
+                _ensure_visit_for_sale(venta)
                 self.object = venta
         except ValidationError as exc:
             form.add_error(None, _validation_error_text(exc))
@@ -530,6 +557,7 @@ class VentaUpdateView(SuccessMessageMixin, UpdateView):
                     )
 
                 venta.save()
+                _ensure_visit_for_sale(venta)
                 self.object = venta
         except ValidationError as exc:
             form.add_error(None, _validation_error_text(exc))

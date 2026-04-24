@@ -15,7 +15,7 @@
     <h3>Información de la Venta</h3>
     <div class="detail-grid">
         <div class="detail-item"><span class="detail-label">Venta</span><span class="detail-value">#{{ venta.id }}</span></div>
-        <div class="detail-item"><span class="detail-label">Fecha</span><span class="detail-value">{{ venta.fecha|date:"d/m/Y H:i" }}</span></div>
+        <div class="detail-item"><span class="detail-label">Fecha</span><span class="detail-value">{{ venta.fecha|date:"d/m/Y" }}</span></div>
         <div class="detail-item"><span class="detail-label">Cliente</span><span class="detail-value">{{ venta.cliente.nombre|upper }} {{ venta.cliente.apellido|upper }}</span></div>
         <div class="detail-item"><span class="detail-label">Empleado</span><span class="detail-value">{{ venta.empleado.nombre|upper }} {{ venta.empleado.apellido|upper }}</span></div>
         <div class="detail-item"><span class="detail-label">Método de Pago</span><span class="detail-value">{{ venta.metodo_de_pago.nombre|upper }}</span></div>

@@ -1,12 +1,26 @@
 ﻿import re
 
 from django import forms
+from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 
 from .models import Empleado
 
 
 class EmpleadoForm(forms.ModelForm):
+    username = forms.CharField(
+        required=False,
+        label="Usuario",
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+        help_text="Nombre de usuario que tendrá el empleado para ingresar a la plataforma.",
+    )
+    password = forms.CharField(
+        required=False,
+        label="Contraseña",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+        help_text="Contraseña para el empleado.",
+    )
+
     class Meta:
         model = Empleado
         fields = [
@@ -80,8 +94,41 @@ class EmpleadoForm(forms.ModelForm):
             raise ValidationError("Ya existe un empleado con ese correo.")
         return correo
 
+    def clean_username(self):
+        username = self.cleaned_data.get("username", "").strip()
+        if not username and not self.instance.pk:
+            raise ValidationError("El usuario es obligatorio para crear el empleado.")
+        if username and User.objects.filter(username__iexact=username).exists():
+            raise ValidationError("Ya existe un usuario con ese nombre.")
+        return username
+
+    def clean_password(self):
+        password = self.cleaned_data.get("password", "")
+        if not password and not self.instance.pk:
+            raise ValidationError("La contraseña es obligatoria para crear el empleado.")
+        return password
+
     def clean_fecha_ingreso(self):
         fecha_ingreso = self.cleaned_data.get("fecha_ingreso")
         if fecha_ingreso is None:
             raise ValidationError("La fecha de ingreso es obligatoria.")
         return fecha_ingreso
+
+    def save(self, commit=True):
+        is_new = self.instance.pk is None
+        empleado = super().save(commit=commit)
+
+        if is_new and commit:
+            username = self.cleaned_data.get("username")
+            password = self.cleaned_data.get("password")
+            if username and password:
+                user = User.objects.create_user(
+                    username=username,
+                    password=password,
+                    email=empleado.correo or "",
+                )
+                group, _ = Group.objects.get_or_create(name="Empleado")
+                user.groups.add(group)
+                user.save()
+
+        return empleado

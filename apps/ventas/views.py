@@ -58,6 +58,12 @@ def _employee_ids_for_user(user, only_active=False):
             queryset = queryset.filter(estado=Empleado.ACTIVO)
         return list(queryset.values_list("id", flat=True))
 
+    empleado_vinculado = getattr(user, "empleado", None)
+    if empleado_vinculado:
+        if only_active and empleado_vinculado.estado != Empleado.ACTIVO:
+            return []
+        return [empleado_vinculado.id]
+
     filters = Q()
     email = (getattr(user, "email", "") or "").strip()
     username = (getattr(user, "username", "") or "").strip()

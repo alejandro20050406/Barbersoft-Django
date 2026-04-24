@@ -85,7 +85,7 @@ def _login_por_rol(request, rol):
         user = authenticate(request, username=username, password=password)
 
         if user is None:
-            messages.error(request, "Usuario o contrasena incorrectos.")
+            messages.error(request, "Usuario o contraseña incorrectos.")
         elif es_admin and not is_admin_user(user):
             messages.error(request, "Ese usuario no tiene permisos de administrador.")
         elif not es_admin and not is_employee_user(user):

@@ -1,5 +1,6 @@
 ﻿import re
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 
@@ -39,6 +40,14 @@ class Empleado(models.Model):
     )
     fecha_ingreso = models.DateField(blank=True, null=True, verbose_name="Fecha de ingreso")
     fecha_registro = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de registro")
+    usuario = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="empleado",
+        verbose_name="Usuario de acceso",
+    )
 
     class Meta:
         db_table = "empleados"
@@ -54,10 +63,12 @@ class Empleado(models.Model):
             self.nombre = self.nombre.strip()
         if self.apellido:
             self.apellido = self.apellido.strip()
-        if self.telefono:
-            telefono_limpio = re.sub(r"\D", "", self.telefono.strip())
-            if len(telefono_limpio) != 10:
-                raise ValidationError(
-                    {"telefono": "Número de teléfono inválido. Debe tener exactamente 10 dígitos."}
-                )
-            self.telefono = telefono_limpio
+        if not self.telefono:
+            raise ValidationError({"telefono": "El teléfono es obligatorio."})
+
+        telefono_limpio = re.sub(r"\D", "", self.telefono.strip())
+        if len(telefono_limpio) != 10:
+            raise ValidationError(
+                {"telefono": "Número de teléfono inválido. Debe tener exactamente 10 dígitos."}
+            )
+        self.telefono = telefono_limpio

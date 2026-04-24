@@ -39,7 +39,7 @@
                 {% for categoria in categorias %}
                     <tr>
                         <td>#{{ categoria.id }}</td>
-                        <td><strong>{{ categoria.nombre }}</strong></td>
+                        <td><strong>{{ categoria.nombre|upper }}</strong></td>
                         <td>{{ categoria.descripcion|truncatewords:10 }}</td>
                         <td>
                             <div class="table-actions">

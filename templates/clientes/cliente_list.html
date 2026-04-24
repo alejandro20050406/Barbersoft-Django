@@ -26,7 +26,7 @@
             <tbody>
                 {% for cliente in clientes %}
                     <tr>
-                        <td><strong>{{ cliente.nombre }} {{ cliente.apellido }}</strong></td>
+                        <td><strong>{{ cliente.nombre|upper }} {{ cliente.apellido|upper }}</strong></td>
                         <td>{{ cliente.telefono|default:"-" }}</td>
                         <td>{{ cliente.correo|default:"-" }}</td>
                         <td>{{ cliente.fecha_registro|date:"d/m/Y" }}</td>

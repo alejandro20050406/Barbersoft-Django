@@ -27,10 +27,10 @@
                 {% for venta in ventas %}
                     <tr>
                         <td><strong>#{{ venta.id }}</strong></td>
-                        <td>{{ venta.cliente.nombre }}</td>
-                        <td>{{ venta.empleado.nombre }}</td>
+                        <td>{{ venta.cliente.nombre|upper }}</td>
+                        <td>{{ venta.empleado.nombre|upper }}</td>
                         <td>{{ venta.fecha|date:"d/m/Y" }}</td>
-                        <td>{{ venta.metodo_de_pago.nombre }}</td>
+                        <td>{{ venta.metodo_de_pago.nombre|upper }}</td>
                         <td>${{ venta.total }}</td>
                         <td>
                             <div class="table-actions">

@@ -16,7 +16,7 @@
                 {% for pago in pagos %}
                     <tr>
                         <td>#{{ pago.venta.id }}</td>
-                        <td>{{ pago.metodo_de_pago.nombre }}</td>
+                        <td>{{ pago.metodo_de_pago.nombre|upper }}</td>
                         <td>${{ pago.monto }}</td>
                         <td>{{ pago.fecha|date:"d/m/Y" }}</td>
                         <td>

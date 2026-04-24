@@ -68,8 +68,8 @@
             <tbody>
                 {% for producto in productos %}
                 <tr>
-                    <td>{{ producto.nombre }}</td>
-                    <td>{{ producto.categoria.nombre }}</td>
+                    <td>{{ producto.nombre|upper }}</td>
+                    <td>{{ producto.categoria.nombre|upper }}</td>
                     <td>${{ producto.precio_venta }}</td>
                     <td>{{ producto.stock }}</td>
                 </tr>
@@ -95,8 +95,8 @@
             <tbody>
                 {% for servicio in servicios %}
                 <tr>
-                    <td>{{ servicio.nombre }}</td>
-                    <td>{{ servicio.tipo.nombre }}</td>
+                    <td>{{ servicio.nombre|upper }}</td>
+                    <td>{{ servicio.tipo.nombre|upper }}</td>
                     <td>${{ servicio.precio }}</td>
                 </tr>
                 {% empty %}

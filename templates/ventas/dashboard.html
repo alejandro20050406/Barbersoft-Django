@@ -40,9 +40,9 @@
             <tr>
                 <td>#{{ venta.id }}</td>
                 <td>{{ venta.fecha|date:"Y-m-d" }}</td>
-                <td>{{ venta.cliente }}</td>
-                <td>{{ venta.empleado }}</td>
-                <td>{{ venta.metodo_de_pago }}</td>
+                <td>{{ venta.cliente|upper }}</td>
+                <td>{{ venta.empleado|upper }}</td>
+                <td>{{ venta.metodo_de_pago|upper }}</td>
                 <td>${{ venta.total }}</td>
             </tr>
             {% empty %}

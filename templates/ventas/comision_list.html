@@ -15,7 +15,7 @@
             <tbody>
                 {% for com in comisiones %}
                     <tr>
-                        <td>{{ com.empleado.nombre }}</td>
+                        <td>{{ com.empleado.nombre|upper }}</td>
                         <td>#{{ com.venta.id }}</td>
                         <td>{{ com.porcentaje }}%</td>
                         <td>${{ com.monto }}</td>

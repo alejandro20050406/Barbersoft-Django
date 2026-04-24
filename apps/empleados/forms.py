@@ -22,7 +22,15 @@ class EmpleadoForm(forms.ModelForm):
             "nombre": forms.TextInput(attrs={"class": "form-control"}),
             "apellido": forms.TextInput(attrs={"class": "form-control"}),
             "telefono": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "312-185-4639"}
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "3121234567",
+                    "maxlength": "10",
+                    "minlength": "10",
+                    "inputmode": "numeric",
+                    "pattern": r"\d{10}",
+                    "title": "Ingresa exactamente 10 digitos",
+                }
             ),
             "correo": forms.EmailInput(attrs={"class": "form-control"}),
             "porcentaje_comision": forms.NumberInput(
@@ -63,12 +71,10 @@ class EmpleadoForm(forms.ModelForm):
         telefono = self.cleaned_data.get("telefono", "")
         if not telefono:
             return telefono
-        telefono = telefono.strip()
-        if not re.match(r"^[\d\s\-\(\)\+]{7,20}$", telefono):
-            raise ValidationError(
-                "Ingresa un numero de telefono valido (ej: 312-185-4639)."
-            )
-        return telefono
+        telefono_limpio = re.sub(r"\D", "", telefono.strip())
+        if len(telefono_limpio) != 10:
+            raise ValidationError("El numero de telefono debe tener exactamente 10 digitos.")
+        return telefono_limpio
 
     def clean_correo(self):
         correo = self.cleaned_data.get("correo", "")

@@ -15,7 +15,7 @@
                 {% for det in detalles_productos %}
                     <tr>
                         <td>#{{ det.venta.id }}</td>
-                        <td>{{ det.producto.nombre }}</td>
+                        <td>{{ det.producto.nombre|upper }}</td>
                         <td>{{ det.cantidad }}</td>
                         <td>${{ det.precio_unitario }}</td>
                         <td>${{ det.subtotal }}</td>

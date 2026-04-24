@@ -15,8 +15,8 @@
             <tbody>
                 {% for visita in visitas %}
                     <tr>
-                        <td>{{ visita.cliente.nombre }}</td>
-                        <td>{{ visita.empleado.nombre }}</td>
+                        <td>{{ visita.cliente.nombre|upper }}</td>
+                        <td>{{ visita.empleado.nombre|upper }}</td>
                         <td>#{{ visita.venta.id }}</td>
                         <td>{{ visita.fecha|date:"d/m/Y" }}</td>
                         <td>

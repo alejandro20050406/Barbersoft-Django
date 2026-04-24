@@ -23,8 +23,8 @@
         <tbody>
             {% for empleado in empleados %}
             <tr>
-                <td>{{ empleado.nombre }}</td>
-                <td>{{ empleado.apellido }}</td>
+                <td>{{ empleado.nombre|upper }}</td>
+                <td>{{ empleado.apellido|upper }}</td>
                 <td>{{ empleado.telefono|default:"-" }}</td>
                 <td>{{ empleado.correo|default:"-" }}</td>
                 <td>{{ empleado.porcentaje_comision }}%</td>

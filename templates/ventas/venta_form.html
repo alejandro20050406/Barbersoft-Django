@@ -91,6 +91,33 @@
 </div>
 
 {% if not form.instance.pk %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2-cliente').select2({
+            ajax: {
+                url: "{% url 'ventas:api-clientes-search' %}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.results
+                    };
+                }
+            },
+            minimumInputLength: 2,
+            placeholder: 'Buscar cliente...',
+            allowClear: true
+        });
+    });
+</script>
+
 <script>
     const productos = JSON.parse(document.getElementById('productos-data').textContent);
     const servicios = JSON.parse(document.getElementById('servicios-data').textContent);
@@ -213,4 +240,5 @@
     createItemRow(true);
 </script>
 {% endif %}
+
 {% endblock %}

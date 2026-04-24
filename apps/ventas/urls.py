@@ -2,6 +2,7 @@ from django.urls import path
 
 from .views import (
     dashboard_ventas,
+    api_clientes_search,
     # Venta
     VentaListView, VentaDetailView, VentaCreateView, VentaUpdateView, VentaDeleteView,
     # Pago
@@ -22,6 +23,7 @@ app_name = "ventas"
 
 urlpatterns = [
     path("", dashboard_ventas, name="dashboard"),
+    path("api/clientes-search/", api_clientes_search, name="api-clientes-search"),
     
     # Venta URLs
     path("ventas/", VentaListView.as_view(), name="venta-list"),

@@ -12,7 +12,7 @@
     <form method="get">
         <div class="filter-group">
             <div class="form-group" style="flex: 1;">
-                <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Buscar por nombre, teléfono o email...">
+                <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Buscar por nombre, telefono o email...">
             </div>
             <button type="submit" class="btn btn-secondary btn-sm">Buscar</button>
         </div>
@@ -22,7 +22,7 @@
 {% if clientes %}
     <div class="table-container">
         <table>
-            <thead><tr><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Registrado</th><th>Acciones</th></tr></thead>
+            <thead><tr><th>Nombre</th><th>Telefono</th><th>Email</th><th>Registrado</th><th>Historial de visitas</th><th>Acciones</th></tr></thead>
             <tbody>
                 {% for cliente in clientes %}
                     <tr>
@@ -30,6 +30,7 @@
                         <td>{{ cliente.telefono|default:"-" }}</td>
                         <td>{{ cliente.correo|default:"-" }}</td>
                         <td>{{ cliente.fecha_registro|date:"d/m/Y" }}</td>
+                        <td>{{ cliente.total_visitas|default:0 }}</td>
                         <td>
                             <div class="table-actions">
                                 <a href="{% url 'clientes:cliente-detail' cliente.pk %}" class="btn btn-secondary btn-sm">Ver</a>

@@ -29,6 +29,12 @@
             <h2>Items de la venta</h2>
             <div id="items-list"></div>
             <button type="button" class="btn btn-secondary" id="add-item">+ Agregar producto/servicio</button>
+            <div class="form-row" style="justify-content: flex-end;">
+                <div class="form-group" style="min-width: 220px;">
+                    <label for="sale-total-display">Total</label>
+                    <input type="text" id="sale-total-display" class="form-control" value="0.00" readonly>
+                </div>
+            </div>
         </div>
 
         {{ productos|json_script:"productos-data" }}
@@ -93,7 +99,7 @@
     const initialItemType = '{{ initial_item_type|default:""|escapejs }}';
     const itemsList = document.getElementById('items-list');
     const itemTemplate = document.getElementById('item-row-template');
-    const totalInput = document.getElementById('id_total');
+    const totalDisplayInput = document.getElementById('sale-total-display');
 
     function formatMoney(value) {
         return Number(value).toFixed(2);
@@ -149,8 +155,8 @@
             const subtotal = parseFloat(row.querySelector('.item-subtotal').value) || 0;
             total += subtotal;
         });
-        if (totalInput) {
-            totalInput.value = formatMoney(total);
+        if (totalDisplayInput) {
+            totalDisplayInput.value = formatMoney(total);
         }
     }
 

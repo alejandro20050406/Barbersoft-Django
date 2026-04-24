@@ -1,10 +1,12 @@
 from django.contrib import admin
 
+from .forms import ClienteForm
 from .models import Cliente
 
 
 @admin.register(Cliente)
 class ClienteAdmin(admin.ModelAdmin):
+    form = ClienteForm
     list_display = ("nombre", "apellido", "telefono", "correo", "fecha_registro")
     list_filter = ("fecha_registro",)
     search_fields = ("nombre", "apellido", "telefono", "correo")

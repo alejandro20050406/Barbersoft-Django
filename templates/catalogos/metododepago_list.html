@@ -15,7 +15,7 @@
             <tbody>
                 {% for metodo in metodos_pago %}
                     <tr>
-                        <td><strong>{{ metodo.nombre }}</strong></td>
+                        <td><strong>{{ metodo.nombre|upper }}</strong></td>
                         <td><span class="badge {% if metodo.activo %}badge-success{% else %}badge-danger{% endif %}">{% if metodo.activo %}Activo{% else %}Inactivo{% endif %}</span></td>
                         <td>
                             <div class="table-actions">

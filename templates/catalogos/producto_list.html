@@ -50,8 +50,8 @@
             <tbody>
                 {% for producto in productos %}
                     <tr>
-                        <td><strong>{{ producto.nombre }}</strong></td>
-                        <td>{{ producto.categoria.nombre }}</td>
+                        <td><strong>{{ producto.nombre|upper }}</strong></td>
+                        <td>{{ producto.categoria.nombre|upper }}</td>
                         <td>${{ producto.precio_compra }}</td>
                         <td>${{ producto.precio_venta }}</td>
                         <td>

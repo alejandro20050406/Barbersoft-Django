@@ -28,14 +28,14 @@ class Cliente(models.Model):
         if self.apellido:
             self.apellido = self.apellido.strip()
         if self.telefono:
-            self.telefono = self.telefono.strip()
+            telefono_limpio = re.sub(r"\D", "", self.telefono.strip())
+            if len(telefono_limpio) != 10:
+                raise ValidationError(
+                    {"telefono": "El numero de telefono debe tener exactamente 10 digitos."}
+                )
+            self.telefono = telefono_limpio
         if self.correo:
             self.correo = self.correo.strip().lower()
 
         if not self.nombre:
             raise ValidationError({"nombre": "El nombre es obligatorio."})
-
-        if self.telefono and not re.match(r"^[\d\s\-\(\)\+]{7,20}$", self.telefono):
-            raise ValidationError(
-                {"telefono": "Ingresa un numero de telefono valido."}
-            )

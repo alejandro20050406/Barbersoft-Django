@@ -32,7 +32,7 @@
             <tbody>
                 {% for emp in empleados %}
                     <tr>
-                        <td><strong>{{ emp.nombre }} {{ emp.apellido }}</strong></td>
+                        <td><strong>{{ emp.nombre|upper }} {{ emp.apellido|upper }}</strong></td>
                         <td>{{ emp.telefono|default:"-" }}</td>
                         <td>{{ emp.porcentaje_comision }}%</td>
                         <td><span class="badge {% if emp.estado == 'activo' %}badge-success{% else %}badge-danger{% endif %}">{{ emp.get_estado_display }}</span></td>

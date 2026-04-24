@@ -44,8 +44,8 @@
             <tbody>
                 {% for servicio in servicios %}
                     <tr>
-                        <td><strong>{{ servicio.nombre }}</strong></td>
-                        <td>{{ servicio.tipo.nombre }}</td>
+                        <td><strong>{{ servicio.nombre|upper }}</strong></td>
+                        <td>{{ servicio.tipo.nombre|upper }}</td>
                         <td>${{ servicio.precio }}</td>
                         <td><span class="badge {% if servicio.activo %}badge-success{% else %}badge-danger{% endif %}">{% if servicio.activo %}Activo{% else %}Inactivo{% endif %}</span></td>
                         <td>

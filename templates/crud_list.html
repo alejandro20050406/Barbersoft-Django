@@ -56,7 +56,13 @@
                 {% for object in object_list %}
                     <tr>
                         {% for field in fields %}
-                            <td>{{ object|getattr:field }}</td>
+                            <td>
+                                {% if 'nombre' in field %}
+                                    {{ object|getattr:field|upper }}
+                                {% else %}
+                                    {{ object|getattr:field }}
+                                {% endif %}
+                            </td>
                         {% endfor %}
                         <td>
                             <div class="table-actions">

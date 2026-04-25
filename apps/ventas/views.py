@@ -879,7 +879,7 @@ def api_clientes_search(request):
         
         results.append({
             'id': cliente['id'],
-            'text': full_name
+            'text': full_name.upper()
         })
     
     return JsonResponse({'results': results})

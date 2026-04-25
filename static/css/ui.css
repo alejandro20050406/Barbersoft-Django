@@ -416,6 +416,13 @@ table.table {
     box-shadow: 0 0 0 3px rgba(180, 66, 46, 0.12);
 }
 
+select,
+select option,
+.select2-container .select2-selection__rendered,
+.select2-container .select2-results__option {
+    text-transform: uppercase;
+}
+
 .field-error {
     color: #8b2e25;
     font-size: 0.82rem;

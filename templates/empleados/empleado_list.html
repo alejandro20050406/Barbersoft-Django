@@ -16,8 +16,8 @@
             </div>
             <div class="form-group">
                 <select name="estado">
-                    <option value="">-- Todos --</option>
-                    {% for val, label in estados %}<option value="{{ val }}" {% if request.GET.estado == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                    <option value="">-- TODOS --</option>
+                    {% for val, label in estados %}<option value="{{ val }}" {% if request.GET.estado == val %}selected{% endif %}>{{ label|upper }}</option>{% endfor %}
                 </select>
             </div>
             <button type="submit" class="btn btn-secondary btn-sm">Buscar</button>

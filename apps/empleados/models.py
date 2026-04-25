@@ -5,6 +5,12 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 
+def _upper_clean(value):
+    if value is None:
+        return value
+    return value.strip().upper()
+
+
 def validar_porcentaje(value):
     if value < 0 or value > 100:
         raise ValidationError("El porcentaje de comisión debe estar entre 0 y 100.")
@@ -56,13 +62,13 @@ class Empleado(models.Model):
         ordering = ["apellido", "nombre"]
 
     def __str__(self):
-        return f"{self.nombre} {self.apellido}"
+        return f"{self.nombre} {self.apellido}".upper()
 
     def clean(self):
         if self.nombre:
-            self.nombre = self.nombre.strip()
+            self.nombre = _upper_clean(self.nombre)
         if self.apellido:
-            self.apellido = self.apellido.strip()
+            self.apellido = _upper_clean(self.apellido)
         if not self.telefono:
             raise ValidationError({"telefono": "El teléfono es obligatorio."})
 
@@ -72,3 +78,13 @@ class Empleado(models.Model):
                 {"telefono": "Número de teléfono inválido. Debe tener exactamente 10 dígitos."}
             )
         self.telefono = telefono_limpio
+
+        if self.correo:
+            self.correo = self.correo.strip().lower()
+
+    def save(self, *args, **kwargs):
+        self.nombre = _upper_clean(self.nombre)
+        self.apellido = _upper_clean(self.apellido)
+        if self.correo:
+            self.correo = self.correo.strip().lower()
+        super().save(*args, **kwargs)

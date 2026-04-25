@@ -23,9 +23,9 @@
         <div class="form-group">
             <label for="id_categoria">Categoría</label>
             <select name="categoria" id="id_categoria">
-                <option value="">-- Todas --</option>
+                <option value="">-- TODAS --</option>
                 {% for cat in categorias %}
-                    <option value="{{ cat.id }}" {% if request.GET.categoria|add:"0" == cat.id %}selected{% endif %}>{{ cat.nombre }}</option>
+                    <option value="{{ cat.id }}" {% if request.GET.categoria|add:"0" == cat.id %}selected{% endif %}>{{ cat.nombre|upper }}</option>
                 {% endfor %}
             </select>
         </div>

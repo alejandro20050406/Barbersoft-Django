@@ -132,6 +132,13 @@
     min-height: 100px;
 }
 
+select,
+select option,
+.select2-container .select2-selection__rendered,
+.select2-container .select2-results__option {
+    text-transform: uppercase;
+}
+
 .sale-item-search {
     position: relative;
 }

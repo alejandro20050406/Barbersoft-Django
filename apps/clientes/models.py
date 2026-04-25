@@ -4,6 +4,12 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 
+def _upper_clean(value):
+    if value is None:
+        return value
+    return value.strip().upper()
+
+
 class Cliente(models.Model):
     nombre = models.CharField(max_length=100, verbose_name="Nombre")
     apellido = models.CharField(max_length=100, blank=True, null=True, verbose_name="Apellido")
@@ -19,14 +25,14 @@ class Cliente(models.Model):
 
     def __str__(self):
         if self.apellido:
-            return f"{self.nombre} {self.apellido}"
-        return self.nombre
+            return f"{self.nombre} {self.apellido}".upper()
+        return self.nombre.upper()
 
     def clean(self):
         if self.nombre:
-            self.nombre = self.nombre.strip()
+            self.nombre = _upper_clean(self.nombre)
         if self.apellido:
-            self.apellido = self.apellido.strip()
+            self.apellido = _upper_clean(self.apellido)
         if not self.apellido:
             raise ValidationError({"apellido": "El apellido es obligatorio."})
         if not self.telefono:
@@ -43,3 +49,11 @@ class Cliente(models.Model):
 
         if not self.nombre:
             raise ValidationError({"nombre": "El nombre es obligatorio."})
+
+    def save(self, *args, **kwargs):
+        self.nombre = _upper_clean(self.nombre)
+        if self.apellido:
+            self.apellido = _upper_clean(self.apellido)
+        if self.correo:
+            self.correo = self.correo.strip().lower()
+        super().save(*args, **kwargs)

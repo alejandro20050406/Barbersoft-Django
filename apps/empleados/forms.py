@@ -1,6 +1,7 @@
 ﻿import re
 
 from django import forms
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 
@@ -127,6 +128,14 @@ class EmpleadoForm(forms.ModelForm):
             raise ValidationError("La contraseña es obligatoria para crear el empleado.")
         return password
 
+    def _password_validation_user(self, username):
+        usuario = getattr(self.instance, "usuario", None) or User()
+        usuario.username = username or ""
+        usuario.email = self.cleaned_data.get("correo") or ""
+        usuario.first_name = self.cleaned_data.get("nombre") or ""
+        usuario.last_name = self.cleaned_data.get("apellido") or ""
+        return usuario
+
     def clean(self):
         cleaned_data = super().clean()
         username = cleaned_data.get("username")
@@ -143,6 +152,11 @@ class EmpleadoForm(forms.ModelForm):
                 "username",
                 "Ingresa un usuario para poder guardar la contraseña.",
             )
+        if password:
+            try:
+                validate_password(password, self._password_validation_user(username))
+            except ValidationError as error:
+                self.add_error("password", error)
         return cleaned_data
 
     def clean_fecha_ingreso(self):

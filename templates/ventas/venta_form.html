@@ -61,9 +61,11 @@
                     </div>
                     <div class="form-group">
                         <label>Item</label>
-                        <select name="item_id" class="item-id form-control">
-                            <option value="">Seleccionar primero tipo</option>
-                        </select>
+                        <div class="sale-item-search">
+                            <input type="text" class="item-search form-control" placeholder="Buscar producto o servicio" autocomplete="off">
+                            <input type="hidden" name="item_id" class="item-id">
+                            <div class="item-search-results" hidden></div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Cantidad</label>
@@ -136,28 +138,141 @@
         const options = ['<option value="">Seleccionar</option>'];
         const list = type === 'producto' ? categoriasProducto : tiposServicio;
         list.forEach(group => {
-            options.push(`<option value="${group.id}">${group.nombre}</option>`);
+            options.push(`<option value="${group.id}">${escapeHtml(group.nombre)}</option>`);
         });
         return options.join('');
     }
 
-    function buildItemOptions(type, groupId) {
-        const options = ['<option value="">Seleccionar</option>'];
-        const list = type === 'producto' ? productos : servicios;
-        const filteredList = list.filter(item => {
-            if (!groupId) {
-                return false;
-            }
-            if (type === 'producto') {
-                return String(item.categoria_id) === String(groupId);
-            }
-            return String(item.tipo_id) === String(groupId);
-        });
-        filteredList.forEach(item => {
-            const price = type === 'producto' ? item.precio_venta : item.precio;
-            options.push(`<option value="${item.id}" data-price="${price}">${item.nombre} ($${formatMoney(price)})</option>`);
-        });
-        return options.join('');
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value ?? '';
+        return div.innerHTML;
+    }
+
+    function normalizeText(value) {
+        return String(value ?? '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase();
+    }
+
+    const categoriasProductoById = new Map(
+        categoriasProducto.map(group => [String(group.id), group.nombre])
+    );
+    const tiposServicioById = new Map(
+        tiposServicio.map(group => [String(group.id), group.nombre])
+    );
+    const searchableItems = [
+        ...productos.map(item => ({
+            key: `producto:${item.id}`,
+            type: 'producto',
+            id: String(item.id),
+            name: item.nombre,
+            price: item.precio_venta,
+            groupId: String(item.categoria_id),
+            groupName: categoriasProductoById.get(String(item.categoria_id)) || ''
+        })),
+        ...servicios.map(item => ({
+            key: `servicio:${item.id}`,
+            type: 'servicio',
+            id: String(item.id),
+            name: item.nombre,
+            price: item.precio,
+            groupId: String(item.tipo_id),
+            groupName: tiposServicioById.get(String(item.tipo_id)) || ''
+        }))
+    ];
+    const searchableItemsByKey = new Map(searchableItems.map(item => [item.key, item]));
+
+    function typeLabel(type) {
+        return type === 'producto' ? 'Producto' : 'Servicio';
+    }
+
+    function getSearchMatches(query) {
+        const tokens = normalizeText(query).split(/\s+/).filter(Boolean);
+        if (!tokens.length) {
+            return [];
+        }
+
+        return searchableItems
+            .filter(item => {
+                const haystack = normalizeText(
+                    `${item.name} ${item.groupName} ${typeLabel(item.type)}`
+                );
+                return tokens.every(token => haystack.includes(token));
+            })
+            .sort((a, b) => {
+                const normalizedQuery = normalizeText(query);
+                const aName = normalizeText(a.name);
+                const bName = normalizeText(b.name);
+                const aStarts = aName.startsWith(normalizedQuery) ? 0 : 1;
+                const bStarts = bName.startsWith(normalizedQuery) ? 0 : 1;
+                if (aStarts !== bStarts) {
+                    return aStarts - bStarts;
+                }
+                return a.name.localeCompare(b.name, 'es');
+            })
+            .slice(0, 12);
+    }
+
+    function hideSearchResults(row) {
+        const results = row.querySelector('.item-search-results');
+        results.hidden = true;
+        results.innerHTML = '';
+    }
+
+    function renderSearchResults(row) {
+        const searchInput = row.querySelector('.item-search');
+        const results = row.querySelector('.item-search-results');
+        const matches = getSearchMatches(searchInput.value);
+
+        if (!matches.length) {
+            results.innerHTML = searchInput.value.trim()
+                ? '<div class="item-search-empty">Sin resultados</div>'
+                : '';
+            results.hidden = !searchInput.value.trim();
+            return;
+        }
+
+        results.innerHTML = matches.map(item => `
+            <button type="button" class="item-search-option" data-item-key="${item.key}">
+                ${escapeHtml(item.name)} - ${typeLabel(item.type)} - ${escapeHtml(item.groupName)} - $${formatMoney(item.price)}
+            </button>
+        `).join('');
+        results.hidden = false;
+    }
+
+    function clearSelectedItem(row, clearSearch = false) {
+        const idInput = row.querySelector('.item-id');
+        const searchInput = row.querySelector('.item-search');
+
+        idInput.value = '';
+        idInput.dataset.price = '';
+        row.dataset.selectedItemLabel = '';
+        if (clearSearch) {
+            searchInput.value = '';
+            hideSearchResults(row);
+        }
+        updateItemRow(row);
+    }
+
+    function selectSearchItem(row, item) {
+        const typeInput = row.querySelector('.item-type');
+        const groupInput = row.querySelector('.item-group');
+        const idInput = row.querySelector('.item-id');
+        const searchInput = row.querySelector('.item-search');
+
+        typeInput.value = item.type;
+        typeInput.dispatchEvent(new Event('change'));
+        groupInput.value = item.groupId;
+        groupInput.dispatchEvent(new Event('change'));
+
+        idInput.value = item.id;
+        idInput.dataset.price = item.price;
+        searchInput.value = item.name;
+        row.dataset.selectedItemLabel = item.name;
+        hideSearchResults(row);
+        updateItemRow(row);
     }
 
     function updateItemRow(row) {
@@ -166,8 +281,7 @@
         const priceInput = row.querySelector('.item-price');
         const subtotalInput = row.querySelector('.item-subtotal');
 
-        const selectedOption = idInput.options[idInput.selectedIndex];
-        const price = selectedOption?.dataset?.price ? parseFloat(selectedOption.dataset.price) : 0;
+        const price = idInput.dataset.price ? parseFloat(idInput.dataset.price) : 0;
         const quantity = Number(quantityInput.value) || 0;
         const subtotal = price * quantity;
 
@@ -194,6 +308,8 @@
         const groupLabel = row.querySelector('.item-group-label');
         const groupInput = row.querySelector('.item-group');
         const idInput = row.querySelector('.item-id');
+        const searchInput = row.querySelector('.item-search');
+        const searchResults = row.querySelector('.item-search-results');
         const quantityInput = row.querySelector('.item-quantity');
         const removeButton = row.querySelector('.remove-item');
 
@@ -202,26 +318,56 @@
                 groupLabel.textContent = 'Categoria / Tipo';
                 groupInput.innerHTML = '<option value="">Seleccionar primero tipo</option>';
                 groupInput.disabled = true;
-                idInput.innerHTML = '<option value="">Seleccionar primero tipo</option>';
             } else {
                 groupLabel.textContent = typeInput.value === 'producto' ? 'Categoria de producto' : 'Tipo de servicio';
                 groupInput.innerHTML = buildGroupOptions(typeInput.value);
                 groupInput.disabled = false;
-                idInput.innerHTML = '<option value="">Seleccionar primero categoria/tipo</option>';
             }
-            updateItemRow(row);
+            clearSelectedItem(row, true);
         });
 
         groupInput.addEventListener('change', () => {
-            if (!typeInput.value || !groupInput.value) {
-                idInput.innerHTML = '<option value="">Seleccionar primero categoria/tipo</option>';
-            } else {
-                idInput.innerHTML = buildItemOptions(typeInput.value, groupInput.value);
-            }
-            updateItemRow(row);
+            clearSelectedItem(row, false);
+            renderSearchResults(row);
         });
 
-        idInput.addEventListener('change', () => updateItemRow(row));
+        searchInput.addEventListener('input', () => {
+            if (searchInput.value !== row.dataset.selectedItemLabel) {
+                idInput.value = '';
+                idInput.dataset.price = '';
+                updateItemRow(row);
+            }
+            renderSearchResults(row);
+        });
+
+        searchInput.addEventListener('focus', () => renderSearchResults(row));
+
+        searchInput.addEventListener('keydown', (event) => {
+            const firstOption = searchResults.querySelector('.item-search-option');
+            if (event.key === 'Enter' && firstOption) {
+                event.preventDefault();
+                const item = searchableItemsByKey.get(firstOption.dataset.itemKey);
+                if (item) {
+                    selectSearchItem(row, item);
+                }
+            }
+            if (event.key === 'Escape') {
+                hideSearchResults(row);
+            }
+        });
+
+        searchResults.addEventListener('mousedown', (event) => {
+            const option = event.target.closest('.item-search-option');
+            if (!option) {
+                return;
+            }
+            event.preventDefault();
+            const item = searchableItemsByKey.get(option.dataset.itemKey);
+            if (item) {
+                selectSearchItem(row, item);
+            }
+        });
+
         quantityInput.addEventListener('input', () => updateItemRow(row));
         removeButton.addEventListener('click', () => {
             row.remove();
@@ -235,6 +381,14 @@
         }
         typeInput.dispatchEvent(new Event('change'));
     }
+
+    document.addEventListener('click', (event) => {
+        itemsList.querySelectorAll('.sale-item-row').forEach(row => {
+            if (!row.contains(event.target)) {
+                hideSearchResults(row);
+            }
+        });
+    });
 
     document.getElementById('add-item').addEventListener('click', () => createItemRow(false));
     createItemRow(true);

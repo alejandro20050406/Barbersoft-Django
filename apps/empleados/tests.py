@@ -18,7 +18,7 @@ class EmpleadoTelefonoValidationTests(TestCase):
             "estado": "activo",
             "fecha_ingreso": "2026-04-23",
             "username": "pedro_rocha",
-            "password": "secret123",
+            "password": "MesaAzul742!",
         }
         data.update(overrides)
         return data
@@ -40,6 +40,18 @@ class EmpleadoTelefonoValidationTests(TestCase):
 
         self.assertTrue(form.is_valid(), form.errors)
         self.assertEqual(form.cleaned_data["telefono"], "3128879000")
+
+    def test_form_rechaza_password_menor_a_8_caracteres(self):
+        form = EmpleadoForm(data=self._form_data(password="abc1234"))
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("password", form.errors)
+
+    def test_form_rechaza_password_comun(self):
+        form = EmpleadoForm(data=self._form_data(password="password123"))
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("password", form.errors)
 
     def test_model_rechaza_telefono_invalido(self):
         empleado = Empleado(nombre="Pedro", apellido="Rocha", telefono="12345")
@@ -102,7 +114,7 @@ class EmpleadoCuentaAccesoTests(TestCase):
                 "estado": Empleado.ACTIVO,
                 "fecha_ingreso": "2026-04-23",
                 "username": "adrian",
-                "password": "secret123",
+                "password": "MesaAzul742!",
             },
             instance=empleado,
         )
@@ -114,7 +126,7 @@ class EmpleadoCuentaAccesoTests(TestCase):
         self.assertIsNotNone(empleado_guardado.usuario)
         self.assertEqual(empleado_guardado.usuario.username, "adrian")
         self.assertEqual(empleado_guardado.usuario.email, "adrian@example.com")
-        self.assertTrue(empleado_guardado.usuario.check_password("secret123"))
+        self.assertTrue(empleado_guardado.usuario.check_password("MesaAzul742!"))
         self.assertTrue(
             empleado_guardado.usuario.groups.filter(name="Empleado").exists()
         )

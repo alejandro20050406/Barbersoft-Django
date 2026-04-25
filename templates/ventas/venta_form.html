@@ -15,7 +15,32 @@
         {% endif %}
         
         <div class="form-row">
-            <div class="form-group">{{ form.cliente.label_tag }}{{ form.cliente }}</div>
+            <div class="form-group">
+                {% if form.instance.pk %}
+                    {{ form.cliente.label_tag }}{{ form.cliente }}
+                {% else %}
+                <label for="cliente-search-input">{{ form.cliente.label }}</label>
+                <div class="sale-item-search">
+                    <input
+                        type="text"
+                        id="cliente-search-input"
+                        class="form-control"
+                        placeholder="Buscar cliente"
+                        autocomplete="off"
+                    >
+                    <input
+                        type="hidden"
+                        name="{{ form.cliente.html_name }}"
+                        id="{{ form.cliente.id_for_label }}"
+                        value="{{ form.cliente.value|default_if_none:'' }}"
+                    >
+                    <div id="cliente-search-results" class="item-search-results" hidden></div>
+                </div>
+                {% if form.cliente.errors %}
+                    <div class="error-messages">{{ form.cliente.errors }}</div>
+                {% endif %}
+                {% endif %}
+            </div>
             <div class="form-group">{{ form.empleado.label_tag }}{{ form.empleado }}</div>
         </div>
 
@@ -37,6 +62,7 @@
             </div>
         </div>
 
+        {{ selected_cliente|json_script:"selected-cliente-data" }}
         {{ productos|json_script:"productos-data" }}
         {{ servicios|json_script:"servicios-data" }}
         {{ categorias_producto|json_script:"categorias-producto-data" }}
@@ -93,34 +119,8 @@
 </div>
 
 {% if not form.instance.pk %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('.select2-cliente').select2({
-            ajax: {
-                url: "{% url 'ventas:api-clientes-search' %}",
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return {
-                        q: params.term
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.results
-                    };
-                }
-            },
-            minimumInputLength: 2,
-            placeholder: 'Buscar cliente...',
-            allowClear: true
-        });
-    });
-</script>
-
-<script>
+    const selectedCliente = JSON.parse(document.getElementById('selected-cliente-data').textContent);
     const productos = JSON.parse(document.getElementById('productos-data').textContent);
     const servicios = JSON.parse(document.getElementById('servicios-data').textContent);
     const categoriasProducto = JSON.parse(document.getElementById('categorias-producto-data').textContent);
@@ -159,6 +159,126 @@
             .replace(/[\u0300-\u036f]/g, '')
             .toLowerCase();
     }
+
+    const clienteSearchInput = document.getElementById('cliente-search-input');
+    const clienteIdInput = document.getElementById('{{ form.cliente.id_for_label }}');
+    const clienteResults = document.getElementById('cliente-search-results');
+    let selectedClienteLabel = selectedCliente?.text || '';
+    let clienteSearchTimeout = null;
+    let clienteSearchController = null;
+    let clienteMatches = [];
+
+    if (selectedClienteLabel) {
+        clienteSearchInput.value = selectedClienteLabel;
+    }
+
+    function hideClienteResults() {
+        clienteResults.hidden = true;
+        clienteResults.innerHTML = '';
+    }
+
+    function renderClienteResults(matches, query) {
+        clienteMatches = matches;
+        if (!matches.length) {
+            clienteResults.innerHTML = query.trim()
+                ? '<div class="item-search-empty">SIN RESULTADOS</div>'
+                : '';
+            clienteResults.hidden = !query.trim();
+            return;
+        }
+
+        clienteResults.innerHTML = matches.map(cliente => `
+            <button type="button" class="item-search-option" data-cliente-id="${cliente.id}">
+                ${escapeHtml(toUpperText(cliente.text))}
+            </button>
+        `).join('');
+        clienteResults.hidden = false;
+    }
+
+    function selectCliente(cliente) {
+        clienteIdInput.value = cliente.id;
+        clienteSearchInput.value = toUpperText(cliente.text);
+        selectedClienteLabel = clienteSearchInput.value;
+        hideClienteResults();
+    }
+
+    function searchClientes() {
+        const query = clienteSearchInput.value.trim();
+        if (query.length < 2) {
+            clienteMatches = [];
+            hideClienteResults();
+            return;
+        }
+
+        if (clienteSearchController) {
+            clienteSearchController.abort();
+        }
+
+        clienteSearchController = new AbortController();
+        const url = new URL("{% url 'ventas:api-clientes-search' %}", window.location.origin);
+        url.searchParams.set('q', query);
+
+        fetch(url, { signal: clienteSearchController.signal })
+            .then(response => response.json())
+            .then(data => renderClienteResults(data.results || [], query))
+            .catch(error => {
+                if (error.name !== 'AbortError') {
+                    renderClienteResults([], query);
+                }
+            });
+    }
+
+    clienteSearchInput.addEventListener('input', () => {
+        if (clienteSearchInput.value !== selectedClienteLabel) {
+            clienteIdInput.value = '';
+            selectedClienteLabel = '';
+        }
+
+        window.clearTimeout(clienteSearchTimeout);
+        clienteSearchTimeout = window.setTimeout(searchClientes, 180);
+    });
+
+    clienteSearchInput.addEventListener('focus', () => {
+        if (!clienteIdInput.value || clienteSearchInput.value !== selectedClienteLabel) {
+            searchClientes();
+        }
+    });
+
+    clienteSearchInput.addEventListener('keydown', (event) => {
+        const firstOption = clienteResults.querySelector('.item-search-option');
+        if (event.key === 'Enter' && firstOption) {
+            event.preventDefault();
+            const cliente = clienteMatches.find(
+                match => String(match.id) === firstOption.dataset.clienteId
+            );
+            if (cliente) {
+                selectCliente(cliente);
+            }
+        }
+        if (event.key === 'Escape') {
+            hideClienteResults();
+        }
+    });
+
+    clienteResults.addEventListener('mousedown', (event) => {
+        const option = event.target.closest('.item-search-option');
+        if (!option) {
+            return;
+        }
+        event.preventDefault();
+        const cliente = clienteMatches.find(
+            match => String(match.id) === option.dataset.clienteId
+        );
+        if (cliente) {
+            selectCliente(cliente);
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!clienteSearchInput.contains(event.target) && !clienteResults.contains(event.target)) {
+            hideClienteResults();
+        }
+    });
 
     const categoriasProductoById = new Map(
         categoriasProducto.map(group => [String(group.id), group.nombre])

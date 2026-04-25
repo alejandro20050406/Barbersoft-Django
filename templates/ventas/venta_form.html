@@ -48,15 +48,15 @@
                     <div class="form-group">
                         <label>Tipo</label>
                         <select name="item_type" class="item-type form-control">
-                            <option value="">Seleccionar</option>
-                            <option value="producto">Producto</option>
-                            <option value="servicio">Servicio</option>
+                            <option value="">SELECCIONAR</option>
+                            <option value="producto">PRODUCTO</option>
+                            <option value="servicio">SERVICIO</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label class="item-group-label">Categoria / Tipo</label>
                         <select class="item-group form-control">
-                            <option value="">Seleccionar primero tipo</option>
+                            <option value="">SELECCIONAR PRIMERO TIPO</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -135,12 +135,16 @@
     }
 
     function buildGroupOptions(type) {
-        const options = ['<option value="">Seleccionar</option>'];
+        const options = ['<option value="">SELECCIONAR</option>'];
         const list = type === 'producto' ? categoriasProducto : tiposServicio;
         list.forEach(group => {
-            options.push(`<option value="${group.id}">${escapeHtml(group.nombre)}</option>`);
+            options.push(`<option value="${group.id}">${escapeHtml(toUpperText(group.nombre))}</option>`);
         });
         return options.join('');
+    }
+
+    function toUpperText(value) {
+        return String(value ?? '').toLocaleUpperCase('es-MX');
     }
 
     function escapeHtml(value) {
@@ -185,7 +189,7 @@
     const searchableItemsByKey = new Map(searchableItems.map(item => [item.key, item]));
 
     function typeLabel(type) {
-        return type === 'producto' ? 'Producto' : 'Servicio';
+        return type === 'producto' ? 'PRODUCTO' : 'SERVICIO';
     }
 
     function getSearchMatches(query) {
@@ -228,7 +232,7 @@
 
         if (!matches.length) {
             results.innerHTML = searchInput.value.trim()
-                ? '<div class="item-search-empty">Sin resultados</div>'
+                ? '<div class="item-search-empty">SIN RESULTADOS</div>'
                 : '';
             results.hidden = !searchInput.value.trim();
             return;
@@ -236,7 +240,7 @@
 
         results.innerHTML = matches.map(item => `
             <button type="button" class="item-search-option" data-item-key="${item.key}">
-                ${escapeHtml(item.name)} - ${typeLabel(item.type)} - ${escapeHtml(item.groupName)} - $${formatMoney(item.price)}
+                ${escapeHtml(toUpperText(item.name))} - ${typeLabel(item.type)} - ${escapeHtml(toUpperText(item.groupName))} - $${formatMoney(item.price)}
             </button>
         `).join('');
         results.hidden = false;
@@ -269,8 +273,8 @@
 
         idInput.value = item.id;
         idInput.dataset.price = item.price;
-        searchInput.value = item.name;
-        row.dataset.selectedItemLabel = item.name;
+        searchInput.value = toUpperText(item.name);
+        row.dataset.selectedItemLabel = searchInput.value;
         hideSearchResults(row);
         updateItemRow(row);
     }
@@ -316,7 +320,7 @@
         typeInput.addEventListener('change', () => {
             if (!typeInput.value) {
                 groupLabel.textContent = 'Categoria / Tipo';
-                groupInput.innerHTML = '<option value="">Seleccionar primero tipo</option>';
+                groupInput.innerHTML = '<option value="">SELECCIONAR PRIMERO TIPO</option>';
                 groupInput.disabled = true;
             } else {
                 groupLabel.textContent = typeInput.value === 'producto' ? 'Categoria de producto' : 'Tipo de servicio';

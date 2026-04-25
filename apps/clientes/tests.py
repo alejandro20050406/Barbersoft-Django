@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
 
 from .forms import ClienteForm
 from .models import Cliente
@@ -75,3 +75,18 @@ class ClienteTelefonoValidationTests(SimpleTestCase):
 
         with self.assertRaises(ValidationError):
             cliente.full_clean()
+
+
+class ClienteUppercasePersistenceTests(TestCase):
+    def test_guarda_nombre_y_apellido_en_mayusculas(self):
+        cliente = Cliente.objects.create(
+            nombre=" Gael ",
+            apellido=" Cortes ",
+            telefono="3125467731",
+        )
+
+        cliente.refresh_from_db()
+
+        self.assertEqual(cliente.nombre, "GAEL")
+        self.assertEqual(cliente.apellido, "CORTES")
+        self.assertEqual(str(cliente), "GAEL CORTES")

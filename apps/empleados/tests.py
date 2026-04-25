@@ -53,6 +53,21 @@ class EmpleadoTelefonoValidationTests(TestCase):
         with self.assertRaises(ValidationError):
             empleado.full_clean()
 
+    def test_guarda_nombre_y_apellido_en_mayusculas(self):
+        empleado = Empleado.objects.create(
+            nombre=" Rafael ",
+            apellido=" Nadal ",
+            telefono="3123431987",
+            estado=Empleado.ACTIVO,
+            fecha_ingreso=date(2026, 4, 23),
+        )
+
+        empleado.refresh_from_db()
+
+        self.assertEqual(empleado.nombre, "RAFAEL")
+        self.assertEqual(empleado.apellido, "NADAL")
+        self.assertEqual(str(empleado), "RAFAEL NADAL")
+
 
 class EmpleadoCuentaAccesoTests(TestCase):
     def test_form_muestra_fecha_ingreso_al_editar(self):

@@ -42,6 +42,10 @@ class ClienteForm(forms.ModelForm):
             raise ValidationError("El nombre debe tener al menos 2 caracteres.")
         if any(char.isdigit() for char in nombre):
             raise ValidationError("El nombre no puede contener números.")
+        if not re.match(r"^[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]+$", nombre):
+            raise ValidationError(
+                "El nombre solo puede contener letras y espacios, sin signos especiales."
+            )
         return nombre
 
     def clean_apellido(self):
@@ -52,6 +56,10 @@ class ClienteForm(forms.ModelForm):
             raise ValidationError("El apellido debe tener al menos 2 caracteres.")
         if any(char.isdigit() for char in apellido):
             raise ValidationError("El apellido no puede contener números.")
+        if not re.match(r"^[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]+$", apellido):
+            raise ValidationError(
+                "El apellido solo puede contener letras y espacios, sin signos especiales."
+            )
         return apellido
 
     def clean_telefono(self):

@@ -3,6 +3,18 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+# Cargar variables de entorno desde .env cuando exista.
+# Esto permite ejecutar el proyecto localmente sin depender solo de Docker env_file.
+env_file = BASE_DIR / ".env"
+if env_file.exists():
+    with open(env_file, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            os.environ.setdefault(key.strip(), value.strip())
+
 SECRET_KEY = os.getenv("SECRET_KEY", "clave-insegura-solo-desarrollo")
 DEBUG = os.getenv("DEBUG", "1") == "1"
 ALLOWED_HOSTS = [
@@ -62,11 +74,11 @@ ASGI_APPLICATION = "config.asgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
-        "HOST": os.getenv("DB_HOST"),
-        "PORT": os.getenv("DB_PORT"),
+        "NAME": os.getenv("DB_NAME", "barbersoft"),
+        "USER": os.getenv("DB_USER", "barbersoft_user"),
+        "PASSWORD": os.getenv("DB_PASSWORD", "barbersoft_pass"),
+        "HOST": os.getenv("DB_HOST", ""),
+        "PORT": os.getenv("DB_PORT", "3306"),
     }
 }
 

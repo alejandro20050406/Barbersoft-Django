@@ -588,12 +588,12 @@ select option,
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
-    position: relative;
+    position: sticky;
+    top: 0;
+    left: 0;
     z-index: 1000;
     overflow-y: auto;
     height: 100vh;
-    position: sticky;
-    top: 0;
 }
 
 .brand-sidebar {
@@ -679,7 +679,7 @@ select option,
 
 /* Top bar */
 .topbar {
-    background: linear-gradient(120deg, #2e261e, #3a2f25);
+    background: linear-gradient(120deg, #1a1a2e, #0f3460);
     color: #fff;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding: 0.85rem 1rem;
@@ -730,33 +730,26 @@ select option,
 /* Responsive */
 @media (max-width: 991px) {
     .sidebar {
-        position: fixed;
-        left: -280px;
-        height: 100vh;
-        transition: left 0.3s ease;
-        top: 0;
-    }
-
-    .sidebar.sidebar-active {
+        width: 260px;
+        position: sticky;
         left: 0;
+        top: 0;
+        height: 100vh;
+        transition: none;
     }
 
     .btn-sidebar-toggle {
-        display: block;
+        display: none;
     }
 
     .d-lg-none {
-        display: block !important;
+        display: none !important;
     }
 }
 
 @media (max-width: 700px) {
-    .topbar {
-        position: static;
-    }
-
     .sidebar {
-        width: 250px;
+        width: 240px;
     }
 
     .sidebar-link {
@@ -765,8 +758,15 @@ select option,
     }
 
     .page-shell {
-        margin: 1rem auto;
-        padding: 0 0.8rem 2rem;
+        margin: 1rem auto 2rem;
+        padding: 0 1rem 2rem;
+    }
+}
+
+@media (min-width: 701px) {
+    .page-shell {
+        margin: 1.5rem auto 2rem;
+        padding: 0 1rem 2rem;
     }
 }
     align-items: center;

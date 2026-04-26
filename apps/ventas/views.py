@@ -433,6 +433,28 @@ class VentaCreateView(SuccessMessageMixin, CreateView):
             form.fields["empleado"].queryset = form.fields["empleado"].queryset.filter(
                 pk__in=employee_ids
             )
+            # Pre-set the employee to current user's employee for new sales
+            if not self.kwargs.get('pk'):  # Only for create, not update
+                employee = None
+                if employee_ids:
+                    employee = Empleado.objects.filter(pk__in=employee_ids).first()
+                else:
+                    # Fallback: try to find employee by email or username
+                    user = self.request.user
+                    if user.email:
+                        employee = Empleado.objects.filter(
+                            Q(correo__iexact=user.email) | Q(correo__iexact=user.username),
+                            estado=Empleado.ACTIVO
+                        ).first()
+                    if not employee and user.first_name and user.last_name:
+                        employee = Empleado.objects.filter(
+                            nombre__iexact=user.first_name,
+                            apellido__iexact=user.last_name,
+                            estado=Empleado.ACTIVO
+                        ).first()
+                
+                if employee:
+                    form.initial["empleado"] = employee
         return form
 
     def get_context_data(self, **kwargs):
@@ -455,6 +477,31 @@ class VentaCreateView(SuccessMessageMixin, CreateView):
         context["servicios"] = list(
             Servicio.objects.filter(activo=True).values("id", "nombre", "precio", "tipo_id")
         )
+        
+        # Check if user is an employee (not admin)
+        context["is_employee"] = is_employee_user(self.request.user) and not is_admin_user(self.request.user)
+        if context["is_employee"]:
+            employee_ids = _employee_ids_for_user(self.request.user, only_active=True)
+            if employee_ids:
+                employee = Empleado.objects.filter(pk__in=employee_ids).first()
+                context["current_employee"] = employee
+            else:
+                # Fallback: try to find employee by email or username
+                user = self.request.user
+                employee = None
+                if user.email:
+                    employee = Empleado.objects.filter(
+                        Q(correo__iexact=user.email) | Q(correo__iexact=user.username),
+                        estado=Empleado.ACTIVO
+                    ).first()
+                if not employee and user.first_name and user.last_name:
+                    employee = Empleado.objects.filter(
+                        nombre__iexact=user.first_name,
+                        apellido__iexact=user.last_name,
+                        estado=Empleado.ACTIVO
+                    ).first()
+                context["current_employee"] = employee
+        
         return context
 
     def form_valid(self, form):

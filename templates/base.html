@@ -5,15 +5,75 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}BarberSoft{% endblock title %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/ui.css' %}">
 </head>
 <body>
-    <header class="topbar">
-        <div class="brand">
-            <span class="brand-mark">B</span>
-            <div>
-                <p class="brand-title">BarberSoft</p>
-                <p class="brand-subtitle">
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="brand-sidebar">
+                <span class="brand-mark">B</span>
+                <div>
+                    <p class="brand-title-sidebar">BarberSoft</p>
+                </div>
+            </div>
+
+            <div class="sidebar-menu">
+                {% if user.is_authenticated %}
+                    {% if is_admin_user %}
+                        <a href="{% url 'accounts:menu-admin' %}" class="sidebar-link">
+                            <i class="bi bi-speedometer2"></i> Menu Admin
+                        </a>
+                        <a href="{% url 'accounts:home' %}" class="sidebar-link">
+                            <i class="bi bi-graph-up"></i> Dashboard
+                        </a>
+                        <a href="{% url 'ventas:venta-list' %}" class="sidebar-link">
+                            <i class="bi bi-cash-coin"></i> Ventas
+                        </a>
+                        <a href="{% url 'catalogos:dashboard' %}" class="sidebar-link">
+                            <i class="bi bi-boxes"></i> Catalogos
+                        </a>
+                        <a href="{% url 'catalogos:servicio-list' %}" class="sidebar-link">
+                            <i class="bi bi-wrench"></i> Gestión de servicios
+                        </a>
+                        <a href="{% url 'clientes:cliente-list' %}" class="sidebar-link">
+                            <i class="bi bi-people"></i> Clientes
+                        </a>
+                        <a href="{% url 'empleados:empleado-list' %}" class="sidebar-link">
+                            <i class="bi bi-person-badge"></i> Empleados
+                        </a>
+                        <a href="{% url 'reportes:dashboard' %}" class="sidebar-link">
+                            <i class="bi bi-file-earmark-chart"></i> Reportes
+                        </a>
+                    {% elif is_employee_user %}
+                        <a href="{% url 'accounts:menu-empleado' %}" class="sidebar-link">
+                            <i class="bi bi-speedometer2"></i> Menu Empleado
+                        </a>
+                        <a href="{% url 'ventas:venta-create' %}" class="sidebar-link">
+                            <i class="bi bi-plus-circle"></i> Nueva Venta
+                        </a>
+                        <a href="{% url 'ventas:venta-list' %}" class="sidebar-link">
+                            <i class="bi bi-list"></i> Mis Ventas
+                        </a>
+                        <a href="{% url 'ventas:dashboard' %}" class="sidebar-link">
+                            <i class="bi bi-calculator"></i> Corte de Caja
+                        </a>
+                    {% endif %}
+
+                    <hr class="sidebar-divider">
+                    <a href="{% url 'accounts:logout' %}" class="sidebar-link logout-link">
+                        <i class="bi bi-box-arrow-left"></i> Cerrar sesion
+                    </a>
+                {% else %}
+                    <a href="{% url 'accounts:menu-principal' %}" class="sidebar-link">
+                        <i class="bi bi-door-open"></i> Acceso
+                    </a>
+                {% endif %}
+            </div>
+
+            <div class="sidebar-footer">
+                <p class="sidebar-user-info">
                     {% if user.is_authenticated %}
                         {{ rol_actual_label }} | Panel de trabajo
                     {% else %}
@@ -21,46 +81,57 @@
                     {% endif %}
                 </p>
             </div>
-        </div>
-        <nav class="main-nav">
-            {% if user.is_authenticated %}
-                {% if is_admin_user %}
-                    <a href="{% url 'accounts:menu-admin' %}">Menu Admin</a>
-                    <a href="{% url 'accounts:home' %}">Dashboard</a>
-                    <a href="{% url 'ventas:venta-list' %}">Ventas</a>
-                    <a href="{% url 'catalogos:dashboard' %}">Catalogos</a>
-                    <a href="{% url 'catalogos:servicio-list' %}">Gestión de servicios</a>
-                    <a href="{% url 'clientes:cliente-list' %}">Clientes</a>
-                    <a href="{% url 'empleados:empleado-list' %}">Empleados</a>
-                    <a href="{% url 'reportes:dashboard' %}">Reportes</a>
-                {% elif is_employee_user %}
-                    <a href="{% url 'accounts:menu-empleado' %}">Menu Empleado</a>
-                    <a href="{% url 'ventas:venta-create' %}">Nueva Venta</a>
-                    <a href="{% url 'ventas:venta-list' %}">Mis Ventas</a>
-                    <a href="{% url 'ventas:dashboard' %}">Corte de Caja</a>
-                {% endif %}
-                <a href="{% url 'accounts:logout' %}">Cerrar sesion</a>
-            {% else %}
-                <a href="{% url 'accounts:menu-principal' %}">Acceso</a>
-            {% endif %}
         </nav>
-    </header>
 
-    <main class="page-shell">
-        {% if messages %}
-            <div class="alerts">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                        {{ message }}
-                        <button type="button" class="close" aria-label="Cerrar" title="Cerrar mensaje">×</button>
+        <!-- Main Content -->
+        <div class="flex-grow-1">
+            <header class="topbar">
+                <div class="topbar-inner">
+                    <button class="btn-sidebar-toggle d-lg-none" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <p class="topbar-title">BarberSoft</p>
+                </div>
+            </header>
+
+            <main class="page-shell">
+                {% if messages %}
+                    <div class="alerts">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                                <button type="button" class="close" aria-label="Cerrar" title="Cerrar mensaje">×</button>
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-        {% block content %}{% endblock content %}
-    </main>
+                {% endif %}
+                {% block content %}{% endblock content %}
+            </main>
+        </div>
+    </div>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Sidebar toggle for mobile
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.sidebar');
+        
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('sidebar-active');
+            });
+        }
+
+        // Close sidebar when a link is clicked
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth < 992) {
+                    sidebar.classList.remove('sidebar-active');
+                }
+            });
+        });
+
         function setMaxDateToToday() {
             const today = new Date();
             const offset = today.getTimezoneOffset();

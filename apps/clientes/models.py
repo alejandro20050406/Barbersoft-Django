@@ -33,6 +33,14 @@ class Cliente(models.Model):
             self.nombre = _upper_clean(self.nombre)
         if self.apellido:
             self.apellido = _upper_clean(self.apellido)
+        if self.nombre and not re.match(r"^[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]+$", self.nombre):
+            raise ValidationError({
+                "nombre": "El nombre solo puede contener letras y espacios, sin signos especiales."
+            })
+        if self.apellido and not re.match(r"^[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]+$", self.apellido):
+            raise ValidationError({
+                "apellido": "El apellido solo puede contener letras y espacios, sin signos especiales."
+            })
         if not self.apellido:
             raise ValidationError({"apellido": "El apellido es obligatorio."})
         if not self.telefono:

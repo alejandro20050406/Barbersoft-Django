@@ -27,6 +27,13 @@ class ClienteForm(forms.ModelForm):
             "correo": forms.EmailInput(attrs={"class": "form-control"}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["apellido"].required = True
+        self.fields["apellido"].widget.attrs["required"] = "required"
+        self.fields["telefono"].required = True
+        self.fields["telefono"].widget.attrs["required"] = "required"
+
     def clean_nombre(self):
         nombre = self.cleaned_data.get("nombre", "").strip()
         if not nombre:
@@ -38,10 +45,9 @@ class ClienteForm(forms.ModelForm):
         return nombre
 
     def clean_apellido(self):
-        apellido = self.cleaned_data.get("apellido", "")
+        apellido = self.cleaned_data.get("apellido", "").strip()
         if not apellido:
-            return apellido  # Es opcional
-        apellido = apellido.strip()
+            raise ValidationError("El apellido es obligatorio.")
         if len(apellido) < 2:
             raise ValidationError("El apellido debe tener al menos 2 caracteres.")
         if any(char.isdigit() for char in apellido):
@@ -51,7 +57,7 @@ class ClienteForm(forms.ModelForm):
     def clean_telefono(self):
         telefono = self.cleaned_data.get("telefono", "")
         if not telefono:
-            return telefono  # Es opcional
+            raise ValidationError("El teléfono es obligatorio.")
 
         telefono_limpio = re.sub(r"\D", "", telefono.strip())
         if len(telefono_limpio) != 10:

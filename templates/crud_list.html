@@ -27,10 +27,10 @@
         <div class="form-group">
             <label for="id_filter">Filtrar</label>
             <select name="{{ filter_name }}" id="id_filter">
-                <option value="">-- Todos --</option>
+                <option value="">-- TODOS --</option>
                 {% for value, label in filter_options %}
                     <option value="{{ value }}" {% if request.GET|get_item:filter_name == value %}selected{% endif %}>
-                        {{ label }}
+                        {{ label|upper }}
                     </option>
                 {% endfor %}
             </select>

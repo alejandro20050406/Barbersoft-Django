@@ -60,6 +60,25 @@
     </main>
 
     <script>
+        function setMaxDateToToday() {
+            const today = new Date();
+            const offset = today.getTimezoneOffset();
+            const localToday = new Date(today.getTime() - offset * 60000)
+                .toISOString()
+                .slice(0, 10);
+
+            document.querySelectorAll('input[type="date"]').forEach((input) => {
+                if (!input.max || input.max > localToday) {
+                    input.max = localToday;
+                }
+                if (input.value && input.value > input.max) {
+                    input.value = input.max;
+                }
+            });
+        }
+
+        setMaxDateToToday();
+
         document.querySelectorAll(".alert .close").forEach((btn) => {
             btn.addEventListener("click", function () {
                 this.parentElement.style.display = "none";

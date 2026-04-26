@@ -1,6 +1,7 @@
 ﻿import re
 
 from django import forms
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 
@@ -48,9 +49,23 @@ class EmpleadoForm(forms.ModelForm):
             "correo": forms.EmailInput(attrs={"class": "form-control"}),
             "estado": forms.Select(attrs={"class": "form-select"}),
             "fecha_ingreso": forms.DateInput(
+                format="%Y-%m-%d",
                 attrs={"class": "form-control", "type": "date"}
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["fecha_ingreso"].input_formats = ["%Y-%m-%d"]
+        self.fields["telefono"].required = True
+        self.fields["telefono"].widget.attrs["required"] = "required"
+
+        usuario = getattr(self.instance, "usuario", None)
+        if usuario:
+            self.fields["username"].initial = usuario.username
+            self.fields["password"].help_text = (
+                "Déjala en blanco para conservar la contraseña actual."
+            )
 
     def clean_nombre(self):
         nombre = self.cleaned_data.get("nombre", "").strip()
@@ -75,7 +90,7 @@ class EmpleadoForm(forms.ModelForm):
     def clean_telefono(self):
         telefono = self.cleaned_data.get("telefono", "")
         if not telefono:
-            return telefono
+            raise ValidationError("El teléfono es obligatorio.")
         telefono_limpio = re.sub(r"\D", "", telefono.strip())
         if len(telefono_limpio) != 10:
             raise ValidationError("Número de teléfono inválido. Debe tener exactamente 10 dígitos.")
@@ -98,7 +113,12 @@ class EmpleadoForm(forms.ModelForm):
         username = self.cleaned_data.get("username", "").strip()
         if not username and not self.instance.pk:
             raise ValidationError("El usuario es obligatorio para crear el empleado.")
-        if username and User.objects.filter(username__iexact=username).exists():
+
+        qs = User.objects.filter(username__iexact=username)
+        usuario_actual = getattr(self.instance, "usuario", None)
+        if usuario_actual:
+            qs = qs.exclude(pk=usuario_actual.pk)
+        if username and qs.exists():
             raise ValidationError("Ya existe un usuario con ese nombre.")
         return username
 
@@ -108,6 +128,37 @@ class EmpleadoForm(forms.ModelForm):
             raise ValidationError("La contraseña es obligatoria para crear el empleado.")
         return password
 
+    def _password_validation_user(self, username):
+        usuario = getattr(self.instance, "usuario", None) or User()
+        usuario.username = username or ""
+        usuario.email = self.cleaned_data.get("correo") or ""
+        usuario.first_name = self.cleaned_data.get("nombre") or ""
+        usuario.last_name = self.cleaned_data.get("apellido") or ""
+        return usuario
+
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get("username")
+        password = cleaned_data.get("password")
+        usuario_actual = getattr(self.instance, "usuario", None)
+
+        if username and not usuario_actual and not password:
+            self.add_error(
+                "password",
+                "La contraseña es obligatoria para crear la cuenta de acceso.",
+            )
+        if password and not username:
+            self.add_error(
+                "username",
+                "Ingresa un usuario para poder guardar la contraseña.",
+            )
+        if password:
+            try:
+                validate_password(password, self._password_validation_user(username))
+            except ValidationError as error:
+                self.add_error("password", error)
+        return cleaned_data
+
     def clean_fecha_ingreso(self):
         fecha_ingreso = self.cleaned_data.get("fecha_ingreso")
         if fecha_ingreso is None:
@@ -115,20 +166,31 @@ class EmpleadoForm(forms.ModelForm):
         return fecha_ingreso
 
     def save(self, commit=True):
-        is_new = self.instance.pk is None
         empleado = super().save(commit=commit)
 
-        if is_new and commit:
+        if commit:
             username = self.cleaned_data.get("username")
             password = self.cleaned_data.get("password")
-            if username and password:
-                user = User.objects.create_user(
-                    username=username,
-                    password=password,
-                    email=empleado.correo or "",
-                )
+            user = getattr(empleado, "usuario", None)
+
+            if username:
+                if user is None:
+                    user = User.objects.create_user(username=username)
+                else:
+                    user.username = username
+
+                user.email = empleado.correo or ""
+                user.first_name = empleado.nombre
+                user.last_name = empleado.apellido
+                if password:
+                    user.set_password(password)
+                user.save()
+
                 group, _ = Group.objects.get_or_create(name="Empleado")
                 user.groups.add(group)
-                user.save()
+
+                if empleado.usuario_id != user.id:
+                    empleado.usuario = user
+                    empleado.save(update_fields=["usuario"])
 
         return empleado

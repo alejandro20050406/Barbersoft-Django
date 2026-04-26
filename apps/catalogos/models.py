@@ -2,6 +2,12 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 
+def _upper_clean(value):
+    if value is None:
+        return value
+    return value.strip().upper()
+
+
 def validar_precio_positivo(value):
     if value < 0:
         raise ValidationError("El precio no puede ser negativo.")
@@ -23,11 +29,15 @@ class CategoriaProducto(models.Model):
         ordering = ["nombre"]
 
     def __str__(self):
-        return self.nombre
+        return self.nombre.upper()
 
     def clean(self):
         if self.nombre:
-            self.nombre = self.nombre.strip()
+            self.nombre = _upper_clean(self.nombre)
+
+    def save(self, *args, **kwargs):
+        self.nombre = _upper_clean(self.nombre)
+        super().save(*args, **kwargs)
 
 
 class Producto(models.Model):
@@ -67,16 +77,20 @@ class Producto(models.Model):
         ordering = ["nombre"]
 
     def __str__(self):
-        return f"{self.nombre} (${self.precio_venta})"
+        return f"{self.nombre.upper()} (${self.precio_venta})"
 
     def clean(self):
         if self.nombre:
-            self.nombre = self.nombre.strip()
+            self.nombre = _upper_clean(self.nombre)
         if self.precio_compra is not None and self.precio_venta is not None:
             if self.precio_venta < self.precio_compra:
                 raise ValidationError(
                     "El precio de venta no puede ser menor que el precio de compra."
                 )
+
+    def save(self, *args, **kwargs):
+        self.nombre = _upper_clean(self.nombre)
+        super().save(*args, **kwargs)
 
 
 class TipoServicio(models.Model):
@@ -90,11 +104,15 @@ class TipoServicio(models.Model):
         ordering = ["nombre"]
 
     def __str__(self):
-        return self.nombre
+        return self.nombre.upper()
 
     def clean(self):
         if self.nombre:
-            self.nombre = self.nombre.strip()
+            self.nombre = _upper_clean(self.nombre)
+
+    def save(self, *args, **kwargs):
+        self.nombre = _upper_clean(self.nombre)
+        super().save(*args, **kwargs)
 
 
 class Servicio(models.Model):
@@ -122,11 +140,15 @@ class Servicio(models.Model):
         ordering = ["nombre"]
 
     def __str__(self):
-        return f"{self.nombre} (${self.precio})"
+        return f"{self.nombre.upper()} (${self.precio})"
 
     def clean(self):
         if self.nombre:
-            self.nombre = self.nombre.strip()
+            self.nombre = _upper_clean(self.nombre)
+
+    def save(self, *args, **kwargs):
+        self.nombre = _upper_clean(self.nombre)
+        super().save(*args, **kwargs)
 
 
 # Nombre alineado con ventas: el Integrante 3 referencia 'catalogos.MetodoDePago'
@@ -141,8 +163,12 @@ class MetodoDePago(models.Model):
         ordering = ["nombre"]
 
     def __str__(self):
-        return self.nombre
+        return self.nombre.upper()
 
     def clean(self):
         if self.nombre:
-            self.nombre = self.nombre.strip()
+            self.nombre = _upper_clean(self.nombre)
+
+    def save(self, *args, **kwargs):
+        self.nombre = _upper_clean(self.nombre)
+        super().save(*args, **kwargs)

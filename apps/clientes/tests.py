@@ -1,11 +1,37 @@
 from django.core.exceptions import ValidationError
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
 
 from .forms import ClienteForm
 from .models import Cliente
 
 
 class ClienteTelefonoValidationTests(SimpleTestCase):
+    def test_form_rechaza_apellido_vacio(self):
+        form = ClienteForm(
+            data={
+                "nombre": "Pedro",
+                "apellido": "",
+                "telefono": "3125467731",
+                "correo": "",
+            }
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("apellido", form.errors)
+
+    def test_form_rechaza_telefono_vacio(self):
+        form = ClienteForm(
+            data={
+                "nombre": "Pedro",
+                "apellido": "Rocha",
+                "telefono": "",
+                "correo": "",
+            }
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("telefono", form.errors)
+
     def test_form_rechaza_telefono_con_menos_de_10_digitos(self):
         form = ClienteForm(
             data={
@@ -37,3 +63,30 @@ class ClienteTelefonoValidationTests(SimpleTestCase):
 
         with self.assertRaises(ValidationError):
             cliente.full_clean()
+
+    def test_model_rechaza_telefono_vacio(self):
+        cliente = Cliente(nombre="Pedro", apellido="Rocha", telefono="")
+
+        with self.assertRaises(ValidationError):
+            cliente.full_clean()
+
+    def test_model_rechaza_apellido_vacio(self):
+        cliente = Cliente(nombre="Pedro", apellido="", telefono="3125467731")
+
+        with self.assertRaises(ValidationError):
+            cliente.full_clean()
+
+
+class ClienteUppercasePersistenceTests(TestCase):
+    def test_guarda_nombre_y_apellido_en_mayusculas(self):
+        cliente = Cliente.objects.create(
+            nombre=" Gael ",
+            apellido=" Cortes ",
+            telefono="3125467731",
+        )
+
+        cliente.refresh_from_db()
+
+        self.assertEqual(cliente.nombre, "GAEL")
+        self.assertEqual(cliente.apellido, "CORTES")
+        self.assertEqual(str(cliente), "GAEL CORTES")

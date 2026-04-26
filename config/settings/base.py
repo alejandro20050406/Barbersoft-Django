@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "apps.core.apps.CoreConfig",
     "apps.accounts.apps.AccountsConfig",
     "apps.catalogos.apps.CatalogosConfig",
     "apps.clientes.apps.ClientesConfig",
@@ -73,6 +74,24 @@ LANGUAGE_CODE = "es-mx"
 TIME_ZONE = "America/Mexico_City"
 USE_I18N = True
 USE_TZ = True
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {
+            "min_length": 8,
+        },
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]

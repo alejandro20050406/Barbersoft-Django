@@ -21,8 +21,8 @@
         </div>
         <div class="form-group">
             <select name="tipo">
-                <option value="">-- Todos --</option>
-                {% for t in tipos_servicio %}<option value="{{ t.id }}" {% if request.GET.tipo|add:"0" == t.id %}selected{% endif %}>{{ t.nombre }}</option>{% endfor %}
+                <option value="">-- TODOS --</option>
+                {% for t in tipos_servicio %}<option value="{{ t.id }}" {% if request.GET.tipo|add:"0" == t.id %}selected{% endif %}>{{ t.nombre|upper }}</option>{% endfor %}
             </select>
         </div>
         <button type="submit" class="btn btn-secondary btn-sm">Buscar</button>

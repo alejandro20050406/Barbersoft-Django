@@ -48,6 +48,43 @@ def _validation_error_text(exc):
     return str(exc)
 
 
+def _cliente_option_text(cliente):
+    if isinstance(cliente, dict):
+        nombre = cliente.get("nombre", "")
+        apellido = cliente.get("apellido")
+        telefono = cliente.get("telefono")
+    else:
+        nombre = cliente.nombre
+        apellido = cliente.apellido
+        telefono = cliente.telefono
+
+    full_name = nombre
+    if apellido:
+        full_name = f"{full_name} {apellido}"
+    if telefono:
+        full_name = f"{full_name} ({telefono})"
+    return full_name.upper()
+
+
+def _selected_cliente_from_form(form):
+    raw_cliente_id = ""
+    if form.is_bound:
+        raw_cliente_id = form.data.get(form.add_prefix("cliente"), "")
+    elif form.instance and form.instance.pk:
+        raw_cliente_id = form.instance.cliente_id
+    elif form.initial.get("cliente"):
+        raw_cliente_id = form.initial["cliente"]
+
+    if not raw_cliente_id:
+        return None
+
+    cliente = Cliente.objects.filter(pk=raw_cliente_id).first()
+    if cliente is None:
+        return None
+
+    return {"id": cliente.id, "text": _cliente_option_text(cliente)}
+
+
 def _employee_ids_for_user(user, only_active=False):
     if not getattr(user, "is_authenticated", False):
         return []
@@ -57,6 +94,12 @@ def _employee_ids_for_user(user, only_active=False):
         if only_active:
             queryset = queryset.filter(estado=Empleado.ACTIVO)
         return list(queryset.values_list("id", flat=True))
+
+    empleado_vinculado = getattr(user, "empleado", None)
+    if empleado_vinculado:
+        if only_active and empleado_vinculado.estado != Empleado.ACTIVO:
+            return []
+        return [empleado_vinculado.id]
 
     filters = Q()
     email = (getattr(user, "email", "") or "").strip()
@@ -416,6 +459,7 @@ class VentaCreateView(SuccessMessageMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["selected_cliente"] = _selected_cliente_from_form(context["form"])
         initial_item_type = (self.request.GET.get("item_type") or "").strip().lower()
         if initial_item_type not in {"producto", "servicio"}:
             initial_item_type = ""
@@ -905,22 +949,27 @@ def api_clientes_search(request):
     query = request.GET.get('q', '').strip()
     if not query or len(query) < 2:
         return JsonResponse({'results': []})
-    
-    clientes = Cliente.objects.filter(
-        Q(nombre__icontains=query) | Q(apellido__icontains=query)
-    ).values('id', 'nombre', 'apellido', 'telefono')[:20]
+
+    filters = Q()
+    for token in query.split():
+        filters &= (
+            Q(nombre__icontains=token)
+            | Q(apellido__icontains=token)
+            | Q(telefono__icontains=token)
+            | Q(correo__icontains=token)
+        )
+
+    clientes = (
+        Cliente.objects.filter(filters)
+        .order_by('apellido', 'nombre')
+        .values('id', 'nombre', 'apellido', 'telefono')[:20]
+    )
     
     results = []
     for cliente in clientes:
-        full_name = cliente['nombre']
-        if cliente['apellido']:
-            full_name += f" {cliente['apellido']}"
-        if cliente['telefono']:
-            full_name += f" ({cliente['telefono']})"
-        
         results.append({
             'id': cliente['id'],
-            'text': full_name
+            'text': _cliente_option_text(cliente)
         })
     
     return JsonResponse({'results': results})

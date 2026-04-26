@@ -651,3 +651,23 @@ select option,
         gap: 0.35rem;
     }
 }
+
+/* Botón de agregar item en ventas */
+#add-item {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 1rem 0;
+    transition: all 0.2s ease;
+}
+
+#add-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}

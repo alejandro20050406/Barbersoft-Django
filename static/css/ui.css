@@ -1,13 +1,13 @@
 :root {
-    --bg: #f5efe4;
-    --paper: #fffaf2;
-    --ink: #1f1f1f;
-    --muted: #5f5a50;
-    --accent: #b4422e;
-    --accent-dark: #7e2c1f;
-    --line: #dfd6c5;
+    --bg: #f8f9fa;
+    --paper: #ffffff;
+    --ink: #1a1a2e;
+    --muted: #546b82;
+    --accent: #d32f2f;
+    --accent-dark: #b71c1c;
+    --line: #e8ecf1;
     --radius: 14px;
-    --shadow: 0 10px 25px rgba(96, 65, 34, 0.12);
+    --shadow: 0 10px 25px rgba(211, 47, 47, 0.12);
 }
 
 * {
@@ -16,7 +16,7 @@
 
 body {
     margin: 0;
-    background: radial-gradient(circle at top left, #fdf8ef, var(--bg));
+    background: radial-gradient(circle at top left, #f0f4f8, var(--bg));
     color: var(--ink);
     font-family: "Segoe UI", "Trebuchet MS", sans-serif;
 }
@@ -25,7 +25,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 20;
-    background: linear-gradient(120deg, #2e261e, #3a2f25);
+    background: linear-gradient(120deg, #1a1a2e, #0f3460);
     color: #fff;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding: 0.85rem 1rem;
@@ -59,7 +59,7 @@ body {
 
 .brand-subtitle {
     margin: 0;
-    color: #d3c4b0;
+    color: #a8d5ff;
     font-size: 0.85rem;
 }
 
@@ -70,7 +70,7 @@ body {
 }
 
 .main-nav a {
-    color: #f4ede2;
+    color: #e8f0ff;
     text-decoration: none;
     background: rgba(255, 255, 255, 0.08);
     padding: 0.45rem 0.65rem;
@@ -89,7 +89,7 @@ body {
 }
 
 .hero {
-    background: linear-gradient(135deg, #30261d, #593924);
+    background: linear-gradient(135deg, #0f3460, #1a5490);
     color: #fff;
     border-radius: var(--radius);
     box-shadow: var(--shadow);
@@ -118,7 +118,7 @@ body {
 
 .hero-badge p {
     font-size: 0.85rem;
-    color: #f1dfc7;
+    color: #a8d5ff;
 }
 
 .hero-badge strong {
@@ -127,7 +127,7 @@ body {
 }
 
 .eyebrow {
-    color: #ffb98f;
+    color: #ff6b6b;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     font-size: 0.75rem;
@@ -228,13 +228,13 @@ table.table {
 .table td {
     text-align: left;
     padding: 0.55rem;
-    border-bottom: 1px solid #ece2d2;
+    border-bottom: 1px solid #e3e8ef;
     font-size: 0.92rem;
 }
 
 .table th {
-    background: #f6ecdc;
-    color: #44362a;
+    background: #e8ecf1;
+    color: #1a1a2e;
 }
 
 .panel ul {
@@ -294,32 +294,32 @@ table.table {
     border-radius: 10px;
     padding: 0.7rem 0.9rem;
     border: 1px solid var(--line);
-    background: #f3eee5;
+    background: #f0f4f8;
 }
 
 .alert-success {
-    background: #e7f4e8;
-    border-color: #cde3cf;
-    color: #245a2f;
+    background: #e8f5e9;
+    border-color: #c8e6c9;
+    color: #2e7d32;
 }
 
 .alert-error,
 .alert-danger {
-    background: #fdebec;
-    border-color: #efc7cb;
-    color: #7e2c1f;
+    background: #ffebee;
+    border-color: #ffcdd2;
+    color: #c62828;
 }
 
 .alert-info {
-    background: #e5f0fb;
-    border-color: #c7dbf0;
-    color: #1f4f7e;
+    background: #e3f2fd;
+    border-color: #bbdefb;
+    color: #0d47a1;
 }
 
 .alert-warning {
-    background: #fff5d8;
-    border-color: #ecd9a0;
-    color: #7f5b0d;
+    background: #fff8e1;
+    border-color: #ffe082;
+    color: #f57f17;
 }
 
 .alert .close {
@@ -385,20 +385,20 @@ table.table {
     border: 1px solid var(--line);
     font-size: 0.8rem;
     font-weight: 600;
-    color: #3d3124;
-    background: #efe5d6;
+    color: #1a1a2e;
+    background: #e8ecf1;
 }
 
 .role-chip-admin {
-    background: #f8e6de;
-    border-color: #e4bea9;
-    color: #7e2c1f;
+    background: #ffebee;
+    border-color: #ffcdd2;
+    color: #c62828;
 }
 
 .role-chip-employee {
-    background: #e5f1eb;
-    border-color: #bdd8cb;
-    color: #245a45;
+    background: #e3f2fd;
+    border-color: #bbdefb;
+    color: #0d47a1;
 }
 
 .auth-form {
@@ -428,7 +428,7 @@ table.table {
 .form-control:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(180, 66, 46, 0.12);
+    box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.12);
 }
 
 select,
@@ -439,7 +439,7 @@ select option,
 }
 
 .field-error {
-    color: #8b2e25;
+    color: #c62828;
     font-size: 0.82rem;
 }
 
@@ -487,7 +487,7 @@ select option,
 .btn-secondary,
 .btn-secondary-inline {
     background: #fff;
-    color: #3f352a;
+    color: #1a1a2e;
     border-color: var(--line);
 }
 
@@ -549,13 +549,13 @@ select option,
 .legacy-role-card h2 {
     margin: 0 0 0.45rem;
     font-size: 1.08rem;
-    color: #142578;
+    color: #0d47a1;
 }
 
 .legacy-role-card p {
     margin: 0 0 0.85rem;
     font-size: 0.9rem;
-    color: #3c3c3c;
+    color: #1a1a2e;
 }
 
 .legacy-form {
@@ -583,7 +583,7 @@ select option,
 
 .sidebar {
     width: 280px;
-    background: linear-gradient(180deg, #2e261e, #3a2f25);
+    background: linear-gradient(180deg, #1a1a2e, #0f3460);
     color: #fff;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
@@ -623,7 +623,7 @@ select option,
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    color: #f4ede2;
+    color: #e8f0ff;
     text-decoration: none;
     padding: 0.75rem 1rem;
     border-radius: 8px;
@@ -664,7 +664,7 @@ select option,
 .sidebar-user-info {
     margin: 0;
     font-size: 0.8rem;
-    color: #d3c4b0;
+    color: #a8d5ff;
     text-align: center;
     line-height: 1.3;
 }
@@ -773,7 +773,7 @@ select option,
 }
 
 .legacy-form-row label {
-    color: #202020;
+    color: #1a1a2e;
     font-size: 0.92rem;
     font-weight: 600;
 }
@@ -788,8 +788,8 @@ select option,
 }
 
 .legacy-form-row .form-control:focus {
-    border-color: #1a36c8;
-    box-shadow: 0 0 0 2px rgba(26, 54, 200, 0.12);
+    border-color: #0f3460;
+    box-shadow: 0 0 0 2px rgba(15, 52, 96, 0.12);
 }
 
 .legacy-actions {

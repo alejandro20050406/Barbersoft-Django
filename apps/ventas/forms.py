@@ -2,7 +2,7 @@
 from django.core.exceptions import ValidationError
 from decimal import Decimal
 
-from apps.catalogos.models import MetodoDePago
+from apps.catalogos.models import MetodoDePago, Producto
 from apps.empleados.models import Empleado
 
 from .models import (
@@ -51,6 +51,17 @@ class VentaForm(forms.ModelForm):
 
 
 class VentaDetalleProductoForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        productos_disponibles = Producto.objects.filter(activo=True, stock__gt=0)
+
+        if self.instance.pk and self.instance.producto_id:
+            productos_disponibles = Producto.objects.filter(activo=True).filter(
+                pk=self.instance.producto_id
+            ) | productos_disponibles
+
+        self.fields["producto"].queryset = productos_disponibles.distinct().order_by("nombre")
+
     class Meta:
         model = VentaDetalleProducto
         fields = ["venta", "producto", "cantidad", "precio_unitario", "subtotal"]

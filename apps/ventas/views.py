@@ -470,7 +470,7 @@ class VentaCreateView(SuccessMessageMixin, CreateView):
         )
         context["tipos_servicio"] = list(TipoServicio.objects.values("id", "nombre"))
         context["productos"] = list(
-            Producto.objects.filter(activo=True).values(
+            Producto.objects.filter(activo=True, stock__gt=0).values(
                 "id", "nombre", "precio_venta", "categoria_id"
             )
         )

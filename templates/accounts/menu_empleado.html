@@ -86,7 +86,7 @@
                     <div class="sales-bar-column">
                         <span class="sales-bar-value">${{ point.amount|floatformat:0 }}</span>
                         <div class="sales-bar-track">
-                            <div class="sales-bar-fill" style="height: {{ point.height }}%;"></div>
+                            <div class="sales-bar-fill" data-bar-height="{{ point.height }}"></div>
                         </div>
                         <small>{{ point.label }}</small>
                     </div>
@@ -102,7 +102,7 @@
                 </div>
             </div>
             <div class="report-donut-card">
-                <div class="report-donut-ring report-donut-ring-blue" style="--fill: {{ dashboard.composition.servicios.percentage|default:0 }}%;">
+                <div class="report-donut-ring report-donut-ring-blue" data-donut-fill="{{ dashboard.composition.servicios.percentage|default:0 }}">
                     <span>{{ dashboard.composition.servicios.percentage }}%</span>
                 </div>
                 <ul class="report-legend">
@@ -127,7 +127,7 @@
                             <span>{{ item.percentage }}%</span>
                         </div>
                         <div class="report-breakdown-track">
-                            <div class="report-breakdown-fill report-breakdown-fill-{{ item.tone }}" style="width: {{ item.percentage|floatformat:0 }}%;"></div>
+                            <div class="report-breakdown-fill {{ item.tone_class }}" data-breakdown-width="{{ item.percentage|floatformat:0 }}"></div>
                         </div>
                         <small>${{ item.amount|floatformat:2 }}</small>
                     </div>

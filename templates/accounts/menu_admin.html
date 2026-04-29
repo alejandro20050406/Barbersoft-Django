@@ -3,42 +3,207 @@
 {% block title %}Menu del Administrador | BarberSoft{% endblock title %}
 
 {% block content %}
-<section class="section-header">
-    <p class="eyebrow">Administrador</p>
-    <h1>Menu Principal</h1>
-    <p>Accesos de administracion disponibles segun el diagrama del sistema.</p>
-</section>
+<section class="report-shell">
+    <div class="report-topbar">
+        <div>
+            <p class="eyebrow">{{ dashboard.role_label }}</p>
+            <h1>Inicio / Reportes</h1>
+        </div>
+        <div class="report-actions">
+            <a class="report-action-btn" href="{% url 'reportes:dashboard' %}">Ver Reportes</a>
+            <a class="report-action-btn report-action-btn-green" href="{% url 'accounts:home' %}">Dashboard General</a>
+            <a class="report-action-btn report-action-btn-light" href="{% url 'ventas:venta-list' %}">Gestionar Ventas</a>
+        </div>
+    </div>
 
-<section class="module-grid">
-    <a class="module-card" href="{% url 'ventas:venta-create' %}">
-        <h2>Crear Venta</h2>
-    </a>
-    <a class="module-card" href="{% url 'empleados:empleado-list' %}">
-        <h2>Gestion de Empleados</h2>
-    </a>
-    <a class="module-card" href="{% url 'catalogos:producto-list' %}">
-        <h2>Gestion de Productos</h2>
-    </a>
-    <a class="module-card" href="{% url 'catalogos:servicio-list' %}">
-        <h2>Gestion de Servicios</h2>
-    </a>
-    <a class="module-card" href="{% url 'catalogos:categoria-list' %}">
-        <h2>Categorias de Productos</h2>
-    </a>
-    <a class="module-card" href="{% url 'catalogos:tiposervicio-list' %}">
-        <h2>Categorias de Servicios</h2>
-    </a>
-    <a class="module-card" href="{% url 'clientes:cliente-list' %}">
-        <h2>Gestion de Clientes</h2>
-    </a>
-    <a class="module-card" href="{% url 'ventas:venta-list' %}">
-        <h2>Gestion de Ventas</h2>
-    </a>
-    <a class="module-card" href="{% url 'reportes:dashboard' %}">
-        <h2>Reportes</h2>
-    </a>
-    <a class="module-card" href="{% url 'accounts:home' %}">
-        <h2>Dashboard General</h2>
-    </a>
+    <section class="report-filter-bar">
+        <div class="report-filter-item">
+            <span>Rango</span>
+            <strong>{{ dashboard.period_label }}</strong>
+        </div>
+        <div class="report-filter-item">
+            <span>Desde</span>
+            <strong>{{ dashboard.start_date|date:"d/m/Y" }}</strong>
+        </div>
+        <div class="report-filter-item">
+            <span>Hasta</span>
+            <strong>{{ dashboard.end_date|date:"d/m/Y" }}</strong>
+        </div>
+        <div class="report-filter-item">
+            <span>Empleado</span>
+            <strong>Todos</strong>
+        </div>
+        <div class="report-filter-item">
+            <span>Vista</span>
+            <strong>Administrativa</strong>
+        </div>
+        <div class="report-filter-cta">
+            <a class="report-apply-btn" href="{% url 'ventas:venta-create' %}">Nueva Venta</a>
+        </div>
+    </section>
+
+    <section class="report-kpi-grid">
+        {% for stat in dashboard.stats %}
+            <article class="report-kpi-card report-kpi-card-{{ stat.accent }}">
+                <h2>{{ stat.title }}</h2>
+                <p>
+                    {% if stat.is_currency %}
+                        ${{ stat.value|floatformat:2 }}
+                    {% else %}
+                        {{ stat.value }}
+                    {% endif %}
+                </p>
+            </article>
+        {% endfor %}
+    </section>
+
+    <section class="report-analytics-board">
+        <article class="report-panel report-panel-wide">
+            <div class="report-panel-head">
+                <div>
+                    <h2>Ingresos del Periodo</h2>
+                    <p>Comportamiento diario de ventas registradas.</p>
+                </div>
+            </div>
+            <div class="sales-bars-chart">
+                {% for point in dashboard.daily_series %}
+                    <div class="sales-bar-column">
+                        <span class="sales-bar-value">${{ point.amount|floatformat:0 }}</span>
+                        <div class="sales-bar-track">
+                            <div class="sales-bar-fill" style="height: {{ point.height }}%;"></div>
+                        </div>
+                        <small>{{ point.label }}</small>
+                    </div>
+                {% endfor %}
+            </div>
+        </article>
+
+        <article class="report-panel">
+            <div class="report-panel-head">
+                <div>
+                    <h2>Servicios vs Productos</h2>
+                    <p>Participacion del ingreso.</p>
+                </div>
+            </div>
+            <div class="report-donut-card">
+                <div class="report-donut-ring report-donut-ring-blue" style="--fill: {{ dashboard.composition.servicios.percentage|default:0 }}%;">
+                    <span>{{ dashboard.composition.servicios.percentage }}%</span>
+                </div>
+                <ul class="report-legend">
+                    <li><span class="legend-dot legend-dot-blue"></span>Servicios: ${{ dashboard.composition.servicios.amount|floatformat:2 }}</li>
+                    <li><span class="legend-dot legend-dot-orange"></span>Productos: ${{ dashboard.composition.productos.amount|floatformat:2 }}</li>
+                </ul>
+            </div>
+        </article>
+
+        <article class="report-panel">
+            <div class="report-panel-head">
+                <div>
+                    <h2>Metodo de Pago</h2>
+                    <p>Distribucion del periodo.</p>
+                </div>
+            </div>
+            <div class="report-breakdown-list">
+                {% for item in dashboard.payment_breakdown %}
+                    <div class="report-breakdown-row">
+                        <div class="report-breakdown-head">
+                            <strong>{{ item.label }}</strong>
+                            <span>{{ item.percentage }}%</span>
+                        </div>
+                        <div class="report-breakdown-track">
+                            <div class="report-breakdown-fill report-breakdown-fill-{{ item.tone }}" style="width: {{ item.percentage|floatformat:0 }}%;"></div>
+                        </div>
+                        <small>${{ item.amount|floatformat:2 }}</small>
+                    </div>
+                {% empty %}
+                    <p class="report-empty">Sin movimientos en el periodo.</p>
+                {% endfor %}
+            </div>
+        </article>
+    </section>
+
+    <section class="report-detail-grid">
+        <article class="report-panel report-panel-wide">
+            <div class="report-tab-strip">
+                <span class="report-tab report-tab-active">Detalle de Ventas</span>
+                <span class="report-tab">Resumen por Empleado</span>
+                <span class="report-tab">Resumen por Servicio</span>
+                <span class="report-tab">Resumen por Producto</span>
+            </div>
+            <div class="table-wrap">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Folio</th>
+                            <th>Cliente</th>
+                            <th>Empleado</th>
+                            <th>Pago</th>
+                            <th>Total</th>
+                            <th>Accion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for venta in dashboard.recent_sales %}
+                            <tr>
+                                <td>{{ venta.fecha|date:"d/m/Y" }}</td>
+                                <td>F{{ venta.id }}</td>
+                                <td>{{ venta.cliente }}</td>
+                                <td>{{ venta.empleado }}</td>
+                                <td>{{ venta.metodo_de_pago }}</td>
+                                <td>${{ venta.total|floatformat:2 }}</td>
+                                <td><a class="table-view-btn" href="{% url 'ventas:venta-detail' venta.pk %}">Ver</a></td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7">No hay ventas recientes para mostrar.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </article>
+
+        <aside class="report-panel report-summary-side">
+            <div class="summary-side-block">
+                <h3>Resumen Rapido</h3>
+                <ul class="summary-side-list">
+                    {% for item in dashboard.highlights %}
+                        <li><span>{{ item.label }}</span><strong>{{ item.value }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="summary-side-block">
+                <h3>Top Servicios</h3>
+                <ul class="summary-side-list">
+                    {% for item in dashboard.top_services %}
+                        <li><span>{{ item.detalles_servicio__servicio__nombre }}</span><strong>{{ item.total }}</strong></li>
+                    {% empty %}
+                        <li><span>Sin registros</span><strong>-</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="summary-side-block">
+                <h3>Top Productos</h3>
+                <ul class="summary-side-list">
+                    {% for item in dashboard.top_products %}
+                        <li><span>{{ item.detalles_productos__producto__nombre }}</span><strong>{{ item.total }}</strong></li>
+                    {% empty %}
+                        <li><span>Sin registros</span><strong>-</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="summary-side-block">
+                <h3>Mejor Empleado</h3>
+                <ul class="summary-side-list">
+                    {% for item in dashboard.top_employees %}
+                        <li><span>{{ item.empleado__nombre }} {{ item.empleado__apellido }}</span><strong>${{ item.ingresos|floatformat:0 }}</strong></li>
+                    {% empty %}
+                        <li><span>Sin registros</span><strong>-</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </aside>
+    </section>
 </section>
 {% endblock content %}

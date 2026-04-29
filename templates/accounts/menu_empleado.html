@@ -3,21 +3,203 @@
 {% block title %}Menu del Empleado | BarberSoft{% endblock title %}
 
 {% block content %}
-<section class="section-header">
-    <p class="eyebrow">Empleado</p>
-    <h1>Menu Principal</h1>
-    <p>Accesos operativos disponibles para empleado normal.</p>
-</section>
+<section class="report-shell">
+    <div class="report-topbar">
+        <div>
+            <p class="eyebrow">{{ dashboard.role_label }}</p>
+            <h1>Inicio / Mi Panel</h1>
+        </div>
+        <div class="report-actions">
+            <a class="report-action-btn" href="{% url 'ventas:venta-create' %}">Nueva Venta</a>
+            <a class="report-action-btn report-action-btn-green" href="{% url 'ventas:dashboard' %}">Corte de Caja</a>
+            <a class="report-action-btn report-action-btn-light" href="{% url 'ventas:venta-list' %}">Mis Ventas</a>
+        </div>
+    </div>
 
-<section class="module-grid">
-    <a class="module-card" href="{% url 'ventas:venta-create' %}">
-        <h2>Crear Venta</h2>
-    </a>
-    <a class="module-card" href="{% url 'ventas:dashboard' %}">
-        <h2>Corte de Caja</h2>
-    </a>
-    <a class="module-card" href="{% url 'ventas:venta-list' %}">
-        <h2>Mis Ventas</h2>
-    </a>
+    <section class="report-filter-bar">
+        <div class="report-filter-item">
+            <span>Rango</span>
+            <strong>{{ dashboard.period_label }}</strong>
+        </div>
+        <div class="report-filter-item">
+            <span>Desde</span>
+            <strong>{{ dashboard.start_date|date:"d/m/Y" }}</strong>
+        </div>
+        <div class="report-filter-item">
+            <span>Hasta</span>
+            <strong>{{ dashboard.end_date|date:"d/m/Y" }}</strong>
+        </div>
+        <div class="report-filter-item">
+            <span>Empleado</span>
+            <strong>{{ dashboard.employee_name }}</strong>
+        </div>
+        <div class="report-filter-item">
+            <span>Vista</span>
+            <strong>Solo mis datos</strong>
+        </div>
+        <div class="report-filter-cta">
+            <a class="report-apply-btn" href="{% url 'ventas:venta-create' %}">Aplicar</a>
+        </div>
+    </section>
+
+    <section class="report-kpi-grid">
+        {% for stat in dashboard.stats %}
+            <article class="report-kpi-card report-kpi-card-{{ stat.accent }}">
+                <h2>{{ stat.title }}</h2>
+                <p>
+                    {% if stat.is_currency %}
+                        ${{ stat.value|floatformat:2 }}
+                    {% else %}
+                        {{ stat.value }}
+                    {% endif %}
+                </p>
+            </article>
+        {% endfor %}
+    </section>
+
+    <section class="report-analytics-board">
+        <article class="report-panel report-panel-wide">
+            <div class="report-panel-head">
+                <div>
+                    <h2>Mis Ingresos del Periodo</h2>
+                    <p>Comportamiento diario de tus ventas.</p>
+                </div>
+            </div>
+            <div class="sales-bars-chart">
+                {% for point in dashboard.daily_series %}
+                    <div class="sales-bar-column">
+                        <span class="sales-bar-value">${{ point.amount|floatformat:0 }}</span>
+                        <div class="sales-bar-track">
+                            <div class="sales-bar-fill" style="height: {{ point.height }}%;"></div>
+                        </div>
+                        <small>{{ point.label }}</small>
+                    </div>
+                {% endfor %}
+            </div>
+        </article>
+
+        <article class="report-panel">
+            <div class="report-panel-head">
+                <div>
+                    <h2>Servicios vs Productos</h2>
+                    <p>Distribucion de tus ingresos.</p>
+                </div>
+            </div>
+            <div class="report-donut-card">
+                <div class="report-donut-ring report-donut-ring-blue" style="--fill: {{ dashboard.composition.servicios.percentage|default:0 }}%;">
+                    <span>{{ dashboard.composition.servicios.percentage }}%</span>
+                </div>
+                <ul class="report-legend">
+                    <li><span class="legend-dot legend-dot-blue"></span>Servicios: ${{ dashboard.composition.servicios.amount|floatformat:2 }}</li>
+                    <li><span class="legend-dot legend-dot-orange"></span>Productos: ${{ dashboard.composition.productos.amount|floatformat:2 }}</li>
+                </ul>
+            </div>
+        </article>
+
+        <article class="report-panel">
+            <div class="report-panel-head">
+                <div>
+                    <h2>Metodo de Pago</h2>
+                    <p>Distribucion de tus ventas.</p>
+                </div>
+            </div>
+            <div class="report-breakdown-list">
+                {% for item in dashboard.payment_breakdown %}
+                    <div class="report-breakdown-row">
+                        <div class="report-breakdown-head">
+                            <strong>{{ item.label }}</strong>
+                            <span>{{ item.percentage }}%</span>
+                        </div>
+                        <div class="report-breakdown-track">
+                            <div class="report-breakdown-fill report-breakdown-fill-{{ item.tone }}" style="width: {{ item.percentage|floatformat:0 }}%;"></div>
+                        </div>
+                        <small>${{ item.amount|floatformat:2 }}</small>
+                    </div>
+                {% empty %}
+                    <p class="report-empty">Sin movimientos en el periodo.</p>
+                {% endfor %}
+            </div>
+        </article>
+    </section>
+
+    <section class="report-detail-grid">
+        <article class="report-panel report-panel-wide">
+            <div class="report-tab-strip">
+                <span class="report-tab report-tab-active">Detalle de Mis Ventas</span>
+                <span class="report-tab">Resumen por Servicio</span>
+                <span class="report-tab">Resumen por Producto</span>
+            </div>
+            <div class="table-wrap">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Folio</th>
+                            <th>Cliente</th>
+                            <th>Pago</th>
+                            <th>Total</th>
+                            <th>Accion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for venta in dashboard.recent_sales %}
+                            <tr>
+                                <td>{{ venta.fecha|date:"d/m/Y" }}</td>
+                                <td>F{{ venta.id }}</td>
+                                <td>{{ venta.cliente }}</td>
+                                <td>{{ venta.metodo_de_pago }}</td>
+                                <td>${{ venta.total|floatformat:2 }}</td>
+                                <td><a class="table-view-btn" href="{% url 'ventas:venta-detail' venta.pk %}">Ver</a></td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6">No tienes ventas recientes para mostrar.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </article>
+
+        <aside class="report-panel report-summary-side">
+            <div class="summary-side-block">
+                <h3>Resumen Rapido</h3>
+                <ul class="summary-side-list">
+                    {% for item in dashboard.highlights %}
+                        <li>
+                            <span>{{ item.label }}</span>
+                            <strong>
+                                {% if item.label == "Promedio por venta" %}
+                                    ${{ item.value|floatformat:2 }}
+                                {% else %}
+                                    {{ item.value }}
+                                {% endif %}
+                            </strong>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="summary-side-block">
+                <h3>Top Servicios</h3>
+                <ul class="summary-side-list">
+                    {% for item in dashboard.top_services %}
+                        <li><span>{{ item.detalles_servicio__servicio__nombre }}</span><strong>{{ item.total }}</strong></li>
+                    {% empty %}
+                        <li><span>Sin registros</span><strong>-</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="summary-side-block">
+                <h3>Top Productos</h3>
+                <ul class="summary-side-list">
+                    {% for item in dashboard.top_products %}
+                        <li><span>{{ item.detalles_productos__producto__nombre }}</span><strong>{{ item.total }}</strong></li>
+                    {% empty %}
+                        <li><span>Sin registros</span><strong>-</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </aside>
+    </section>
 </section>
 {% endblock content %}

@@ -719,6 +719,7 @@ select option,
 
 .sales-bar-fill {
     width: 100%;
+    height: var(--bar-height, 0%);
     border-radius: 10px;
     background: linear-gradient(180deg, #5ea9ff, #0d66db);
     min-height: 12px;
@@ -825,6 +826,7 @@ select option,
 }
 
 .report-breakdown-fill {
+    width: var(--breakdown-width, 0%);
     height: 100%;
     border-radius: 999px;
 }

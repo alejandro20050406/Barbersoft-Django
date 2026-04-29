@@ -250,10 +250,12 @@ def _decorate_payment_breakdown(items):
     palette = ["green", "blue", "orange", "slate"]
     decorated = []
     for index, item in enumerate(items):
+        tone = palette[index % len(palette)]
         decorated.append(
             {
                 **item,
-                "tone": palette[index % len(palette)],
+                "tone": tone,
+                "tone_class": f"report-breakdown-fill-{tone}",
                 "slug": slugify(item["label"]) or f"item-{index}",
             }
         )

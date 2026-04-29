@@ -59,6 +59,14 @@
                     <label for="sale-total-display">Total</label>
                     <input type="text" id="sale-total-display" class="form-control" value="0.00" readonly>
                 </div>
+                <div class="form-group" style="min-width: 220px;">
+                    <label for="employee-service-total-display">Total empleado servicios (80%)</label>
+                    <input type="text" id="employee-service-total-display" class="form-control" value="0.00" readonly>
+                </div>
+                <div class="form-group" style="min-width: 220px;">
+                    <label for="admin-service-total-display">Ganancia administrador (20%)</label>
+                    <input type="text" id="admin-service-total-display" class="form-control" value="0.00" readonly>
+                </div>
             </div>
         </div>
 
@@ -129,6 +137,8 @@
     const itemsList = document.getElementById('items-list');
     const itemTemplate = document.getElementById('item-row-template');
     const totalDisplayInput = document.getElementById('sale-total-display');
+    const employeeServiceTotalDisplayInput = document.getElementById('employee-service-total-display');
+    const adminServiceTotalDisplayInput = document.getElementById('admin-service-total-display');
 
     function formatMoney(value) {
         return Number(value).toFixed(2);
@@ -416,12 +426,23 @@
 
     function updateTotal() {
         let total = 0;
+        let serviceTotal = 0;
         itemsList.querySelectorAll('.sale-item-row').forEach(row => {
             const subtotal = parseFloat(row.querySelector('.item-subtotal').value) || 0;
+            const itemType = row.querySelector('.item-type').value;
             total += subtotal;
+            if (itemType === 'servicio') {
+                serviceTotal += subtotal;
+            }
         });
         if (totalDisplayInput) {
             totalDisplayInput.value = formatMoney(total);
+        }
+        if (employeeServiceTotalDisplayInput) {
+            employeeServiceTotalDisplayInput.value = formatMoney(serviceTotal * 0.80);
+        }
+        if (adminServiceTotalDisplayInput) {
+            adminServiceTotalDisplayInput.value = formatMoney(serviceTotal * 0.20);
         }
     }
 

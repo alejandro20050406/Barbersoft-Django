@@ -3,6 +3,8 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 
+MONEY_QUANT = Decimal("0.01")
+
 
 class Venta(models.Model):
     empleado = models.ForeignKey(
@@ -254,7 +256,7 @@ class Comision(models.Model):
     porcentaje = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        default=85.00,
+        default=80.00,
         verbose_name="Porcentaje (%)",
     )
     monto = models.DecimalField(
@@ -291,7 +293,7 @@ class Comision(models.Model):
             base = self.venta_detalle_servicio.subtotal
         else:
             base = Decimal("0")
-        self.monto = (self.porcentaje / 100) * base
+        self.monto = ((self.porcentaje / 100) * base).quantize(MONEY_QUANT)
         self.full_clean()
         super().save(*args, **kwargs)
 

@@ -26,6 +26,9 @@ from .forms import (
 )
 from .models import Comision, Pago, Venta, VentaDetalleProducto, VentaDetalleServicio, Visita
 
+EMPLOYEE_SERVICE_PERCENTAGE = Decimal("80.00")
+ADMIN_SERVICE_PERCENTAGE = Decimal("20.00")
+
 
 def _parse_iso_date(raw_value):
     if not raw_value:
@@ -287,12 +290,23 @@ def _apply_lines_to_sale(venta, lines):
                 subtotal=line["subtotal"],
             )
         else:
-            VentaDetalleServicio.objects.create(
+            detalle_servicio = VentaDetalleServicio.objects.create(
                 venta=venta,
                 servicio=line["record"],
                 precio_unitario=line["precio"],
                 subtotal=line["subtotal"],
             )
+            _create_service_commission(venta, detalle_servicio)
+
+
+def _create_service_commission(venta, detalle_servicio):
+    Comision.objects.create(
+        empleado=venta.empleado,
+        venta=venta,
+        venta_detalle_servicio=detalle_servicio,
+        porcentaje=EMPLOYEE_SERVICE_PERCENTAGE,
+        fecha=venta.fecha,
+    )
 
 
 def _ensure_visit_for_sale(venta):
@@ -331,6 +345,22 @@ def _recalculate_sale_total(venta):
         or Decimal("0.00")
     )
     return total_productos + total_servicios
+
+
+def _service_profit_summary(venta):
+    service_total = (
+        venta.detalles_servicio.aggregate(total=Sum("subtotal")).get("total")
+        or Decimal("0.00")
+    )
+    empleado_total = (service_total * EMPLOYEE_SERVICE_PERCENTAGE) / Decimal("100")
+    admin_total = (service_total * ADMIN_SERVICE_PERCENTAGE) / Decimal("100")
+    return {
+        "service_total": service_total,
+        "empleado_total": empleado_total,
+        "admin_total": admin_total,
+        "empleado_percentage": EMPLOYEE_SERVICE_PERCENTAGE,
+        "admin_percentage": ADMIN_SERVICE_PERCENTAGE,
+    }
 
 
 def _sale_is_cancelled(venta):
@@ -411,6 +441,7 @@ class VentaDetailView(DetailView):
         )
         context["pagos"] = self.object.pagos.all()
         context["comisiones"] = self.object.comisiones.select_related("empleado")
+        context["service_profit_summary"] = _service_profit_summary(self.object)
         return context
 
 

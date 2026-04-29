@@ -152,6 +152,54 @@
 
         setMaxDateToToday();
 
+        function shouldUppercaseField(field) {
+            if (field.matches('[data-no-uppercase], [data-no-uppercase] *')) {
+                return false;
+            }
+            if (field.closest('.auth-form')) {
+                return false;
+            }
+            if (field.disabled || field.readOnly) {
+                return false;
+            }
+            if (field.tagName === 'TEXTAREA') {
+                return true;
+            }
+            if (field.tagName !== 'INPUT') {
+                return false;
+            }
+
+            const type = (field.getAttribute('type') || 'text').toLowerCase();
+            return ['text', 'search', 'tel'].includes(type);
+        }
+
+        function uppercaseFieldValue(field) {
+            if (!shouldUppercaseField(field)) {
+                return;
+            }
+
+            const originalValue = field.value;
+            const upperValue = originalValue.toLocaleUpperCase('es-MX');
+
+            if (originalValue === upperValue) {
+                return;
+            }
+
+            const selectionStart = field.selectionStart;
+            const selectionEnd = field.selectionEnd;
+            field.value = upperValue;
+
+            if (selectionStart !== null && selectionEnd !== null) {
+                field.setSelectionRange(selectionStart, selectionEnd);
+            }
+        }
+
+        document.querySelectorAll('input, textarea').forEach(uppercaseFieldValue);
+
+        document.addEventListener('input', function(event) {
+            uppercaseFieldValue(event.target);
+        }, true);
+
         document.querySelectorAll(".alert .close").forEach((btn) => {
             btn.addEventListener("click", function () {
                 this.parentElement.style.display = "none";

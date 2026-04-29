@@ -45,6 +45,15 @@
             </tbody>
         </table>
     </div>
+
+    <div class="detail-section">
+        <h3>Distribucion de servicios</h3>
+        <div class="detail-grid">
+            <div class="detail-item"><span class="detail-label">Total servicios</span><span class="detail-value">${{ service_profit_summary.service_total|floatformat:2 }}</span></div>
+            <div class="detail-item"><span class="detail-label">Empleado ({{ service_profit_summary.empleado_percentage|floatformat:0 }}%)</span><span class="detail-value">${{ service_profit_summary.empleado_total|floatformat:2 }}</span></div>
+            <div class="detail-item"><span class="detail-label">Ganancia administrador ({{ service_profit_summary.admin_percentage|floatformat:0 }}%)</span><span class="detail-value">${{ service_profit_summary.admin_total|floatformat:2 }}</span></div>
+        </div>
+    </div>
 {% endif %}
 
 {% if pagos %}

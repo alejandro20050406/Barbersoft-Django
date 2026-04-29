@@ -1,6 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}Menu del Empleado | BarberSoft{% endblock title %}
+{% block title %}Menú del Empleado | BarberSoft{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .report-tab {
+        cursor: pointer;
+    }
+
+    .report-tab-panel {
+        display: none;
+    }
+
+    .report-tab-panel.report-tab-panel-active {
+        display: block;
+    }
+</style>
+{% endblock extra_css %}
 
 {% block content %}
 <section class="report-shell">
@@ -82,7 +98,7 @@
             <div class="report-panel-head">
                 <div>
                     <h2>Servicios vs Productos</h2>
-                    <p>Distribucion de tus ingresos.</p>
+                    <p>Distribución de tus ingresos.</p>
                 </div>
             </div>
             <div class="report-donut-card">
@@ -99,8 +115,8 @@
         <article class="report-panel">
             <div class="report-panel-head">
                 <div>
-                    <h2>Metodo de Pago</h2>
-                    <p>Distribucion de tus ventas.</p>
+                    <h2>Método de Pago</h2>
+                    <p>Distribución de tus ventas.</p>
                 </div>
             </div>
             <div class="report-breakdown-list">
@@ -124,46 +140,103 @@
 
     <section class="report-detail-grid">
         <article class="report-panel report-panel-wide">
-            <div class="report-tab-strip">
-                <span class="report-tab report-tab-active">Detalle de Mis Ventas</span>
-                <span class="report-tab">Resumen por Servicio</span>
-                <span class="report-tab">Resumen por Producto</span>
+            <div class="report-tab-strip" data-report-tabs>
+                <button type="button" class="report-tab report-tab-active" data-tab-target="employee-sales-detail">Detalle de Mis Ventas</button>
+                <button type="button" class="report-tab" data-tab-target="employee-service-summary">Resumen por Servicio</button>
+                <button type="button" class="report-tab" data-tab-target="employee-product-summary">Resumen por Producto</button>
             </div>
-            <div class="table-wrap">
-                <table class="dashboard-table">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Folio</th>
-                            <th>Cliente</th>
-                            <th>Pago</th>
-                            <th>Total</th>
-                            <th>Accion</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for venta in dashboard.recent_sales %}
+
+            <div id="employee-sales-detail" class="report-tab-panel report-tab-panel-active">
+                <div class="table-wrap">
+                    <table class="dashboard-table">
+                        <thead>
                             <tr>
-                                <td>{{ venta.fecha|date:"d/m/Y" }}</td>
-                                <td>F{{ venta.id }}</td>
-                                <td>{{ venta.cliente }}</td>
-                                <td>{{ venta.metodo_de_pago }}</td>
-                                <td>${{ venta.total|floatformat:2 }}</td>
-                                <td><a class="table-view-btn" href="{% url 'ventas:venta-detail' venta.pk %}">Ver</a></td>
+                                <th>Fecha</th>
+                                <th>Folio</th>
+                                <th>Cliente</th>
+                                <th>Pago</th>
+                                <th>Total</th>
+                                <th>Acción</th>
                             </tr>
-                        {% empty %}
+                        </thead>
+                        <tbody>
+                            {% for venta in dashboard.recent_sales %}
+                                <tr>
+                                    <td>{{ venta.fecha|date:"d/m/Y" }}</td>
+                                    <td>F{{ venta.id }}</td>
+                                    <td>{{ venta.cliente }}</td>
+                                    <td>{{ venta.metodo_de_pago }}</td>
+                                    <td>${{ venta.total|floatformat:2 }}</td>
+                                    <td><a class="table-view-btn" href="{% url 'ventas:venta-detail' venta.pk %}">Ver</a></td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6">No tienes ventas recientes para mostrar.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="employee-service-summary" class="report-tab-panel">
+                <div class="table-wrap">
+                    <table class="dashboard-table">
+                        <thead>
                             <tr>
-                                <td colspan="6">No tienes ventas recientes para mostrar.</td>
+                                <th>Servicio</th>
+                                <th>Veces vendido</th>
+                                <th>Ingresos</th>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {% for item in dashboard.service_summary %}
+                                <tr>
+                                    <td>{{ item.detalles_servicio__servicio__nombre }}</td>
+                                    <td>{{ item.total }}</td>
+                                    <td>${{ item.ingresos|floatformat:2 }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3">No hay datos por servicio para mostrar.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="employee-product-summary" class="report-tab-panel">
+                <div class="table-wrap">
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Unidades vendidas</th>
+                                <th>Ingresos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in dashboard.product_summary %}
+                                <tr>
+                                    <td>{{ item.detalles_productos__producto__nombre }}</td>
+                                    <td>{{ item.total }}</td>
+                                    <td>${{ item.ingresos|floatformat:2 }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3">No hay datos por producto para mostrar.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </article>
 
         <aside class="report-panel report-summary-side">
             <div class="summary-side-block">
-                <h3>Resumen Rapido</h3>
+                <h3>Resumen Rápido</h3>
                 <ul class="summary-side-list">
                     {% for item in dashboard.highlights %}
                         <li>
@@ -183,7 +256,7 @@
                 <h3>Top Servicios</h3>
                 <ul class="summary-side-list">
                     {% for item in dashboard.top_services %}
-                        <li><span>{{ item.detalles_servicio__servicio__nombre }}</span><strong>{{ item.total }}</strong></li>
+                        <li><span>{{ item.detalles_servicio__servicio__nombre }}</span><strong>${{ item.ingresos|floatformat:2 }}</strong></li>
                     {% empty %}
                         <li><span>Sin registros</span><strong>-</strong></li>
                     {% endfor %}
@@ -193,7 +266,7 @@
                 <h3>Top Productos</h3>
                 <ul class="summary-side-list">
                     {% for item in dashboard.top_products %}
-                        <li><span>{{ item.detalles_productos__producto__nombre }}</span><strong>{{ item.total }}</strong></li>
+                        <li><span>{{ item.detalles_productos__producto__nombre }}</span><strong>${{ item.ingresos|floatformat:2 }}</strong></li>
                     {% empty %}
                         <li><span>Sin registros</span><strong>-</strong></li>
                     {% endfor %}
@@ -202,4 +275,31 @@
         </aside>
     </section>
 </section>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabContainer = document.querySelector('[data-report-tabs]');
+        if (!tabContainer) {
+            return;
+        }
+
+        const tabs = Array.from(tabContainer.querySelectorAll('[data-tab-target]'));
+        const panels = Array.from(document.querySelectorAll('.report-tab-panel'));
+
+        tabs.forEach((tab) => {
+            tab.addEventListener('click', function () {
+                const targetId = this.dataset.tabTarget;
+
+                tabs.forEach((item) => item.classList.remove('report-tab-active'));
+                panels.forEach((panel) => panel.classList.remove('report-tab-panel-active'));
+
+                this.classList.add('report-tab-active');
+
+                const targetPanel = document.getElementById(targetId);
+                if (targetPanel) {
+                    targetPanel.classList.add('report-tab-panel-active');
+                }
+            });
+        });
+    });
+</script>
 {% endblock content %}

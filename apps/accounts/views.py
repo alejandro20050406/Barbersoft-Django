@@ -303,6 +303,29 @@ def _build_admin_menu_context():
         .annotate(total_ventas=Count("id"), ingresos=Coalesce(Sum("total"), Decimal("0.00")))
         .order_by("-ingresos", "-total_ventas", "empleado__apellido")[:3]
     )
+    resumen_empleados = (
+        ventas_periodo.values("empleado__nombre", "empleado__apellido")
+        .annotate(total_ventas=Count("id"), ingresos=Coalesce(Sum("total"), Decimal("0.00")))
+        .order_by("-ingresos", "-total_ventas", "empleado__apellido", "empleado__nombre")
+    )
+    resumen_servicios = (
+        ventas_periodo.filter(detalles_servicio__isnull=False)
+        .values("detalles_servicio__servicio__nombre")
+        .annotate(
+            total=Count("detalles_servicio"),
+            ingresos=Coalesce(Sum("detalles_servicio__subtotal"), Decimal("0.00")),
+        )
+        .order_by("-ingresos", "-total", "detalles_servicio__servicio__nombre")
+    )
+    resumen_productos = (
+        ventas_periodo.filter(detalles_productos__isnull=False)
+        .values("detalles_productos__producto__nombre")
+        .annotate(
+            total=Coalesce(Sum("detalles_productos__cantidad"), 0),
+            ingresos=Coalesce(Sum("detalles_productos__subtotal"), Decimal("0.00")),
+        )
+        .order_by("-ingresos", "-total", "detalles_productos__producto__nombre")
+    )
 
     return {
         "dashboard": {
@@ -329,6 +352,9 @@ def _build_admin_menu_context():
             "top_services": list(top_servicios),
             "top_products": list(top_productos),
             "top_employees": list(top_empleados),
+            "employee_summary": list(resumen_empleados),
+            "service_summary": list(resumen_servicios),
+            "product_summary": list(resumen_productos),
         }
     }
 
@@ -375,6 +401,24 @@ def _build_employee_menu_context(user):
         )
         .order_by("-total", "-ingresos", "detalles_productos__producto__nombre")[:3]
     )
+    resumen_servicios = (
+        ventas_periodo.filter(detalles_servicio__isnull=False)
+        .values("detalles_servicio__servicio__nombre")
+        .annotate(
+            total=Count("detalles_servicio"),
+            ingresos=Coalesce(Sum("detalles_servicio__subtotal"), Decimal("0.00")),
+        )
+        .order_by("-ingresos", "-total", "detalles_servicio__servicio__nombre")
+    )
+    resumen_productos = (
+        ventas_periodo.filter(detalles_productos__isnull=False)
+        .values("detalles_productos__producto__nombre")
+        .annotate(
+            total=Coalesce(Sum("detalles_productos__cantidad"), 0),
+            ingresos=Coalesce(Sum("detalles_productos__subtotal"), Decimal("0.00")),
+        )
+        .order_by("-ingresos", "-total", "detalles_productos__producto__nombre")
+    )
 
     return {
         "dashboard": {
@@ -400,6 +444,8 @@ def _build_employee_menu_context(user):
             "recent_sales": ventas_recientes,
             "top_services": list(top_servicios),
             "top_products": list(top_productos),
+            "service_summary": list(resumen_servicios),
+            "product_summary": list(resumen_productos),
             "empleado": empleado,
         }
     }

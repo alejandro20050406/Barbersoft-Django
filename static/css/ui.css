@@ -1272,9 +1272,8 @@ select option,
     .page-shell {
         margin: 1.5rem auto 2rem;
         padding: 0 1rem 2rem;
+        align-items: center;
     }
-}
-    align-items: center;
 }
 
 .legacy-form-row label {

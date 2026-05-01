@@ -332,6 +332,37 @@ table tbody tr:hover {
     border-top: 1px solid var(--line);
 }
 
+.payment-method-options > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.payment-method-options label {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 2.75rem;
+    padding: 0.65rem 0.95rem;
+    border: 1px solid var(--line);
+    border-radius: calc(var(--radius) / 2);
+    background: #fff;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.payment-method-options input[type="radio"] {
+    width: auto;
+    margin: 0;
+    padding: 0;
+    accent-color: var(--accent);
+}
+
+.payment-method-options label:has(input[type="radio"]:checked) {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+}
+
 /* Detail view */
 .detail-section {
     background: var(--paper);

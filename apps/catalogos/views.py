@@ -22,8 +22,8 @@ def dashboard(request):
         "categorias": CategoriaProducto.objects.all()[:8],
         "metodos_pago": MetodoDePago.objects.all()[:8],
         "tipos_servicio": TipoServicio.objects.all()[:8],
-        "productos_recientes": Producto.objects.select_related("categoria").all()[:8],
-        "servicios_recientes": Servicio.objects.select_related("tipo").all()[:8],
+        "productos": Producto.objects.select_related("categoria").filter(activo=True)[:8],
+        "servicios": Servicio.objects.select_related("tipo").filter(activo=True)[:8],
     }
     return render(request, "catalogos/dashboard.html", context)
 

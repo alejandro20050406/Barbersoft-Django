@@ -1372,6 +1372,8 @@ select option,
     padding: 0;
     margin: 1rem 0;
     transition: all 0.2s ease;
+    border: 2px solid var(--line);
+    border-color: #141414;    
 }
 
 #add-item:hover {

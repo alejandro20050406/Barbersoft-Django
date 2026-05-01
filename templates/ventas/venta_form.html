@@ -44,8 +44,7 @@
             <div class="form-group">{{ form.empleado.label_tag }}{{ form.empleado }}</div>
         </div>
 
-        <div class="form-row">
-            <div class="form-group">{{ form.metodo_de_pago.label_tag }}{{ form.metodo_de_pago }}</div>
+        <div class="form-row full">
             <div class="form-group">{{ form.fecha.label_tag }}{{ form.fecha }}</div>
         </div>
 
@@ -118,6 +117,18 @@
             </div>
         </template>
         {% endif %}
+
+        <div class="form-row full">
+            <div class="form-group payment-method-group">
+                {{ form.metodo_de_pago.label_tag }}
+                <div class="payment-method-options">
+                    {{ form.metodo_de_pago }}
+                </div>
+                {% if form.metodo_de_pago.errors %}
+                    <div class="error-messages">{{ form.metodo_de_pago.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
 
         <div class="form-buttons">
             <a href="{% url 'ventas:venta-list' %}" class="btn btn-secondary">Cancelar</a>

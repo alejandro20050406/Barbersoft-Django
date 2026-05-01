@@ -21,6 +21,7 @@ class VentaForm(forms.ModelForm):
         fields = ["empleado", "cliente", "metodo_de_pago", "fecha"]
         widgets = {
             "fecha": forms.DateInput(attrs={"type": "date"}),
+            "metodo_de_pago": forms.RadioSelect(),
         }
 
     def __init__(self, *args, request_user=None, **kwargs):
@@ -29,6 +30,7 @@ class VentaForm(forms.ModelForm):
         self.request_user = request_user
         self.fields["empleado"].queryset = Empleado.objects.filter(estado=Empleado.ACTIVO)
         self.fields["metodo_de_pago"].queryset = MetodoDePago.objects.filter(activo=True)
+        self.fields["metodo_de_pago"].empty_label = None
         if getattr(self.instance, "total", None) is None:
             # El total definitivo se calcula con los items en la vista.
             self.instance.total = Decimal("0.00")

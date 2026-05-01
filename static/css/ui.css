@@ -209,6 +209,32 @@ body {
     border-color: var(--accent);
 }
 
+.catalog-card {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.catalog-card:hover,
+.catalog-card:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 14px 30px rgba(211, 47, 47, 0.16);
+    transform: translateY(-2px);
+}
+
+.catalog-card-link {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: inherit;
+}
+
+.catalog-card .btn-add {
+    position: relative;
+    z-index: 3;
+}
+
 .module-card h2 {
     margin: 0 0 0.4rem;
     font-size: 1.1rem;

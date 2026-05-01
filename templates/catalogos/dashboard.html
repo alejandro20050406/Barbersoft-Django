@@ -9,7 +9,8 @@
 </section>
 
 <section class="split-grid">
-    <article class="panel">
+    <article class="panel catalog-card">
+        <a href="{% url 'catalogos:categoria-list' %}" class="catalog-card-link" aria-label="Ver categorias de producto"></a>
         <div class="panel-header">
             <h2>Categorias de producto</h2>
             <a href="{% url 'catalogos:categoria-create' %}" class="btn-add">+ Añadir</a>
@@ -22,7 +23,8 @@
             {% endfor %}
         </ul>
     </article>
-    <article class="panel">
+    <article class="panel catalog-card">
+        <a href="{% url 'catalogos:metodopago-list' %}" class="catalog-card-link" aria-label="Ver metodos de pago"></a>
         <div class="panel-header">
             <h2>Metodos de pago</h2>
             <a href="{% url 'catalogos:metodopago-create' %}" class="btn-add">+ Añadir</a>
@@ -35,7 +37,8 @@
             {% endfor %}
         </ul>
     </article>
-    <article class="panel">
+    <article class="panel catalog-card">
+        <a href="{% url 'catalogos:tiposervicio-list' %}" class="catalog-card-link" aria-label="Ver tipos de servicio"></a>
         <div class="panel-header">
             <h2>Tipos de servicio</h2>
             <a href="{% url 'catalogos:tiposervicio-create' %}" class="btn-add">+ Añadir</a>
@@ -51,7 +54,8 @@
 </section>
 
 <section class="split-grid">
-    <article class="panel">
+    <article class="panel catalog-card">
+        <a href="{% url 'catalogos:producto-list' %}" class="catalog-card-link" aria-label="Ver productos"></a>
         <div class="panel-header">
             <h2>Productos</h2>
             <a href="{% url 'catalogos:producto-create' %}" class="btn-add">+ Añadir</a>
@@ -79,7 +83,8 @@
             </tbody>
         </table>
     </article>
-    <article class="panel">
+    <article class="panel catalog-card">
+        <a href="{% url 'catalogos:servicio-list' %}" class="catalog-card-link" aria-label="Ver servicios"></a>
         <div class="panel-header">
             <h2>Servicios</h2>
             <a href="{% url 'catalogos:servicio-create' %}" class="btn-add">+ Añadir</a>

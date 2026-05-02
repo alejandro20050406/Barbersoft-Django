@@ -21,7 +21,7 @@ class Cliente(models.Model):
         db_table = "clientes"
         verbose_name = "Cliente"
         verbose_name_plural = "Clientes"
-        ordering = ["apellido", "nombre"]
+        ordering = ["-fecha_registro", "-id"]
 
     def __str__(self):
         if self.apellido:

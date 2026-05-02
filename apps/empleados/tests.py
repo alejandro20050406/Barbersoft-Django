@@ -80,6 +80,24 @@ class EmpleadoTelefonoValidationTests(TestCase):
         self.assertEqual(empleado.apellido, "NADAL")
         self.assertEqual(str(empleado), "RAFAEL NADAL")
 
+    def test_lista_empleados_muestra_mas_reciente_primero(self):
+        primero = Empleado.objects.create(
+            nombre="Luis",
+            apellido="Perez",
+            telefono="3123431987",
+            estado=Empleado.ACTIVO,
+            fecha_ingreso=date(2026, 4, 23),
+        )
+        reciente = Empleado.objects.create(
+            nombre="Mario",
+            apellido="Ruiz",
+            telefono="3123431988",
+            estado=Empleado.ACTIVO,
+            fecha_ingreso=date(2026, 4, 23),
+        )
+
+        self.assertEqual(list(Empleado.objects.all()), [reciente, primero])
+
 
 class EmpleadoCuentaAccesoTests(TestCase):
     def test_form_muestra_fecha_ingreso_al_editar(self):

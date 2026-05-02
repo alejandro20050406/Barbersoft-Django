@@ -90,3 +90,17 @@ class ClienteUppercasePersistenceTests(TestCase):
         self.assertEqual(cliente.nombre, "GAEL")
         self.assertEqual(cliente.apellido, "CORTES")
         self.assertEqual(str(cliente), "GAEL CORTES")
+
+    def test_lista_clientes_muestra_mas_reciente_primero(self):
+        primero = Cliente.objects.create(
+            nombre="Ana",
+            apellido="Lopez",
+            telefono="3125467731",
+        )
+        reciente = Cliente.objects.create(
+            nombre="Bruno",
+            apellido="Martinez",
+            telefono="3125467732",
+        )
+
+        self.assertEqual(list(Cliente.objects.all()), [reciente, primero])

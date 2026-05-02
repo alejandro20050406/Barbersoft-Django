@@ -59,7 +59,7 @@ class Empleado(models.Model):
         db_table = "empleados"
         verbose_name = "Empleado"
         verbose_name_plural = "Empleados"
-        ordering = ["apellido", "nombre"]
+        ordering = ["-fecha_registro", "-id"]
 
     def __str__(self):
         return f"{self.nombre} {self.apellido}".upper()

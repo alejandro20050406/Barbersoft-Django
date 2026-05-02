@@ -1,0 +1,19 @@
+from django.db import migrations
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ("clientes", "0003_uppercase_cliente_names"),
+    ]
+
+    operations = [
+        migrations.AlterModelOptions(
+            name="cliente",
+            options={
+                "ordering": ["-fecha_registro", "-id"],
+                "verbose_name": "Cliente",
+                "verbose_name_plural": "Clientes",
+            },
+        ),
+    ]

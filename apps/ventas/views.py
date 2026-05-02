@@ -389,7 +389,7 @@ class VentaListView(ListView):
     model = Venta
     template_name = "ventas/venta_list.html"
     context_object_name = "ventas"
-    paginate_by = 20
+    paginate_by = 8
 
     def get_queryset(self):
         queryset = Venta.objects.select_related("cliente", "empleado", "metodo_de_pago")

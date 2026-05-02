@@ -22,7 +22,7 @@ class ClienteListView(ListView):
     model = Cliente
     template_name = 'clientes/cliente_list.html'
     context_object_name = 'clientes'
-    paginate_by = 20
+    paginate_by = 8
 
     def get_queryset(self):
         queryset = Cliente.objects.all().annotate(total_visitas=Count("visitas"))

@@ -1,0 +1,25 @@
+{% if page_obj and page_obj.paginator.num_pages > 1 %}
+    <nav class="pagination pagination-numbered" aria-label="Paginacion">
+        {% if page_obj.has_previous %}
+            <a class="pagination-control" href="{{ previous_url }}" aria-label="Pagina anterior">&lsaquo;</a>
+        {% else %}
+            <span class="pagination-control pagination-disabled" aria-hidden="true">&lsaquo;</span>
+        {% endif %}
+
+        {% for page in page_links %}
+            {% if page.is_ellipsis %}
+                <span class="pagination-ellipsis">{{ page.label }}</span>
+            {% elif page.is_current %}
+                <span class="current" aria-current="page">{{ page.label }}</span>
+            {% else %}
+                <a href="{{ page.url }}">{{ page.label }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a class="pagination-control pagination-next" href="{{ next_url }}" aria-label="Pagina siguiente">&rsaquo;</a>
+        {% else %}
+            <span class="pagination-control pagination-disabled" aria-hidden="true">&rsaquo;</span>
+        {% endif %}
+    </nav>
+{% endif %}

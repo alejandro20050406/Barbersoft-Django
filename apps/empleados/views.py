@@ -19,7 +19,7 @@ class EmpleadoListView(ListView):
     model = Empleado
     template_name = "empleados/empleado_list.html"
     context_object_name = "empleados"
-    paginate_by = 20
+    paginate_by = 8
 
     def get_queryset(self):
         queryset = Empleado.objects.all()

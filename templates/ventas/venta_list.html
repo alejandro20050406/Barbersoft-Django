@@ -1,4 +1,5 @@
 {% extends "crud_base.html" %}
+{% load pagination_tags %}
 
 {% block title %}Ventas - BarberSoft{% endblock %}
 
@@ -44,6 +45,7 @@
             </tbody>
         </table>
     </div>
+    {% render_pagination %}
 {% else %}
     <div class="empty-state"><h3>No hay ventas</h3></div>
 {% endif %}

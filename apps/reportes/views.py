@@ -19,7 +19,7 @@ PERIODOS_CORTE = {
     "dia": "Dia",
     "semana": "Semana",
     "mes": "Mes",
-    "anio": "Ano",
+    "anio": "Anual",
 }
 
 

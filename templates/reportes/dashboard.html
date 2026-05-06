@@ -3,17 +3,143 @@
 {% block title %}Reportes | BarberSoft{% endblock title %}
 
 {% block content %}
-<section class="section-header">
-    <h1>Reportes</h1>
-    <p>Base para construir reportes por rango de fechas y corte de caja.</p>
+<section class="report-shell">
+    <div class="report-topbar">
+        <div>
+            <p class="eyebrow">Corte de Caja</p>
+            <h1>Ganancias por {{ periodo_label|lower }}</h1>
+        </div>
+        <div class="report-actions">
+            <a class="report-action-btn report-action-btn-light" href="{% url 'ventas:venta-list' %}">Ver Ventas</a>
+            <a class="report-action-btn" href="{% url 'ventas:pago-list' %}">Ver Pagos</a>
+        </div>
+    </div>
+
+    <form class="report-filter-bar" method="get">
+        <label class="report-filter-item" for="periodo">
+            <span>Periodo</span>
+            <select id="periodo" name="periodo" class="form-control">
+                {% for key, label in periodos.items %}
+                    <option value="{{ key }}"{% if periodo == key %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <div class="report-filter-item">
+            <span>Desde</span>
+            <strong>{{ start_date|date:"d/m/Y" }}</strong>
+        </div>
+        <div class="report-filter-item">
+            <span>Hasta</span>
+            <strong>{{ end_date|date:"d/m/Y" }}</strong>
+        </div>
+        <div class="report-filter-item">
+            <span>Ventas</span>
+            <strong>{{ total_ventas }}</strong>
+        </div>
+        <div class="report-filter-item">
+            <span>Pagos</span>
+            <strong>{{ total_pagos }}</strong>
+        </div>
+        <div class="report-filter-cta">
+            <button class="report-apply-btn" type="submit">Aplicar</button>
+        </div>
+    </form>
+
+    <section class="report-kpi-grid">
+        <article class="report-kpi-card report-kpi-card-blue">
+            <h2>Ingresos en ventas</h2>
+            <p>${{ ingresos_venta|floatformat:2 }}</p>
+        </article>
+        <article class="report-kpi-card report-kpi-card-green">
+            <h2>Ganancia neta</h2>
+            <p>${{ ganancia_neta|floatformat:2 }}</p>
+        </article>
+        <article class="report-kpi-card report-kpi-card-orange">
+            <h2>Cobrado en caja</h2>
+            <p>${{ ingresos_pago|floatformat:2 }}</p>
+        </article>
+        <article class="report-kpi-card report-kpi-card-slate">
+            <h2>Ticket promedio</h2>
+            <p>${{ ticket_promedio|floatformat:2 }}</p>
+        </article>
+    </section>
+
+    <section class="report-detail-grid">
+        <article class="report-panel report-panel-wide">
+            <div class="report-panel-head">
+                <h2>Detalle del corte</h2>
+                <p>La ganancia neta descuenta costos de productos y comisiones de servicios.</p>
+            </div>
+            <div class="table-wrap">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Concepto</th>
+                            <th>Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Ingresos por servicios</td><td>${{ ingresos_servicios|floatformat:2 }}</td></tr>
+                        <tr><td>Ingresos por productos</td><td>${{ ingresos_productos|floatformat:2 }}</td></tr>
+                        <tr><td>Costo de productos</td><td>${{ costo_productos|floatformat:2 }}</td></tr>
+                        <tr><td>Comisiones pagadas</td><td>${{ comisiones|floatformat:2 }}</td></tr>
+                        <tr><td><strong>Ganancia neta</strong></td><td><strong>${{ ganancia_neta|floatformat:2 }}</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </article>
+
+        <aside class="report-panel">
+            <div class="report-panel-head">
+                <h2>Cobro por metodo</h2>
+                <p>Pagos registrados dentro del periodo.</p>
+            </div>
+            <ul class="summary-side-list">
+                {% for item in desglose_pagos %}
+                    <li>
+                        <span>{{ item.metodo_de_pago__nombre|upper }}</span>
+                        <strong>${{ item.total|floatformat:2 }}</strong>
+                    </li>
+                {% empty %}
+                    <li><span>Sin pagos registrados</span><strong>$0.00</strong></li>
+                {% endfor %}
+            </ul>
+        </aside>
+    </section>
+
+    <article class="report-panel">
+        <div class="report-panel-head">
+            <h2>Ultimas ventas del periodo</h2>
+            <p>Movimientos incluidos en este corte.</p>
+        </div>
+        <div class="table-wrap">
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Empleado</th>
+                        <th>Metodo</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for venta in ultimas_ventas %}
+                        <tr>
+                            <td>#{{ venta.id }}</td>
+                            <td>{{ venta.fecha|date:"d/m/Y" }}</td>
+                            <td>{{ venta.cliente|upper }}</td>
+                            <td>{{ venta.empleado|upper }}</td>
+                            <td>{{ venta.metodo_de_pago|upper }}</td>
+                            <td>${{ venta.total|floatformat:2 }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="6">No hay ventas registradas en este periodo.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
 </section>
-
-<section class="stats-grid">
-    <article class="stat-card"><h3>Total ventas</h3><p>{{ total_ventas }}</p></article>
-    <article class="stat-card"><h3>Total pagos</h3><p>{{ total_pagos }}</p></article>
-    <article class="stat-card"><h3>Ingreso en ventas</h3><p>${{ ingresos_venta }}</p></article>
-    <article class="stat-card"><h3>Ingreso en pagos</h3><p>${{ ingresos_pago }}</p></article>
-</section>
-
-
 {% endblock content %}

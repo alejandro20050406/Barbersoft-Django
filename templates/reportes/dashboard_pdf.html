@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Reporte de ventas {{ periodo_label }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            color: #1f2933;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        h1, h2, h3, p {
+            margin: 0;
+        }
+
+        .header {
+            margin-bottom: 20px;
+            border-bottom: 2px solid #0f766e;
+            padding-bottom: 12px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+
+        .meta {
+            margin-top: 8px;
+            color: #52606d;
+        }
+
+        .meta span {
+            display: inline-block;
+            margin-right: 14px;
+        }
+
+        .summary-grid {
+            width: 100%;
+            margin: 18px 0 20px;
+            border-collapse: separate;
+            border-spacing: 10px;
+        }
+
+        .summary-card {
+            width: 25%;
+            border: 1px solid #d9e2ec;
+            border-radius: 10px;
+            padding: 12px;
+            vertical-align: top;
+            background: #f8fafc;
+        }
+
+        .summary-card h2 {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #486581;
+            margin-bottom: 6px;
+        }
+
+        .summary-card p {
+            font-size: 18px;
+            font-weight: bold;
+            color: #102a43;
+        }
+
+        .section {
+            margin-top: 20px;
+        }
+
+        .section h2 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #0f172a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #d9e2ec;
+            padding: 8px 10px;
+            text-align: left;
+        }
+
+        th {
+            background: #e6fffa;
+            color: #134e4a;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        td.amount {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .muted {
+            color: #52606d;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Reporte de ventas y corte de caja</h1>
+        <p>BarberSoft</p>
+        <div class="meta">
+            <span><strong>Periodo:</strong> {{ periodo_label }}</span>
+            <span><strong>Desde:</strong> {{ start_date|date:"d/m/Y" }}</span>
+            <span><strong>Hasta:</strong> {{ end_date|date:"d/m/Y" }}</span>
+            <span><strong>Ventas:</strong> {{ total_ventas }}</span>
+            <span><strong>Pagos:</strong> {{ total_pagos }}</span>
+        </div>
+    </div>
+
+    <table class="summary-grid" role="presentation">
+        <tr>
+            <td class="summary-card">
+                <h2>Ingresos en ventas</h2>
+                <p>${{ ingresos_venta|floatformat:2 }}</p>
+            </td>
+            <td class="summary-card">
+                <h2>Ganancia neta</h2>
+                <p>${{ ganancia_neta|floatformat:2 }}</p>
+            </td>
+            <td class="summary-card">
+                <h2>Cobrado en caja</h2>
+                <p>${{ ingresos_pago|floatformat:2 }}</p>
+            </td>
+            <td class="summary-card">
+                <h2>Ticket promedio</h2>
+                <p>${{ ticket_promedio|floatformat:2 }}</p>
+            </td>
+        </tr>
+    </table>
+
+    <div class="section">
+        <h2>Detalle del corte</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Concepto</th>
+                    <th>Monto</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Ingresos por servicios</td><td class="amount">${{ ingresos_servicios|floatformat:2 }}</td></tr>
+                <tr><td>Ingresos por productos</td><td class="amount">${{ ingresos_productos|floatformat:2 }}</td></tr>
+                <tr><td>Costo de productos</td><td class="amount">${{ costo_productos|floatformat:2 }}</td></tr>
+                <tr><td>Comisiones pagadas</td><td class="amount">${{ comisiones|floatformat:2 }}</td></tr>
+                <tr><td><strong>Ganancia neta</strong></td><td class="amount"><strong>${{ ganancia_neta|floatformat:2 }}</strong></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Desglose de pagos</h2>
+        <p class="muted">Pagos registrados dentro del periodo seleccionado.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Metodo de pago</th>
+                    <th>Monto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in desglose_pagos %}
+                    <tr>
+                        <td>{{ item.metodo_de_pago__nombre|upper }}</td>
+                        <td class="amount">${{ item.total|floatformat:2 }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td>Sin pagos registrados</td>
+                        <td class="amount">$0.00</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Ultimas ventas del periodo</h2>
+        <p class="muted">Movimientos considerados dentro de este reporte.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Empleado</th>
+                    <th>Metodo</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venta in ultimas_ventas %}
+                    <tr>
+                        <td>#{{ venta.id }}</td>
+                        <td>{{ venta.fecha|date:"d/m/Y" }}</td>
+                        <td>{{ venta.cliente|upper }}</td>
+                        <td>{{ venta.empleado|upper }}</td>
+                        <td>{{ venta.metodo_de_pago|upper }}</td>
+                        <td class="amount">${{ venta.total|floatformat:2 }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6">No hay ventas registradas en este periodo.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

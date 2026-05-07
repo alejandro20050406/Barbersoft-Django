@@ -1,5 +1,6 @@
 from datetime import timedelta
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -123,3 +124,15 @@ class CorteCajaDashboardTests(TestCase):
 
         self.assertEqual(response.context["total_ventas"], 0)
         self.assertEqual(response.context["ingresos_venta"], 0)
+
+    @patch("apps.reportes.views.HTML")
+    def test_exporta_reporte_pdf(self, html_mock):
+        html_mock.return_value.write_pdf.return_value = b"%PDF-1.4 fake"
+
+        response = self.client.get(reverse("reportes:dashboard-pdf"), {"periodo": "dia"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/pdf")
+        self.assertIn("attachment; filename=", response["Content-Disposition"])
+        self.assertEqual(response.content, b"%PDF-1.4 fake")
+        html_mock.assert_called_once()

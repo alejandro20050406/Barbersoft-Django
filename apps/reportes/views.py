@@ -1,10 +1,17 @@
 from datetime import timedelta
 from decimal import Decimal
 
+from django.http import HttpResponse
 from django.db.models import DecimalField, ExpressionWrapper, F, Sum
 from django.db.models.functions import Coalesce
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from django.utils import timezone
+
+try:
+    from weasyprint import HTML
+except (ImportError, OSError):  # pragma: no cover - depende del entorno local
+    HTML = None
 
 from apps.ventas.models import (
     Comision,
@@ -43,9 +50,9 @@ def _money(value):
     return value or Decimal("0.00")
 
 
-def dashboard_reportes(request):
+def _build_dashboard_context(periodo):
     periodo, periodo_label, start_date, end_date = _periodo_corte(
-        request.GET.get("periodo")
+        periodo
     )
     ventas_periodo = Venta.objects.filter(fecha__range=(start_date, end_date))
     pagos_periodo = Pago.objects.filter(fecha__range=(start_date, end_date))
@@ -94,7 +101,7 @@ def dashboard_reportes(request):
         .order_by("-total", "metodo_de_pago__nombre")
     )
 
-    context = {
+    return {
         "periodos": PERIODOS_CORTE,
         "periodo": periodo,
         "periodo_label": periodo_label,
@@ -115,4 +122,32 @@ def dashboard_reportes(request):
             "cliente", "empleado", "metodo_de_pago"
         ).order_by("-fecha", "-id")[:8],
     }
+
+
+def dashboard_reportes(request):
+    context = _build_dashboard_context(request.GET.get("periodo"))
     return render(request, "reportes/dashboard.html", context)
+
+
+def exportar_reporte_pdf(request):
+    if HTML is None:
+        return HttpResponse(
+            "WeasyPrint no esta instalado o disponible en este entorno.",
+            status=503,
+            content_type="text/plain; charset=utf-8",
+        )
+
+    context = _build_dashboard_context(request.GET.get("periodo"))
+    html_string = render_to_string("reportes/dashboard_pdf.html", context, request=request)
+    pdf_file = HTML(
+        string=html_string,
+        base_url=request.build_absolute_uri("/"),
+    ).write_pdf()
+
+    periodo = context["periodo"]
+    fecha = timezone.localdate().strftime("%Y%m%d")
+    response = HttpResponse(pdf_file, content_type="application/pdf")
+    response["Content-Disposition"] = (
+        f'attachment; filename="reporte-ventas-{periodo}-{fecha}.pdf"'
+    )
+    return response

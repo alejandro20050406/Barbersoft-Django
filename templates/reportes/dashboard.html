@@ -12,6 +12,7 @@
         <div class="report-actions">
             <a class="report-action-btn report-action-btn-light" href="{% url 'ventas:venta-list' %}">Ver Ventas</a>
             <a class="report-action-btn" href="{% url 'ventas:pago-list' %}">Ver Pagos</a>
+            <a class="report-action-btn report-action-btn-green" href="{% url 'reportes:dashboard-pdf' %}?periodo={{ periodo }}">Descargar PDF</a>
         </div>
     </div>
 

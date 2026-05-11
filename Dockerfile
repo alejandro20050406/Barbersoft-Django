@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     libpango-1.0-0 \
     libpangoft2-1.0-0 \
+    libharfbuzz-subset0 \
     libcairo2 \
     libgdk-pixbuf-2.0-0 \
     libffi-dev \

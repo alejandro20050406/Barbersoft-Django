@@ -1,4 +1,5 @@
-﻿from decimal import Decimal
+﻿from datetime import date
+from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -25,7 +26,7 @@ class Venta(models.Model):
         related_name="ventas",
         verbose_name="Metodo de Pago",
     )
-    fecha = models.DateField(verbose_name="Fecha de venta")
+    fecha = models.DateField(verbose_name="Fecha de venta", default=date.today)
     total = models.DecimalField(
         max_digits=10,
         decimal_places=2,

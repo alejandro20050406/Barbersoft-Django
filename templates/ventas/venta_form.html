@@ -45,7 +45,16 @@
         </div>
 
         <div class="form-row full">
-            <div class="form-group">{{ form.fecha.label_tag }}{{ form.fecha }}</div>
+            <div class="form-group">
+                {{ form.fecha.label_tag }}
+                <input type="date" name="{{ form.fecha.html_name }}" id="{{ form.fecha.id_for_label }}"
+                       value="{% now 'Y-m-d' %}"
+                       class="form-control"
+                       {% if form.fecha.field.required %}required{% endif %}>
+                {% if form.fecha.errors %}
+                    <div class="error-messages">{{ form.fecha.errors }}</div>
+                {% endif %}
+            </div>
         </div>
 
         {% if not form.instance.pk %}

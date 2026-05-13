@@ -1,6 +1,7 @@
 ﻿from django import forms
 from django.core.exceptions import ValidationError
 from decimal import Decimal
+from datetime import date
 
 from apps.catalogos.models import MetodoDePago, Producto
 from apps.empleados.models import Empleado
@@ -25,6 +26,9 @@ class VentaForm(forms.ModelForm):
         }
 
     def __init__(self, *args, request_user=None, **kwargs):
+        if not (kwargs.get("instance") and kwargs["instance"].pk):
+            kwargs.setdefault("initial", {})
+            kwargs["initial"]["fecha"] = date.today()
         super().__init__(*args, **kwargs)
 
         self.request_user = request_user
@@ -32,7 +36,6 @@ class VentaForm(forms.ModelForm):
         self.fields["metodo_de_pago"].queryset = MetodoDePago.objects.filter(activo=True)
         self.fields["metodo_de_pago"].empty_label = None
         if getattr(self.instance, "total", None) is None:
-            # El total definitivo se calcula con los items en la vista.
             self.instance.total = Decimal("0.00")
 
     def clean_empleado(self):

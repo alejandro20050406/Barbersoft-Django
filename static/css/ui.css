@@ -1093,6 +1093,18 @@ select option,
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.brand-logo-sidebar {
+    width: 2rem;
+    height: 2rem;
+    display: block;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+    background: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    flex: 0 0 auto;
+}
+
 .brand-title-sidebar {
     margin: 0;
     font-weight: 700;

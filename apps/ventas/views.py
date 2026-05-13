@@ -1,5 +1,6 @@
 ﻿from datetime import date
 from decimal import Decimal
+from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -7,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models import Q, Sum
+from django.db.models import Avg
 from django.http import FileResponse, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
@@ -510,6 +512,57 @@ class VentaListView(ListView):
             queryset = queryset.filter(fecha__lte=fecha_hasta)
 
         return queryset.order_by("-fecha")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        queryset = self.object_list
+        today = timezone.localdate()
+        yesterday = today - timedelta(days=1)
+        month_start = today.replace(day=1)
+        previous_month_end = month_start - timedelta(days=1)
+        previous_month_start = previous_month_end.replace(day=1)
+
+        ventas_hoy = queryset.filter(fecha=today)
+        ventas_ayer = queryset.filter(fecha=yesterday)
+        ventas_mes = queryset.filter(fecha__gte=month_start, fecha__lte=today)
+        ventas_mes_anterior = queryset.filter(
+            fecha__gte=previous_month_start,
+            fecha__lte=previous_month_end,
+        )
+
+        ingresos_hoy = ventas_hoy.aggregate(total=Sum("total"))["total"] or Decimal("0.00")
+        ingresos_mes = ventas_mes.aggregate(total=Sum("total"))["total"] or Decimal("0.00")
+        ingresos_mes_anterior = (
+            ventas_mes_anterior.aggregate(total=Sum("total"))["total"] or Decimal("0.00")
+        )
+        clientes_hoy = ventas_hoy.values("cliente_id").distinct().count()
+        clientes_ayer = ventas_ayer.values("cliente_id").distinct().count()
+        ticket_promedio = queryset.aggregate(avg=Avg("total"))["avg"] or Decimal("0.00")
+
+        def percent_change(current, previous):
+            if not previous:
+                return None if not current else Decimal("100.00")
+            return ((current - previous) / previous) * Decimal("100")
+
+        context["sales_summary"] = {
+            "ventas_hoy_total": ingresos_hoy,
+            "ventas_hoy_count": ventas_hoy.count(),
+            "clientes_hoy_count": clientes_hoy,
+            "clientes_hoy_change": percent_change(
+                Decimal(clientes_hoy),
+                Decimal(clientes_ayer),
+            ),
+            "ticket_promedio": ticket_promedio,
+            "ingresos_mes_total": ingresos_mes,
+            "ingresos_mes_change": percent_change(ingresos_mes, ingresos_mes_anterior),
+            "total_filtradas": queryset.count(),
+            "fecha_hoy": today,
+        }
+        page_query = self.request.GET.copy()
+        page_query.pop("page", None)
+        context["page_query"] = page_query.urlencode()
+        return context
 
 
 class VentaDetailView(DetailView):

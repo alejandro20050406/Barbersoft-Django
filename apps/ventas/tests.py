@@ -1,5 +1,8 @@
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from apps.catalogos.models import CategoriaProducto, MetodoDePago, Producto, Servicio, TipoServicio
@@ -101,7 +104,8 @@ class VentaServicioCommissionTests(TestCase):
             activo=True,
         )
 
-    def test_venta_de_servicio_crea_comision_del_80_por_ciento(self):
+    @patch("apps.ventas.views._save_sale_ticket_pdf")
+    def test_venta_de_servicio_crea_comision_del_80_por_ciento(self, save_ticket_mock):
         response = self.client.post(
             reverse("ventas:venta-create"),
             data={
@@ -123,8 +127,10 @@ class VentaServicioCommissionTests(TestCase):
         self.assertEqual(comision.porcentaje, 80)
         self.assertEqual(comision.monto, 120)
         self.assertEqual(comision.venta_detalle_servicio.subtotal, 150)
+        save_ticket_mock.assert_called_once()
 
-    def test_detalle_muestra_distribucion_de_servicio(self):
+    @patch("apps.ventas.views._save_sale_ticket_pdf")
+    def test_detalle_muestra_distribucion_de_servicio(self, save_ticket_mock):
         self.client.post(
             reverse("ventas:venta-create"),
             data={
@@ -145,3 +151,37 @@ class VentaServicioCommissionTests(TestCase):
         self.assertContains(response, "$120.00")
         self.assertContains(response, "Ganancia administrador (20%)")
         self.assertContains(response, "$30.00")
+
+    def test_crear_venta_genera_ticket_pdf_consultable(self):
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            with patch("apps.ventas.views.HTML") as html_mock:
+                html_mock.return_value.write_pdf.return_value = b"%PDF-1.4 fake ticket"
+
+                response = self.client.post(
+                    reverse("ventas:venta-create"),
+                    data={
+                        "empleado": self.empleado.id,
+                        "cliente": self.cliente.id,
+                        "metodo_de_pago": self.metodo.id,
+                        "fecha": "2026-04-29",
+                        "item_type": ["servicio"],
+                        "item_id": [self.servicio.id],
+                        "item_quantity": ["1"],
+                    },
+                )
+
+                self.assertEqual(response.status_code, 302)
+                venta = Venta.objects.get()
+                self.assertTrue(venta.ticket_pdf.name.startswith("ventas/tickets/"))
+
+                ticket_response = self.client.get(
+                    reverse("ventas:venta-ticket-pdf", kwargs={"pk": venta.pk})
+                )
+
+                self.assertEqual(ticket_response.status_code, 200)
+                self.assertEqual(ticket_response["Content-Type"], "application/pdf")
+                self.assertIn("inline; filename=", ticket_response["Content-Disposition"])
+                self.assertEqual(
+                    b"".join(ticket_response.streaming_content),
+                    b"%PDF-1.4 fake ticket",
+                )

@@ -36,6 +36,7 @@
                         <td>
                             <div class="table-actions">
                                 <a href="{% url 'ventas:venta-detail' venta.pk %}" class="btn btn-secondary btn-sm">Ver</a>
+                                <a href="{% url 'ventas:venta-ticket-pdf' venta.pk %}" class="btn btn-secondary btn-sm" target="_blank" rel="noopener">Consultar ticket</a>
                                 <a href="{% url 'ventas:venta-update' venta.pk %}" class="btn btn-secondary btn-sm">Editar</a>
                                 <a href="{% url 'ventas:venta-delete' venta.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
                             </div>

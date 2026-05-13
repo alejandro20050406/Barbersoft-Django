@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     dashboard_ventas,
     api_clientes_search,
+    venta_ticket_pdf,
     # Venta
     VentaListView, VentaDetailView, VentaCreateView, VentaUpdateView, VentaDeleteView,
     # Pago
@@ -28,6 +29,7 @@ urlpatterns = [
     # Venta URLs
     path("ventas/", VentaListView.as_view(), name="venta-list"),
     path("ventas/<int:pk>/", VentaDetailView.as_view(), name="venta-detail"),
+    path("ventas/<int:pk>/ticket/", venta_ticket_pdf, name="venta-ticket-pdf"),
     path("ventas/crear/", VentaCreateView.as_view(), name="venta-create"),
     path("ventas/<int:pk>/editar/", VentaUpdateView.as_view(), name="venta-update"),
     path("ventas/<int:pk>/eliminar/", VentaDeleteView.as_view(), name="venta-delete"),

@@ -132,7 +132,7 @@
 
         <div class="form-buttons">
             <a href="{% url 'ventas:venta-list' %}" class="btn btn-secondary">Cancelar</a>
-            <button type="submit" class="btn btn-primary">Guardar</button>
+            <button type="submit" class="btn btn-primary">{% if form.instance.pk %}Guardar{% else %}Registrar venta{% endif %}</button>
         </div>
     </form>
 </div>

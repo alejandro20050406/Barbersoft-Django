@@ -4,17 +4,25 @@ from decimal import Decimal
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models import Q, Sum
-from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
+from django.http import FileResponse, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
 from apps.accounts.roles import is_admin_user, is_employee_user
 from apps.catalogos.models import CategoriaProducto, Producto, Servicio, TipoServicio
 from apps.clientes.models import Cliente
 from apps.empleados.models import Empleado
+
+try:
+    from weasyprint import HTML
+except (ImportError, OSError):  # pragma: no cover - depende del entorno local
+    HTML = None
 
 from .forms import (
     ComisionForm,
@@ -363,6 +371,88 @@ def _service_profit_summary(venta):
     }
 
 
+def _quantity_label(value):
+    if value == value.to_integral_value():
+        return str(int(value))
+    return f"{value:.2f}"
+
+
+def _sale_ticket_items(venta):
+    items = []
+    for detalle in venta.detalles_productos.select_related("producto").all():
+        items.append(
+            {
+                "tipo": "Producto",
+                "nombre": detalle.producto.nombre,
+                "cantidad": str(detalle.cantidad),
+                "precio_unitario": detalle.precio_unitario,
+                "subtotal": detalle.subtotal,
+            }
+        )
+
+    for detalle in venta.detalles_servicio.select_related("servicio").all():
+        quantity = Decimal("1")
+        if detalle.precio_unitario:
+            quantity = detalle.subtotal / detalle.precio_unitario
+        items.append(
+            {
+                "tipo": "Servicio",
+                "nombre": detalle.servicio.nombre,
+                "cantidad": _quantity_label(quantity),
+                "precio_unitario": detalle.precio_unitario,
+                "subtotal": detalle.subtotal,
+            }
+        )
+    return items
+
+
+def _build_sale_ticket_context(venta):
+    total_productos = (
+        venta.detalles_productos.aggregate(total=Sum("subtotal")).get("total")
+        or Decimal("0.00")
+    )
+    total_servicios = (
+        venta.detalles_servicio.aggregate(total=Sum("subtotal")).get("total")
+        or Decimal("0.00")
+    )
+    items = _sale_ticket_items(venta)
+    return {
+        "venta": venta,
+        "items": items,
+        "total_items": len(items),
+        "total_productos": total_productos,
+        "total_servicios": total_servicios,
+        "service_profit_summary": _service_profit_summary(venta),
+        "generated_at": timezone.localtime(),
+    }
+
+
+def _render_sale_ticket_pdf(venta, request=None):
+    if HTML is None:
+        raise RuntimeError("WeasyPrint no esta instalado o disponible en este entorno.")
+
+    html_string = render_to_string(
+        "ventas/venta_ticket_pdf.html",
+        _build_sale_ticket_context(venta),
+        request=request,
+    )
+    base_url = request.build_absolute_uri("/") if request else None
+    return HTML(string=html_string, base_url=base_url).write_pdf()
+
+
+def _save_sale_ticket_pdf(venta, request=None):
+    pdf_file = _render_sale_ticket_pdf(venta, request=request)
+    if venta.ticket_pdf:
+        venta.ticket_pdf.delete(save=False)
+    venta.ticket_pdf.save(
+        f"ticket-venta-{venta.pk}.pdf",
+        ContentFile(pdf_file),
+        save=False,
+    )
+    venta.save(update_fields=["ticket_pdf"])
+    return venta.ticket_pdf
+
+
 def _sale_is_cancelled(venta):
     if venta.total != Decimal("0.00"):
         return False
@@ -443,6 +533,34 @@ class VentaDetailView(DetailView):
         context["comisiones"] = self.object.comisiones.select_related("empleado")
         context["service_profit_summary"] = _service_profit_summary(self.object)
         return context
+
+
+def venta_ticket_pdf(request, pk):
+    queryset = Venta.objects.select_related("cliente", "empleado", "metodo_de_pago")
+    queryset = _scope_ventas_queryset(request, queryset)
+    venta = get_object_or_404(queryset, pk=pk)
+
+    if not venta.ticket_pdf or not venta.ticket_pdf.storage.exists(venta.ticket_pdf.name):
+        try:
+            _save_sale_ticket_pdf(venta, request=request)
+        except RuntimeError as exc:
+            return HttpResponse(
+                str(exc),
+                status=503,
+                content_type="text/plain; charset=utf-8",
+            )
+
+    venta.ticket_pdf.open("rb")
+    response = FileResponse(
+        venta.ticket_pdf,
+        content_type="application/pdf",
+        filename=f"ticket-venta-{venta.pk}.pdf",
+        as_attachment=False,
+    )
+    response["Content-Disposition"] = (
+        f'inline; filename="ticket-venta-{venta.pk}.pdf"'
+    )
+    return response
 
 
 class VentaCreateView(SuccessMessageMixin, CreateView):
@@ -574,6 +692,11 @@ class VentaCreateView(SuccessMessageMixin, CreateView):
         except ValidationError as exc:
             form.add_error(None, _validation_error_text(exc))
             return self.form_invalid(form)
+
+        try:
+            _save_sale_ticket_pdf(self.object, request=self.request)
+        except RuntimeError as exc:
+            messages.warning(self.request, str(exc))
 
         messages.success(self.request, self.success_message)
         return HttpResponseRedirect(self.get_success_url())

@@ -31,6 +31,12 @@ class Venta(models.Model):
         decimal_places=2,
         verbose_name="Total de la venta",
     )
+    ticket_pdf = models.FileField(
+        upload_to="ventas/tickets/",
+        blank=True,
+        null=True,
+        verbose_name="Ticket PDF",
+    )
 
     class Meta:
         db_table = "ventas"

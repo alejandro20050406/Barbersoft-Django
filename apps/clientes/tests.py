@@ -1,6 +1,12 @@
 from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
 from django.test import SimpleTestCase, TestCase
+from django.urls import reverse
+from django.utils import timezone
 
+from apps.catalogos.models import MetodoDePago
+from apps.empleados.models import Empleado
+from apps.ventas.models import Venta, Visita
 from .forms import ClienteForm
 from .models import Cliente
 
@@ -104,3 +110,57 @@ class ClienteUppercasePersistenceTests(TestCase):
         )
 
         self.assertEqual(list(Cliente.objects.all()), [reciente, primero])
+
+
+class ClienteFrequencyFilterTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="admin",
+            password="admin123",
+            is_staff=True,
+        )
+        self.client.force_login(self.user)
+        self.empleado = Empleado.objects.create(
+            nombre="Luis",
+            apellido="Perez",
+            telefono="3125467733",
+            estado=Empleado.ACTIVO,
+        )
+        self.metodo = MetodoDePago.objects.create(nombre="Efectivo", activo=True)
+        self.cliente_reciente = Cliente.objects.create(
+            nombre="Ana",
+            apellido="Lopez",
+            telefono="3125467734",
+        )
+        self.cliente_antiguo = Cliente.objects.create(
+            nombre="Bruno",
+            apellido="Martinez",
+            telefono="3125467735",
+        )
+
+    def _crear_visita(self, cliente, fecha):
+        venta = Venta.objects.create(
+            empleado=self.empleado,
+            cliente=cliente,
+            metodo_de_pago=self.metodo,
+            fecha=fecha,
+            total=100,
+        )
+        return Visita.objects.create(
+            cliente=cliente,
+            empleado=self.empleado,
+            venta=venta,
+            fecha=fecha,
+        )
+
+    def test_filtra_frecuencia_por_ultimo_mes(self):
+        today = timezone.localdate()
+        self._crear_visita(self.cliente_reciente, today)
+        self._crear_visita(self.cliente_antiguo, today.replace(year=today.year - 1))
+
+        response = self.client.get(reverse("clientes:cliente-list"), {"frecuencia": "1"})
+
+        clientes = list(response.context["clientes"])
+        self.assertEqual(clientes, [self.cliente_reciente])
+        self.assertEqual(clientes[0].total_visitas, 1)
+        self.assertEqual(response.context["selected_frequency_filter"], "1")

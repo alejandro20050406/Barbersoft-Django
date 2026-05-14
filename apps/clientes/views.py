@@ -1,3 +1,5 @@
+import calendar
+
 from django.shortcuts import render
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -7,9 +9,28 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count, Q
+from django.utils import timezone
 
 from .models import Cliente
 from .forms import ClienteForm
+
+
+FREQUENCY_FILTER_OPTIONS = {
+    "3": "Ultimos 3 meses",
+    "2": "Ultimos 2 meses",
+    "1": "Ultimo mes",
+}
+
+
+def _months_ago(current_date, months):
+    month = current_date.month - months
+    year = current_date.year
+    while month <= 0:
+        month += 12
+        year -= 1
+
+    day = min(current_date.day, calendar.monthrange(year, month)[1])
+    return current_date.replace(year=year, month=month, day=day)
 
 
 def lista_clientes(request):
@@ -25,7 +46,17 @@ class ClienteListView(ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        queryset = Cliente.objects.all().annotate(total_visitas=Count("visitas"))
+        frequency_filter = self.request.GET.get("frecuencia")
+        if frequency_filter in FREQUENCY_FILTER_OPTIONS:
+            start_date = _months_ago(timezone.localdate(), int(frequency_filter))
+            queryset = Cliente.objects.all().annotate(
+                total_visitas=Count(
+                    "visitas",
+                    filter=Q(visitas__fecha__gte=start_date),
+                )
+            )
+        else:
+            queryset = Cliente.objects.all().annotate(total_visitas=Count("visitas"))
         search = self.request.GET.get('search')
         if search:
             queryset = queryset.filter(
@@ -34,10 +65,22 @@ class ClienteListView(ListView):
                 Q(telefono__icontains=search) |
                 Q(correo__icontains=search)
             )
-        order = self.request.GET.get('order')
-        if order == 'historial':
-            queryset = queryset.order_by('-total_visitas')
+        if frequency_filter in FREQUENCY_FILTER_OPTIONS:
+            queryset = queryset.filter(total_visitas__gt=0).order_by(
+                "-total_visitas", "apellido", "nombre"
+            )
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        selected_frequency_filter = self.request.GET.get("frecuencia", "")
+        context["frequency_filter_options"] = FREQUENCY_FILTER_OPTIONS
+        context["selected_frequency_filter"] = (
+            selected_frequency_filter
+            if selected_frequency_filter in FREQUENCY_FILTER_OPTIONS
+            else ""
+        )
+        return context
 
 
 class ClienteDetailView(DetailView):

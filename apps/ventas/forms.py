@@ -4,6 +4,7 @@ from decimal import Decimal
 from datetime import date
 
 from apps.catalogos.models import MetodoDePago, Producto
+from apps.accounts.roles import is_admin_user
 from apps.empleados.models import Empleado
 
 from .models import (
@@ -33,6 +34,8 @@ class VentaForm(forms.ModelForm):
 
         self.request_user = request_user
         self.fields["empleado"].queryset = Empleado.objects.filter(estado=Empleado.ACTIVO)
+        if is_admin_user(request_user):
+            self.fields["empleado"].empty_label = "admin"
         self.fields["metodo_de_pago"].queryset = MetodoDePago.objects.filter(activo=True)
         self.fields["metodo_de_pago"].empty_label = None
         if getattr(self.instance, "total", None) is None:

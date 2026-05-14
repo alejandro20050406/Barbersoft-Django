@@ -9,7 +9,7 @@ from apps.catalogos.models import CategoriaProducto, MetodoDePago, Producto, Ser
 from apps.clientes.models import Cliente
 from apps.empleados.models import Empleado
 
-from .forms import VentaDetalleProductoForm
+from .forms import VentaDetalleProductoForm, VentaForm
 from .models import Comision, Venta
 
 
@@ -72,6 +72,26 @@ class VentaProductAvailabilityTests(TestCase):
         queryset_ids = list(form.fields["producto"].queryset.values_list("id", flat=True))
         self.assertIn(disponible.id, queryset_ids)
         self.assertNotIn(agotado.id, queryset_ids)
+
+    def test_admin_venta_form_uses_admin_as_employee_placeholder(self):
+        form = VentaForm(request_user=self.user)
+
+        self.assertEqual(form.fields["empleado"].empty_label, "admin")
+
+    def test_cliente_search_shows_name_without_phone(self):
+        Cliente.objects.create(
+            nombre="Carlos",
+            apellido="Garcia",
+            telefono="3129003457",
+        )
+
+        response = self.client.get(
+            reverse("ventas:api-clientes-search"),
+            {"q": "Carlos"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["results"][0]["text"], "CARLOS GARCIA")
 
 
 class VentaServicioCommissionTests(TestCase):

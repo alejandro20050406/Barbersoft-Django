@@ -65,17 +65,13 @@ def _cliente_option_text(cliente):
     if isinstance(cliente, dict):
         nombre = cliente.get("nombre", "")
         apellido = cliente.get("apellido")
-        telefono = cliente.get("telefono")
     else:
         nombre = cliente.nombre
         apellido = cliente.apellido
-        telefono = cliente.telefono
 
     full_name = nombre
     if apellido:
         full_name = f"{full_name} {apellido}"
-    if telefono:
-        full_name = f"{full_name} ({telefono})"
     return full_name.upper()
 
 

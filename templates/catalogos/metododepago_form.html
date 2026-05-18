@@ -1,10 +1,10 @@
 {% extends "crud_base.html" %}
 
-{% block title %}{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Método de Pago - BarberSoft{% endblock %}
+{% block title %}{% if form.instance.pk %}Editar Método de Pago{% else %}Nuevo Método de Pago{% endif %} - BarberSoft{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Método de Pago</h1>
+    <h1 class="page-title">{% if form.instance.pk %}Editar Método de Pago{% else %}Nuevo Método de Pago{% endif %}</h1>
 </div>
 
 <div class="form-section">

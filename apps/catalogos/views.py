@@ -19,9 +19,9 @@ from .models import CategoriaProducto, MetodoDePago, Producto, Servicio, TipoSer
 
 def dashboard(request):
     context = {
-        "categorias": CategoriaProducto.objects.all()[:8],
-        "metodos_pago": MetodoDePago.objects.all()[:8],
-        "tipos_servicio": TipoServicio.objects.all()[:8],
+        "categorias": CategoriaProducto.objects.filter(activo=True)[:8],
+        "metodos_pago": MetodoDePago.objects.filter(activo=True)[:8],
+        "tipos_servicio": TipoServicio.objects.filter(activo=True)[:8],
         "productos": Producto.objects.select_related("categoria").filter(activo=True)[:8],
         "servicios": Servicio.objects.select_related("tipo").filter(activo=True)[:8],
     }
@@ -43,7 +43,7 @@ class CategoriaProductoListView(ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = CategoriaProducto.objects.all()
+        queryset = CategoriaProducto.objects.filter(activo=True)
         search = self.request.GET.get("search")
         if search:
             queryset = queryset.filter(nombre__icontains=search)
@@ -81,12 +81,13 @@ class CategoriaProductoDeleteView(DeleteContextMixin, SuccessMessageMixin, Delet
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         try:
-            return super().post(request, *args, **kwargs)
+            response = super().post(request, *args, **kwargs)
+            messages.success(request, "Categoria eliminada correctamente.")
+            return response
         except ProtectedError:
-            messages.error(
-                request,
-                "No se puede eliminar la categoria porque tiene productos asociados.",
-            )
+            self.object.activo = False
+            self.object.save(update_fields=["activo"])
+            messages.success(request, "Categoria eliminada del listado correctamente.")
             return HttpResponseRedirect(self.success_url)
 
 
@@ -99,8 +100,7 @@ class ProductoListView(ListView):
 
     def get_queryset(self):
         queryset = Producto.objects.select_related("categoria")
-        if self.request.GET.get("incluir_inactivos") != "1":
-            queryset = queryset.filter(activo=True)
+        queryset = queryset.filter(activo=True)
 
         search = self.request.GET.get("search")
         categoria = self.request.GET.get("categoria")
@@ -114,7 +114,7 @@ class ProductoListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["categorias"] = CategoriaProducto.objects.all()
+        context["categorias"] = CategoriaProducto.objects.filter(activo=True)
         return context
 
 
@@ -148,20 +148,14 @@ class ProductoDeleteView(DeleteContextMixin, SuccessMessageMixin, DeleteView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not self.object.activo:
-            messages.info(request, "El producto ya estaba inactivo.")
-            return HttpResponseRedirect(self.success_url)
-
-        self.object.activo = False
-        self.object.save(update_fields=["activo"])
-
-        if self.object.detalles_venta.exists():
-            messages.warning(
-                request,
-                "Producto desactivado. Tiene ventas asociadas y no se elimino fisicamente.",
-            )
-        else:
-            messages.success(request, "Producto desactivado correctamente.")
+        try:
+            response = super().post(request, *args, **kwargs)
+            messages.success(request, "Producto eliminado correctamente.")
+            return response
+        except ProtectedError:
+            self.object.activo = False
+            self.object.save(update_fields=["activo"])
+            messages.success(request, "Producto eliminado del listado correctamente.")
         return HttpResponseRedirect(self.success_url)
 
 
@@ -173,7 +167,7 @@ class TipoServicioListView(ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = TipoServicio.objects.all()
+        queryset = TipoServicio.objects.filter(activo=True)
         search = self.request.GET.get("search")
         if search:
             queryset = queryset.filter(nombre__icontains=search)
@@ -211,11 +205,15 @@ class TipoServicioDeleteView(DeleteContextMixin, SuccessMessageMixin, DeleteView
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         try:
-            return super().post(request, *args, **kwargs)
+            response = super().post(request, *args, **kwargs)
+            messages.success(request, "Tipo de servicio eliminado correctamente.")
+            return response
         except ProtectedError:
-            messages.error(
+            self.object.activo = False
+            self.object.save(update_fields=["activo"])
+            messages.success(
                 request,
-                "No se puede eliminar el tipo de servicio porque tiene servicios asociados.",
+                "Tipo de servicio eliminado del listado correctamente.",
             )
             return HttpResponseRedirect(self.success_url)
 
@@ -229,8 +227,7 @@ class ServicioListView(ListView):
 
     def get_queryset(self):
         queryset = Servicio.objects.select_related("tipo")
-        if self.request.GET.get("incluir_inactivos") != "1":
-            queryset = queryset.filter(activo=True)
+        queryset = queryset.filter(activo=True)
 
         search = self.request.GET.get("search")
         tipo = self.request.GET.get("tipo")
@@ -244,7 +241,7 @@ class ServicioListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["tipos_servicio"] = TipoServicio.objects.all()
+        context["tipos_servicio"] = TipoServicio.objects.filter(activo=True)
         return context
 
 
@@ -278,20 +275,14 @@ class ServicioDeleteView(DeleteContextMixin, SuccessMessageMixin, DeleteView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not self.object.activo:
-            messages.info(request, "El servicio ya estaba inactivo.")
-            return HttpResponseRedirect(self.success_url)
-
-        self.object.activo = False
-        self.object.save(update_fields=["activo"])
-
-        if self.object.detalles_venta.exists():
-            messages.warning(
-                request,
-                "Servicio desactivado. Tiene ventas asociadas y no se elimino fisicamente.",
-            )
-        else:
-            messages.success(request, "Servicio desactivado correctamente.")
+        try:
+            response = super().post(request, *args, **kwargs)
+            messages.success(request, "Servicio eliminado correctamente.")
+            return response
+        except ProtectedError:
+            self.object.activo = False
+            self.object.save(update_fields=["activo"])
+            messages.success(request, "Servicio eliminado del listado correctamente.")
         return HttpResponseRedirect(self.success_url)
 
 
@@ -303,7 +294,7 @@ class MetodoDePagoListView(ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = MetodoDePago.objects.all()
+        queryset = MetodoDePago.objects.filter(activo=True)
         search = self.request.GET.get("search")
         if search:
             queryset = queryset.filter(nombre__icontains=search)
@@ -341,10 +332,14 @@ class MetodoDePagoDeleteView(DeleteContextMixin, SuccessMessageMixin, DeleteView
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         try:
-            return super().post(request, *args, **kwargs)
+            response = super().post(request, *args, **kwargs)
+            messages.success(request, "Metodo de pago eliminado correctamente.")
+            return response
         except ProtectedError:
-            messages.error(
+            self.object.activo = False
+            self.object.save(update_fields=["activo"])
+            messages.success(
                 request,
-                "No se puede eliminar el metodo de pago porque tiene ventas o pagos asociados.",
+                "Metodo de pago eliminado del listado correctamente.",
             )
             return HttpResponseRedirect(self.success_url)

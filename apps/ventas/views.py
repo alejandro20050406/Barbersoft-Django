@@ -87,7 +87,7 @@ def _selected_cliente_from_form(form):
     if not raw_cliente_id:
         return None
 
-    cliente = Cliente.objects.filter(pk=raw_cliente_id).first()
+    cliente = Cliente.objects.filter(pk=raw_cliente_id, activo=True).first()
     if cliente is None:
         return None
 
@@ -664,9 +664,11 @@ class VentaCreateView(SuccessMessageMixin, CreateView):
 
         context["initial_item_type"] = initial_item_type
         context["categorias_producto"] = list(
-            CategoriaProducto.objects.values("id", "nombre")
+            CategoriaProducto.objects.filter(activo=True).values("id", "nombre")
         )
-        context["tipos_servicio"] = list(TipoServicio.objects.values("id", "nombre"))
+        context["tipos_servicio"] = list(
+            TipoServicio.objects.filter(activo=True).values("id", "nombre")
+        )
         context["productos"] = list(
             Producto.objects.filter(activo=True, stock__gt=0).values(
                 "id", "nombre", "precio_venta", "categoria_id"
@@ -1163,7 +1165,7 @@ def api_clientes_search(request):
         )
 
     clientes = (
-        Cliente.objects.filter(filters)
+        Cliente.objects.filter(filters, activo=True)
         .order_by('apellido', 'nombre')
         .values('id', 'nombre', 'apellido', 'telefono')[:20]
     )

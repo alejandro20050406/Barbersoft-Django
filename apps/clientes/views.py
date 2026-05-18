@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count, Q
+from django.db.models.deletion import ProtectedError
 from django.utils import timezone
 
 from .models import Cliente
@@ -34,7 +35,7 @@ def _months_ago(current_date, months):
 
 
 def lista_clientes(request):
-    clientes = Cliente.objects.all()[:50]
+    clientes = Cliente.objects.filter(activo=True)[:50]
     return render(request, "clientes/lista.html", {"clientes": clientes})
 
 
@@ -49,14 +50,16 @@ class ClienteListView(ListView):
         frequency_filter = self.request.GET.get("frecuencia")
         if frequency_filter in FREQUENCY_FILTER_OPTIONS:
             start_date = _months_ago(timezone.localdate(), int(frequency_filter))
-            queryset = Cliente.objects.all().annotate(
+            queryset = Cliente.objects.filter(activo=True).annotate(
                 total_visitas=Count(
                     "visitas",
                     filter=Q(visitas__fecha__gte=start_date),
                 )
             )
         else:
-            queryset = Cliente.objects.all().annotate(total_visitas=Count("visitas"))
+            queryset = Cliente.objects.filter(activo=True).annotate(
+                total_visitas=Count("visitas")
+            )
         search = self.request.GET.get('search')
         if search:
             queryset = queryset.filter(
@@ -118,10 +121,12 @@ class ClienteDeleteView(SuccessMessageMixin, DeleteView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.ventas.exists():
-            messages.error(
-                request,
-                "No se puede eliminar el cliente porque tiene ventas asociadas.",
-            )
+        try:
+            response = super().post(request, *args, **kwargs)
+            messages.success(request, "Cliente eliminado correctamente.")
+            return response
+        except ProtectedError:
+            self.object.activo = False
+            self.object.save(update_fields=["activo"])
+            messages.success(request, "Cliente eliminado del listado correctamente.")
             return HttpResponseRedirect(self.success_url)
-        return super().post(request, *args, **kwargs)

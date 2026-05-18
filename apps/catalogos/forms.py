@@ -55,6 +55,16 @@ class CategoriaProductoForm(StyledFormMixin, forms.ModelForm):
 # Producto
 # ──────────────────────────────────────────────
 class ProductoForm(StyledFormMixin, forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        categorias = CategoriaProducto.objects.filter(activo=True)
+        if self.instance.pk and self.instance.categoria_id:
+            categorias = (
+                CategoriaProducto.objects.filter(pk=self.instance.categoria_id)
+                | categorias
+            )
+        self.fields["categoria"].queryset = categorias.distinct().order_by("nombre")
+
     class Meta:
         model = Producto
         fields = [
@@ -148,6 +158,13 @@ class TipoServicioForm(StyledFormMixin, forms.ModelForm):
 # Servicio
 # ──────────────────────────────────────────────
 class ServicioForm(StyledFormMixin, forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        tipos = TipoServicio.objects.filter(activo=True)
+        if self.instance.pk and self.instance.tipo_id:
+            tipos = TipoServicio.objects.filter(pk=self.instance.tipo_id) | tipos
+        self.fields["tipo"].queryset = tipos.distinct().order_by("nombre")
+
     class Meta:
         model = Servicio
         fields = ["tipo", "nombre", "descripcion", "precio", "activo"]

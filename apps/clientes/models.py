@@ -15,6 +15,7 @@ class Cliente(models.Model):
     apellido = models.CharField(max_length=100, blank=True, null=True, verbose_name="Apellido")
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
     correo = models.EmailField(blank=True, null=True, verbose_name="Correo electrónico")
+    activo = models.BooleanField(default=True, verbose_name="Activo")
     fecha_registro = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de registro")
 
     class Meta:

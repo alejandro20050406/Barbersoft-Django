@@ -1,11 +1,11 @@
 {% extends "crud_base.html" %}
 {% load static %}
 
-{% block title %}{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Servicio - BarberSoft{% endblock %}
+{% block title %}{% if form.instance.pk %}Editar Servicio{% else %}Nuevo Servicio{% endif %} - BarberSoft{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Servicio</h1>
+    <h1 class="page-title">{% if form.instance.pk %}Editar Servicio{% else %}Nuevo Servicio{% endif %}</h1>
 </div>
 
 <div class="form-section">

@@ -1,10 +1,10 @@
 {% extends "crud_base.html" %}
 
-{% block title %}{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Tipo de Servicio - BarberSoft{% endblock %}
+{% block title %}{% if form.instance.pk %}Editar Tipo de Servicio{% else %}Nuevo Tipo de Servicio{% endif %} - BarberSoft{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Tipo de Servicio</h1>
+    <h1 class="page-title">{% if form.instance.pk %}Editar Tipo de Servicio{% else %}Nuevo Tipo de Servicio{% endif %}</h1>
 </div>
 
 <div class="form-section">

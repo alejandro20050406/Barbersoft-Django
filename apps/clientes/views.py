@@ -1,4 +1,5 @@
 import calendar
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from django.shortcuts import render
 from django.views.generic import (
@@ -7,6 +8,7 @@ from django.views.generic import (
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.urls import reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count, Q
 from django.db.models.deletion import ProtectedError
@@ -98,6 +100,52 @@ class ClienteCreateView(SuccessMessageMixin, CreateView):
     template_name = 'clientes/cliente_form.html'
     success_url = reverse_lazy('clientes:cliente-list')
     success_message = "Cliente creado exitosamente"
+
+    def get_initial(self):
+        initial = super().get_initial()
+        nombre = (self.request.GET.get("nombre") or "").strip()
+        if nombre:
+            initial["nombre"] = nombre
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["next_url"] = self._safe_next_url()
+        return context
+
+    def get_success_url(self):
+        next_url = self._safe_next_url()
+        if not next_url:
+            return super().get_success_url()
+
+        parts = urlsplit(next_url)
+        query = dict(parse_qsl(parts.query, keep_blank_values=True))
+        query["cliente"] = str(self.object.pk)
+        return urlunsplit(
+            (
+                parts.scheme,
+                parts.netloc,
+                parts.path,
+                urlencode(query),
+                parts.fragment,
+            )
+        )
+
+    def _safe_next_url(self):
+        next_url = (
+            self.request.POST.get("next")
+            or self.request.GET.get("next")
+            or ""
+        ).strip()
+        if not next_url:
+            return ""
+        if url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={self.request.get_host()},
+            require_https=self.request.is_secure(),
+        ):
+            return next_url
+        return ""
 
 
 class ClienteUpdateView(SuccessMessageMixin, UpdateView):

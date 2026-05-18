@@ -36,6 +36,30 @@
                     >
                     <div id="cliente-search-results" class="item-search-results" hidden></div>
                 </div>
+                <div
+                    id="cliente-create-modal"
+                    class="sale-modal-backdrop"
+                    hidden
+                    aria-hidden="true"
+                >
+                    <div
+                        class="sale-modal-dialog"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="cliente-create-modal-title"
+                    >
+                        <h2 id="cliente-create-modal-title">Cliente no encontrado</h2>
+                        <p>
+                            Deseas agregar a
+                            <strong id="cliente-create-modal-name"></strong>
+                            como nuevo cliente?
+                        </p>
+                        <div class="sale-modal-actions">
+                            <button type="button" class="btn btn-secondary" id="cliente-create-cancel">No</button>
+                            <button type="button" class="btn btn-primary" id="cliente-create-confirm">Si, agregar</button>
+                        </div>
+                    </div>
+                </div>
                 {% if form.cliente.errors %}
                     <div class="error-messages">{{ form.cliente.errors }}</div>
                 {% endif %}
@@ -163,6 +187,8 @@
     const adminServiceTotalDisplayInput = document.getElementById('admin-service-total-display');
     const employeeSelectInput = document.getElementById('{{ form.empleado.id_for_label }}');
     const serviceCommissionFields = document.querySelectorAll('.service-commission-field');
+    const clienteCreateUrl = "{% url 'clientes:cliente-create' %}";
+    const ventaCreateUrl = "{% url 'ventas:venta-create' %}";
 
     function formatMoney(value) {
         return Number(value).toFixed(2);
@@ -211,10 +237,17 @@
     const clienteSearchInput = document.getElementById('cliente-search-input');
     const clienteIdInput = document.getElementById('{{ form.cliente.id_for_label }}');
     const clienteResults = document.getElementById('cliente-search-results');
+    const clienteCreateModal = document.getElementById('cliente-create-modal');
+    const clienteCreateModalName = document.getElementById('cliente-create-modal-name');
+    const clienteCreateConfirm = document.getElementById('cliente-create-confirm');
+    const clienteCreateCancel = document.getElementById('cliente-create-cancel');
     let selectedClienteLabel = selectedCliente?.text || '';
     let clienteSearchTimeout = null;
     let clienteSearchController = null;
+    let clienteCreatePromptTimeout = null;
     let clienteMatches = [];
+    let pendingClienteName = '';
+    let lastPromptedClienteName = '';
 
     if (selectedClienteLabel) {
         clienteSearchInput.value = selectedClienteLabel;
@@ -225,6 +258,45 @@
         clienteResults.innerHTML = '';
     }
 
+    function hideClienteCreateModal() {
+        clienteCreateModal.hidden = true;
+        clienteCreateModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function clearClienteCreatePrompt() {
+        window.clearTimeout(clienteCreatePromptTimeout);
+        clienteCreatePromptTimeout = null;
+    }
+
+    function showClienteCreateModal(name) {
+        pendingClienteName = name.trim();
+        if (!pendingClienteName) {
+            return;
+        }
+        lastPromptedClienteName = normalizeText(pendingClienteName);
+        clienteCreateModalName.textContent = toUpperText(pendingClienteName);
+        clienteCreateModal.hidden = false;
+        clienteCreateModal.setAttribute('aria-hidden', 'false');
+        clienteCreateConfirm.focus();
+    }
+
+    function maybePromptCreateCliente(query) {
+        const cleanQuery = query.trim();
+        if (cleanQuery.length < 2 || clienteIdInput.value) {
+            return;
+        }
+        const normalizedQuery = normalizeText(cleanQuery);
+        if (!normalizedQuery || normalizedQuery === lastPromptedClienteName) {
+            return;
+        }
+        clearClienteCreatePrompt();
+        clienteCreatePromptTimeout = window.setTimeout(() => {
+            if (clienteSearchInput.value.trim() === cleanQuery && !clienteIdInput.value) {
+                showClienteCreateModal(cleanQuery);
+            }
+        }, 650);
+    }
+
     function renderClienteResults(matches, query) {
         clienteMatches = matches;
         if (!matches.length) {
@@ -232,9 +304,11 @@
                 ? '<div class="item-search-empty">SIN RESULTADOS</div>'
                 : '';
             clienteResults.hidden = !query.trim();
+            maybePromptCreateCliente(query);
             return;
         }
 
+        clearClienteCreatePrompt();
         clienteResults.innerHTML = matches.map(cliente => `
             <button type="button" class="item-search-option" data-cliente-id="${cliente.id}">
                 ${escapeHtml(toUpperText(cliente.text))}
@@ -247,7 +321,9 @@
         clienteIdInput.value = cliente.id;
         clienteSearchInput.value = toUpperText(cliente.text);
         selectedClienteLabel = clienteSearchInput.value;
+        pendingClienteName = '';
         hideClienteResults();
+        hideClienteCreateModal();
     }
 
     function searchClientes() {
@@ -255,6 +331,7 @@
         if (query.length < 2) {
             clienteMatches = [];
             hideClienteResults();
+            hideClienteCreateModal();
             return;
         }
 
@@ -277,6 +354,7 @@
     }
 
     clienteSearchInput.addEventListener('input', () => {
+        clearClienteCreatePrompt();
         if (clienteSearchInput.value !== selectedClienteLabel) {
             clienteIdInput.value = '';
             selectedClienteLabel = '';
@@ -305,6 +383,35 @@
         }
         if (event.key === 'Escape') {
             hideClienteResults();
+            hideClienteCreateModal();
+        }
+    });
+
+    clienteCreateCancel.addEventListener('click', () => {
+        hideClienteCreateModal();
+    });
+
+    clienteCreateConfirm.addEventListener('click', () => {
+        const name = pendingClienteName || clienteSearchInput.value.trim();
+        if (!name) {
+            hideClienteCreateModal();
+            return;
+        }
+        const createUrl = new URL(clienteCreateUrl, window.location.origin);
+        const returnUrl = new URL(window.location.href);
+        if (returnUrl.pathname !== new URL(ventaCreateUrl, window.location.origin).pathname) {
+            returnUrl.pathname = new URL(ventaCreateUrl, window.location.origin).pathname;
+            returnUrl.search = '';
+        }
+        returnUrl.searchParams.delete('cliente');
+        createUrl.searchParams.set('nombre', name);
+        createUrl.searchParams.set('next', `${returnUrl.pathname}${returnUrl.search}`);
+        window.location.href = createUrl.toString();
+    });
+
+    clienteCreateModal.addEventListener('mousedown', (event) => {
+        if (event.target === clienteCreateModal) {
+            hideClienteCreateModal();
         }
     });
 

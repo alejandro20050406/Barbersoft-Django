@@ -189,6 +189,53 @@ select option,
     font-size: 0.95rem;
 }
 
+.sale-modal-backdrop[hidden] {
+    display: none;
+}
+
+.sale-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba(26, 26, 46, 0.42);
+}
+
+.sale-modal-dialog {
+    width: min(100%, 420px);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: 0 18px 48px rgba(26, 26, 46, 0.22);
+    padding: 1.35rem;
+}
+
+.sale-modal-dialog h2 {
+    margin: 0 0 0.65rem;
+    color: var(--ink);
+    font-size: 1.25rem;
+}
+
+.sale-modal-dialog p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.45;
+}
+
+.sale-modal-dialog strong {
+    color: var(--ink);
+}
+
+.sale-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+}
+
 .error-messages {
     display: flex;
     flex-direction: column;

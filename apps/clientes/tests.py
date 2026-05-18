@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -168,6 +169,12 @@ class ClienteFrequencyFilterTests(TestCase):
 
 class ClienteDeleteTests(TestCase):
     def test_eliminar_cliente_con_ventas_lo_oculta_del_listado(self):
+        user = get_user_model().objects.create_user(
+            username="admin-delete",
+            password="admin123",
+            is_staff=True,
+        )
+        self.client.force_login(user)
         empleado = Empleado.objects.create(
             nombre="Luis",
             apellido="Perez",
@@ -195,3 +202,45 @@ class ClienteDeleteTests(TestCase):
         self.assertRedirects(response, reverse("clientes:cliente-list"))
         self.assertFalse(cliente.activo)
         self.assertNotContains(list_response, "CARLOS")
+
+
+class ClienteCreateFromSaleTests(TestCase):
+    def setUp(self):
+        employee_group = Group.objects.create(name="Empleado")
+        self.user = get_user_model().objects.create_user(
+            username="barbero",
+            password="admin123",
+        )
+        self.user.groups.add(employee_group)
+        self.client.force_login(self.user)
+        self.create_url = reverse("clientes:cliente-create")
+        self.sale_url = reverse("ventas:venta-create")
+
+    def test_empleado_crea_cliente_desde_nueva_venta_y_regresa_con_cliente(self):
+        response = self.client.get(
+            self.create_url,
+            {"nombre": "Mario Rossi", "next": self.sale_url},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["form"].initial["nombre"], "Mario Rossi")
+        self.assertEqual(response.context["next_url"], self.sale_url)
+
+        response = self.client.post(
+            self.create_url,
+            data={
+                "nombre": "Mario",
+                "apellido": "Rossi",
+                "telefono": "6621234567",
+                "correo": "",
+                "next": self.sale_url,
+            },
+        )
+
+        cliente = Cliente.objects.get(nombre="MARIO")
+        self.assertRedirects(response, f"{self.sale_url}?cliente={cliente.pk}")
+
+    def test_empleado_no_entra_a_crear_cliente_sin_regreso_a_venta(self):
+        response = self.client.get(self.create_url)
+
+        self.assertRedirects(response, reverse("accounts:menu-empleado"))

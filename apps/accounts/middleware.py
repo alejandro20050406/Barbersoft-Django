@@ -1,7 +1,10 @@
+from urllib.parse import urlsplit
+
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from .roles import is_admin_user, is_employee_user, user_role
 
@@ -71,6 +74,8 @@ class RoleAccessMiddleware:
         if any(path.startswith(prefix) for prefix in admin_only_prefixes) and not is_admin_user(
             request.user
         ):
+            if path == reverse("clientes:cliente-create") and self._is_sale_return_target(request):
+                return self.get_response(request)
             messages.error(
                 request, "No tienes permisos para ese modulo administrativo."
             )
@@ -85,6 +90,23 @@ class RoleAccessMiddleware:
             or path.startswith("/media/")
             or path.startswith("/admin/")
         )
+
+    @staticmethod
+    def _is_sale_return_target(request):
+        next_url = (
+            request.POST.get("next")
+            or request.GET.get("next")
+            or ""
+        ).strip()
+        if not next_url:
+            return False
+        if not url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
+        ):
+            return False
+        return urlsplit(next_url).path == reverse("ventas:venta-create")
 
     @staticmethod
     def _menu_for(user):

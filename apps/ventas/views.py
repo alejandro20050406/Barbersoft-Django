@@ -640,6 +640,13 @@ class VentaCreateView(SuccessMessageMixin, CreateView):
     success_url = reverse_lazy("ventas:venta-list")
     success_message = "Venta creada exitosamente"
 
+    def get_initial(self):
+        initial = super().get_initial()
+        cliente_id = (self.request.GET.get("cliente") or "").strip()
+        if cliente_id and Cliente.objects.filter(pk=cliente_id, activo=True).exists():
+            initial["cliente"] = cliente_id
+        return initial
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["request_user"] = self.request.user

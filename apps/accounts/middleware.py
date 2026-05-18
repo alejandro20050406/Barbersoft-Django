@@ -59,7 +59,7 @@ class RoleAccessMiddleware:
         ):
             return redirect("accounts:menu-admin")
 
-        if path.startswith(reverse("accounts:home")) and not is_admin_user(request.user):
+        if path.startswith(reverse("accounts:menu-admin")) and not is_admin_user(request.user):
             return redirect("accounts:menu-empleado")
 
         admin_only_prefixes = (

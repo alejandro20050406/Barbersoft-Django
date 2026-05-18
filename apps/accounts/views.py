@@ -9,7 +9,7 @@ from django.shortcuts import redirect, render
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 
-from apps.catalogos.models import CategoriaProducto, MetodoDePago, Producto, Servicio
+from apps.catalogos.models import Producto, Servicio
 from apps.clientes.models import Cliente
 from apps.empleados.models import Empleado
 from apps.ventas.models import Venta
@@ -63,23 +63,6 @@ def menu_empleado(request):
         _build_employee_menu_context(request.user),
     )
 
-
-def home(request):
-    if not request.user.is_authenticated:
-        return redirect("accounts:menu-principal")
-    if not is_admin_user(request.user):
-        return redirect("accounts:menu-empleado")
-
-    stats = {
-        "categorias": CategoriaProducto.objects.count(),
-        "metodos_pago": MetodoDePago.objects.count(),
-        "productos": Producto.objects.count(),
-        "servicios": Servicio.objects.count(),
-        "clientes": Cliente.objects.count(),
-        "empleados": Empleado.objects.count(),
-        "ventas": Venta.objects.count(),
-    }
-    return render(request, "accounts/home.html", {"stats": stats})
 
 
 def _login_por_rol(request, rol):

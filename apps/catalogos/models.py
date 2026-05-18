@@ -21,6 +21,7 @@ def validar_stock_positivo(value):
 class CategoriaProducto(models.Model):
     nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre")
     descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
+    activo = models.BooleanField(default=True, verbose_name="Activo")
 
     class Meta:
         db_table = "categorias_de_productos"
@@ -96,6 +97,7 @@ class Producto(models.Model):
 class TipoServicio(models.Model):
     nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre")
     descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
+    activo = models.BooleanField(default=True, verbose_name="Activo")
 
     class Meta:
         db_table = "tipos_de_servicios"

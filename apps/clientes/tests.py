@@ -164,3 +164,34 @@ class ClienteFrequencyFilterTests(TestCase):
         self.assertEqual(clientes, [self.cliente_reciente])
         self.assertEqual(clientes[0].total_visitas, 1)
         self.assertEqual(response.context["selected_frequency_filter"], "1")
+
+
+class ClienteDeleteTests(TestCase):
+    def test_eliminar_cliente_con_ventas_lo_oculta_del_listado(self):
+        empleado = Empleado.objects.create(
+            nombre="Luis",
+            apellido="Perez",
+            telefono="3125467733",
+            estado=Empleado.ACTIVO,
+        )
+        metodo = MetodoDePago.objects.create(nombre="Efectivo", activo=True)
+        cliente = Cliente.objects.create(
+            nombre="Carlos",
+            apellido="Luna",
+            telefono="3125467734",
+        )
+        Venta.objects.create(
+            empleado=empleado,
+            cliente=cliente,
+            metodo_de_pago=metodo,
+            fecha=timezone.localdate(),
+            total=100,
+        )
+
+        response = self.client.post(reverse("clientes:cliente-delete", args=[cliente.pk]))
+        cliente.refresh_from_db()
+        list_response = self.client.get(reverse("clientes:cliente-list"))
+
+        self.assertRedirects(response, reverse("clientes:cliente-list"))
+        self.assertFalse(cliente.activo)
+        self.assertNotContains(list_response, "CARLOS")

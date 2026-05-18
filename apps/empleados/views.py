@@ -1,6 +1,7 @@
 ﻿from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
+from django.db.models.deletion import ProtectedError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -11,7 +12,7 @@ from .models import Empleado
 
 
 def lista_empleados(request):
-    empleados = Empleado.objects.all()[:50]
+    empleados = Empleado.objects.filter(estado=Empleado.ACTIVO)[:50]
     return render(request, "empleados/lista.html", {"empleados": empleados})
 
 
@@ -22,9 +23,8 @@ class EmpleadoListView(ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        queryset = Empleado.objects.all()
+        queryset = Empleado.objects.filter(estado=Empleado.ACTIVO)
         search = self.request.GET.get("search")
-        estado = self.request.GET.get("estado")
         if search:
             queryset = queryset.filter(
                 Q(nombre__icontains=search)
@@ -32,8 +32,6 @@ class EmpleadoListView(ListView):
                 | Q(telefono__icontains=search)
                 | Q(correo__icontains=search)
             )
-        if estado:
-            queryset = queryset.filter(estado=estado)
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -77,19 +75,13 @@ class EmpleadoDeleteView(SuccessMessageMixin, DeleteView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.estado == Empleado.INACTIVO:
-            messages.info(request, "El empleado ya estaba inactivo.")
-            return HttpResponseRedirect(self.success_url)
-
-        self.object.estado = Empleado.INACTIVO
-        self.object.save(update_fields=["estado"])
-
-        if self.object.ventas.exists():
-            messages.warning(
-                request,
-                "Empleado desactivado. Tiene ventas asociadas y no se elimino fisicamente.",
-            )
-        else:
-            messages.success(request, "Empleado desactivado correctamente.")
+        try:
+            response = super().post(request, *args, **kwargs)
+            messages.success(request, "Empleado eliminado correctamente.")
+            return response
+        except ProtectedError:
+            self.object.estado = Empleado.INACTIVO
+            self.object.save(update_fields=["estado"])
+            messages.success(request, "Empleado eliminado del listado correctamente.")
 
         return HttpResponseRedirect(self.success_url)

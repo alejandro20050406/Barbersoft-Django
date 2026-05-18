@@ -3,7 +3,11 @@ from datetime import date
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.urls import reverse
 
+from apps.catalogos.models import MetodoDePago
+from apps.clientes.models import Cliente
+from apps.ventas.models import Venta
 from .forms import EmpleadoForm
 from .models import Empleado
 
@@ -186,3 +190,35 @@ class EmpleadoCuentaAccesoTests(TestCase):
         self.assertEqual(usuario.username, "adrian_nuevo")
         self.assertEqual(usuario.email, "adrian@example.com")
         self.assertTrue(usuario.check_password("secret123"))
+
+
+class EmpleadoDeleteTests(TestCase):
+    def test_eliminar_empleado_con_ventas_lo_oculta_del_listado(self):
+        empleado = Empleado.objects.create(
+            nombre="Miguel",
+            apellido="Hidalgo",
+            telefono="3123431987",
+            estado=Empleado.ACTIVO,
+            fecha_ingreso=date(2026, 4, 23),
+        )
+        cliente = Cliente.objects.create(
+            nombre="Ana",
+            apellido="Lopez",
+            telefono="3125467731",
+        )
+        metodo = MetodoDePago.objects.create(nombre="Efectivo", activo=True)
+        Venta.objects.create(
+            empleado=empleado,
+            cliente=cliente,
+            metodo_de_pago=metodo,
+            fecha=date(2026, 4, 23),
+            total=100,
+        )
+
+        response = self.client.post(reverse("empleados:empleado-delete", args=[empleado.pk]))
+        empleado.refresh_from_db()
+        list_response = self.client.get(reverse("empleados:empleado-list"))
+
+        self.assertRedirects(response, reverse("empleados:empleado-list"))
+        self.assertEqual(empleado.estado, Empleado.INACTIVO)
+        self.assertNotContains(list_response, "MIGUEL")

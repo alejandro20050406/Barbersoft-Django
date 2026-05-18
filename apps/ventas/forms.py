@@ -3,8 +3,9 @@ from django.core.exceptions import ValidationError
 from decimal import Decimal
 from datetime import date
 
-from apps.catalogos.models import MetodoDePago, Producto
+from apps.catalogos.models import MetodoDePago, Producto, Servicio
 from apps.accounts.roles import is_admin_user
+from apps.clientes.models import Cliente
 from apps.empleados.models import Empleado
 
 from .models import (
@@ -34,6 +35,10 @@ class VentaForm(forms.ModelForm):
 
         self.request_user = request_user
         self.fields["empleado"].queryset = Empleado.objects.filter(estado=Empleado.ACTIVO)
+        clientes = Cliente.objects.filter(activo=True)
+        if self.instance.pk and self.instance.cliente_id:
+            clientes = Cliente.objects.filter(pk=self.instance.cliente_id) | clientes
+        self.fields["cliente"].queryset = clientes.distinct().order_by("apellido", "nombre")
         if is_admin_user(request_user):
             self.fields["empleado"].empty_label = "admin"
         self.fields["metodo_de_pago"].queryset = MetodoDePago.objects.filter(activo=True)
@@ -48,6 +53,14 @@ class VentaForm(forms.ModelForm):
         if empleado.estado != Empleado.ACTIVO:
             raise ValidationError("Solo puedes registrar ventas con empleados activos.")
         return empleado
+
+    def clean_cliente(self):
+        cliente = self.cleaned_data.get("cliente")
+        if cliente is None:
+            raise ValidationError("El cliente es obligatorio.")
+        if not cliente.activo:
+            raise ValidationError("Solo puedes registrar ventas con clientes activos.")
+        return cliente
 
     def clean_metodo_de_pago(self):
         metodo = self.cleaned_data.get("metodo_de_pago")
@@ -86,6 +99,13 @@ class VentaDetalleProductoForm(forms.ModelForm):
 
 
 class VentaDetalleServicioForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        servicios = Servicio.objects.filter(activo=True)
+        if self.instance.pk and self.instance.servicio_id:
+            servicios = Servicio.objects.filter(pk=self.instance.servicio_id) | servicios
+        self.fields["servicio"].queryset = servicios.distinct().order_by("nombre")
+
     class Meta:
         model = VentaDetalleServicio
         fields = ["venta", "servicio", "precio_unitario", "subtotal"]
@@ -123,6 +143,19 @@ class PagoForm(forms.ModelForm):
 
 
 class VisitaForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        clientes = Cliente.objects.filter(activo=True)
+        empleados = Empleado.objects.filter(estado=Empleado.ACTIVO)
+
+        if self.instance.pk and self.instance.cliente_id:
+            clientes = Cliente.objects.filter(pk=self.instance.cliente_id) | clientes
+        if self.instance.pk and self.instance.empleado_id:
+            empleados = Empleado.objects.filter(pk=self.instance.empleado_id) | empleados
+
+        self.fields["cliente"].queryset = clientes.distinct().order_by("apellido", "nombre")
+        self.fields["empleado"].queryset = empleados.distinct().order_by("apellido", "nombre")
+
     class Meta:
         model = Visita
         fields = ["cliente", "empleado", "venta", "fecha", "observaciones"]

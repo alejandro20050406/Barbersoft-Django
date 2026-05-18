@@ -71,12 +71,12 @@ def home(request):
         return redirect("accounts:menu-empleado")
 
     stats = {
-        "categorias": CategoriaProducto.objects.count(),
-        "metodos_pago": MetodoDePago.objects.count(),
-        "productos": Producto.objects.count(),
-        "servicios": Servicio.objects.count(),
-        "clientes": Cliente.objects.count(),
-        "empleados": Empleado.objects.count(),
+        "categorias": CategoriaProducto.objects.filter(activo=True).count(),
+        "metodos_pago": MetodoDePago.objects.filter(activo=True).count(),
+        "productos": Producto.objects.filter(activo=True).count(),
+        "servicios": Servicio.objects.filter(activo=True).count(),
+        "clientes": Cliente.objects.filter(activo=True).count(),
+        "empleados": Empleado.objects.filter(estado=Empleado.ACTIVO).count(),
         "ventas": Venta.objects.count(),
     }
     return render(request, "accounts/home.html", {"stats": stats})
@@ -151,7 +151,7 @@ def _employee_for_user(user):
     if not filters:
         return None
 
-    return Empleado.objects.filter(filters).order_by("id").first()
+    return Empleado.objects.filter(filters, estado=Empleado.ACTIVO).order_by("id").first()
 
 
 def _payment_breakdown(ventas_qs, pagos_qs=None, limit=4):
@@ -342,7 +342,7 @@ def _build_admin_menu_context():
                 {"title": "Ventas Registradas", "value": ventas_periodo.count(), "accent": "slate", "is_currency": False},
             ],
             "highlights": [
-                {"label": "Clientes registrados", "value": Cliente.objects.count()},
+                {"label": "Clientes registrados", "value": Cliente.objects.filter(activo=True).count()},
                 {"label": "Empleados activos", "value": Empleado.objects.filter(estado=Empleado.ACTIVO).count()},
                 {"label": "Productos activos", "value": Producto.objects.filter(activo=True).count()},
                 {"label": "Servicios activos", "value": Servicio.objects.filter(activo=True).count()},

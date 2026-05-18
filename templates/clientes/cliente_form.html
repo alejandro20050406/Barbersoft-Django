@@ -10,6 +10,9 @@
 <div class="form-section" style="max-width: 600px;">
     <form method="post" novalidate>
         {% csrf_token %}
+        {% if next_url %}
+            <input type="hidden" name="next" value="{{ next_url }}">
+        {% endif %}
         {% if form.non_field_errors %}
             <div class="alert alert-error">
                 <div>
@@ -74,7 +77,7 @@
         </div>
 
         <div class="form-buttons">
-            <a href="{% url 'clientes:cliente-list' %}" class="btn btn-secondary">Cancelar</a>
+            <a href="{% if next_url %}{{ next_url }}{% else %}{% url 'clientes:cliente-list' %}{% endif %}" class="btn btn-secondary">Cancelar</a>
             <button type="submit" class="btn btn-primary">Guardar</button>
         </div>
     </form>

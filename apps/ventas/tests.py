@@ -93,6 +93,26 @@ class VentaProductAvailabilityTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["results"][0]["text"], "CARLOS GARCIA")
 
+    def test_venta_create_preselecciona_cliente_creado_desde_regreso(self):
+        cliente = Cliente.objects.create(
+            nombre="Mario",
+            apellido="Rossi",
+            telefono="6621234567",
+        )
+
+        response = self.client.get(
+            reverse("ventas:venta-create"),
+            {"cliente": cliente.pk},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["selected_cliente"],
+            {"id": cliente.pk, "text": "MARIO ROSSI"},
+        )
+        self.assertContains(response, 'id="cliente-create-modal"')
+        self.assertContains(response, reverse("clientes:cliente-create"))
+
     def test_venta_list_orders_same_day_sales_by_newest_id_first(self):
         cliente = Cliente.objects.create(
             nombre="Gael",

@@ -18,10 +18,16 @@
                         <td><strong>{{ metodo.nombre|upper }}</strong></td>
                         <td><span class="badge {% if metodo.activo %}badge-success{% else %}badge-danger{% endif %}">{% if metodo.activo %}Activo{% else %}Inactivo{% endif %}</span></td>
                         <td>
-                            <div class="table-actions">
-                                <a href="{% url 'catalogos:metodopago-detail' metodo.pk %}" class="btn btn-secondary btn-sm">Ver</a>
-                                <a href="{% url 'catalogos:metodopago-update' metodo.pk %}" class="btn btn-secondary btn-sm">Editar</a>
-                                <a href="{% url 'catalogos:metodopago-delete' metodo.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            <div class="icon-action-group">
+                                <a href="{% url 'catalogos:metodopago-detail' metodo.pk %}" class="icon-action-btn" title="Ver método de pago" aria-label="Ver método de pago">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'catalogos:metodopago-update' metodo.pk %}" class="icon-action-btn" title="Editar método de pago" aria-label="Editar método de pago">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'catalogos:metodopago-delete' metodo.pk %}" class="icon-action-btn icon-action-btn-danger" title="Eliminar método de pago" aria-label="Eliminar método de pago">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>

@@ -49,10 +49,16 @@
                         <td>${{ servicio.precio }}</td>
                         <td><span class="badge {% if servicio.activo %}badge-success{% else %}badge-danger{% endif %}">{% if servicio.activo %}Activo{% else %}Inactivo{% endif %}</span></td>
                         <td>
-                            <div class="table-actions">
-                                <a href="{% url 'catalogos:servicio-detail' servicio.pk %}" class="btn btn-secondary btn-sm">Ver</a>
-                                <a href="{% url 'catalogos:servicio-update' servicio.pk %}" class="btn btn-secondary btn-sm">Editar</a>
-                                <a href="{% url 'catalogos:servicio-delete' servicio.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            <div class="icon-action-group">
+                                <a href="{% url 'catalogos:servicio-detail' servicio.pk %}" class="icon-action-btn" title="Ver servicio" aria-label="Ver servicio">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'catalogos:servicio-update' servicio.pk %}" class="icon-action-btn" title="Editar servicio" aria-label="Editar servicio">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'catalogos:servicio-delete' servicio.pk %}" class="icon-action-btn icon-action-btn-danger" title="Eliminar servicio" aria-label="Eliminar servicio">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>

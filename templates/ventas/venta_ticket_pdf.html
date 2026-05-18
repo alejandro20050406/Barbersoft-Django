@@ -117,7 +117,7 @@
             <span><strong>Venta:</strong> #{{ venta.id }}</span>
             <span><strong>Fecha:</strong> {{ venta.fecha|date:"d/m/Y" }}</span>
             <span><strong>Cliente:</strong> {{ venta.cliente|upper }}</span>
-            <span><strong>Empleado:</strong> {{ venta.empleado|upper }}</span>
+            <span><strong>Empleado:</strong> {% if venta.empleado %}{{ venta.empleado|upper }}{% else %}ADMIN{% endif %}</span>
         </div>
     </div>
 
@@ -153,7 +153,7 @@
             </thead>
             <tbody>
                 <tr><td>Cliente</td><td>{{ venta.cliente|upper }}</td></tr>
-                <tr><td>Empleado</td><td>{{ venta.empleado|upper }}</td></tr>
+                <tr><td>Empleado</td><td>{% if venta.empleado %}{{ venta.empleado|upper }}{% else %}ADMIN{% endif %}</td></tr>
                 <tr><td>Metodo de pago</td><td>{{ venta.metodo_de_pago|upper }}</td></tr>
                 <tr><td>Fecha de venta</td><td>{{ venta.fecha|date:"d/m/Y" }}</td></tr>
                 <tr><td>Ticket generado</td><td>{{ generated_at|date:"d/m/Y H:i" }}</td></tr>
@@ -196,7 +196,7 @@
         </table>
     </div>
 
-    {% if total_servicios %}
+    {% if total_servicios and service_profit_summary.show_commission_breakdown %}
         <div class="section">
             <h2>Distribucion de servicios</h2>
             <table>

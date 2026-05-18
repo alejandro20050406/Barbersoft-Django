@@ -67,11 +67,11 @@
                     <label for="sale-total-display">Total</label>
                     <input type="text" id="sale-total-display" class="form-control" value="0.00" readonly>
                 </div>
-                <div class="form-group" style="min-width: 220px;">
+                <div class="form-group service-commission-field" style="min-width: 220px;">
                     <label for="employee-service-total-display">Total empleado servicios (80%)</label>
                     <input type="text" id="employee-service-total-display" class="form-control" value="0.00" readonly>
                 </div>
-                <div class="form-group" style="min-width: 220px;">
+                <div class="form-group service-commission-field" style="min-width: 220px;">
                     <label for="admin-service-total-display">Ganancia administrador (20%)</label>
                     <input type="text" id="admin-service-total-display" class="form-control" value="0.00" readonly>
                 </div>
@@ -83,6 +83,7 @@
         {{ servicios|json_script:"servicios-data" }}
         {{ categorias_producto|json_script:"categorias-producto-data" }}
         {{ tipos_servicio|json_script:"tipos-servicio-data" }}
+        {{ admin_employee_ids|json_script:"admin-employee-ids-data" }}
 
         <template id="item-row-template">
             <div class="sale-item-row">
@@ -153,12 +154,15 @@
     const servicios = JSON.parse(document.getElementById('servicios-data').textContent);
     const categoriasProducto = JSON.parse(document.getElementById('categorias-producto-data').textContent);
     const tiposServicio = JSON.parse(document.getElementById('tipos-servicio-data').textContent);
+    const adminEmployeeIds = JSON.parse(document.getElementById('admin-employee-ids-data').textContent).map(String);
     const initialItemType = '{{ initial_item_type|default:""|escapejs }}';
     const itemsList = document.getElementById('items-list');
     const itemTemplate = document.getElementById('item-row-template');
     const totalDisplayInput = document.getElementById('sale-total-display');
     const employeeServiceTotalDisplayInput = document.getElementById('employee-service-total-display');
     const adminServiceTotalDisplayInput = document.getElementById('admin-service-total-display');
+    const employeeSelectInput = document.getElementById('{{ form.empleado.id_for_label }}');
+    const serviceCommissionFields = document.querySelectorAll('.service-commission-field');
 
     function formatMoney(value) {
         return Number(value).toFixed(2);
@@ -188,6 +192,20 @@
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '')
             .toLowerCase();
+    }
+
+    function selectedEmployeeIsAdmin() {
+        if (!employeeSelectInput) {
+            return false;
+        }
+        return !employeeSelectInput.value || adminEmployeeIds.includes(employeeSelectInput.value);
+    }
+
+    function updateCommissionVisibility() {
+        const hideCommission = selectedEmployeeIsAdmin();
+        serviceCommissionFields.forEach(field => {
+            field.hidden = hideCommission;
+        });
     }
 
     const clienteSearchInput = document.getElementById('cliente-search-input');
@@ -459,11 +477,16 @@
             totalDisplayInput.value = formatMoney(total);
         }
         if (employeeServiceTotalDisplayInput) {
-            employeeServiceTotalDisplayInput.value = formatMoney(serviceTotal * 0.80);
+            employeeServiceTotalDisplayInput.value = formatMoney(
+                selectedEmployeeIsAdmin() ? 0 : serviceTotal * 0.80
+            );
         }
         if (adminServiceTotalDisplayInput) {
-            adminServiceTotalDisplayInput.value = formatMoney(serviceTotal * 0.20);
+            adminServiceTotalDisplayInput.value = formatMoney(
+                selectedEmployeeIsAdmin() ? serviceTotal : serviceTotal * 0.20
+            );
         }
+        updateCommissionVisibility();
     }
 
     function createItemRow(applyInitialSelection = false) {
@@ -556,6 +579,9 @@
     });
 
     document.getElementById('add-item').addEventListener('click', () => createItemRow(false));
+    if (employeeSelectInput) {
+        employeeSelectInput.addEventListener('change', updateTotal);
+    }
     createItemRow(true);
 </script>
 {% endif %}

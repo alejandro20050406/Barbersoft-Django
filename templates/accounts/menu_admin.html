@@ -167,7 +167,7 @@
                                     <td>{{ venta.fecha|date:"d/m/Y" }}</td>
                                     <td>F{{ venta.id }}</td>
                                     <td>{{ venta.cliente }}</td>
-                                    <td>{{ venta.empleado }}</td>
+                                    <td>{% if venta.empleado %}{{ venta.empleado }}{% else %}ADMIN{% endif %}</td>
                                     <td>{{ venta.metodo_de_pago }}</td>
                                     <td>${{ venta.total|floatformat:2 }}</td>
                                     <td><a class="table-view-btn" href="{% url 'ventas:venta-detail' venta.pk %}">Ver</a></td>
@@ -195,7 +195,7 @@
                         <tbody>
                             {% for item in dashboard.employee_summary %}
                                 <tr>
-                                    <td>{{ item.empleado__nombre }} {{ item.empleado__apellido }}</td>
+                                    <td>{% if item.empleado__nombre %}{{ item.empleado__nombre }} {{ item.empleado__apellido }}{% else %}ADMIN{% endif %}</td>
                                     <td>{{ item.total_ventas }}</td>
                                     <td>${{ item.ingresos|floatformat:2 }}</td>
                                 </tr>
@@ -297,7 +297,7 @@
                 <h3>Mejor Empleado</h3>
                 <ul class="summary-side-list">
                     {% for item in dashboard.top_employees %}
-                        <li><span>{{ item.empleado__nombre }} {{ item.empleado__apellido }}</span><strong>${{ item.ingresos|floatformat:0 }}</strong></li>
+                        <li><span>{% if item.empleado__nombre %}{{ item.empleado__nombre }} {{ item.empleado__apellido }}{% else %}ADMIN{% endif %}</span><strong>${{ item.ingresos|floatformat:0 }}</strong></li>
                     {% empty %}
                         <li><span>Sin registros</span><strong>-</strong></li>
                     {% endfor %}

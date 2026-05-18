@@ -522,7 +522,7 @@
                             <tr>
                                 <td><span class="sales-id">#{{ venta.id }}</span></td>
                                 <td>{{ venta.cliente.nombre|upper }}</td>
-                                <td>{{ venta.empleado.nombre|upper }}</td>
+                                <td>{% if venta.empleado %}{{ venta.empleado.nombre|upper }}{% else %}ADMIN{% endif %}</td>
                                 <td>{{ venta.fecha|date:"d/m/Y" }}</td>
                                 <td>
                                     <div class="sales-actions">

@@ -12,6 +12,8 @@ class Venta(models.Model):
         "empleados.Empleado",
         on_delete=models.PROTECT,
         related_name="ventas",
+        null=True,
+        blank=True,
         verbose_name="Empleado",
     )
     cliente = models.ForeignKey(
@@ -194,6 +196,8 @@ class Visita(models.Model):
         "empleados.Empleado",
         on_delete=models.PROTECT,
         related_name="visitas",
+        null=True,
+        blank=True,
         verbose_name="Empleado",
     )
     venta = models.ForeignKey(

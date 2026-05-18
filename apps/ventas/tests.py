@@ -9,7 +9,7 @@ from apps.clientes.models import Cliente
 from apps.empleados.models import Empleado
 
 from .forms import VentaDetalleProductoForm, VentaForm
-from .models import Comision, Venta
+from .models import Comision, Venta, Visita
 
 
 class VentaProductAvailabilityTests(TestCase):
@@ -76,6 +76,7 @@ class VentaProductAvailabilityTests(TestCase):
         form = VentaForm(request_user=self.user)
 
         self.assertEqual(form.fields["empleado"].empty_label, "admin")
+        self.assertFalse(form.fields["empleado"].required)
 
     def test_cliente_search_shows_name_without_phone(self):
         Cliente.objects.create(
@@ -91,6 +92,39 @@ class VentaProductAvailabilityTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["results"][0]["text"], "CARLOS GARCIA")
+
+    def test_venta_list_orders_same_day_sales_by_newest_id_first(self):
+        cliente = Cliente.objects.create(
+            nombre="Gael",
+            apellido="",
+            telefono="6621112233",
+        )
+        metodo = MetodoDePago.objects.create(nombre="Efectivo", activo=True)
+
+        venta_1 = Venta.objects.create(
+            cliente=cliente,
+            metodo_de_pago=metodo,
+            fecha="2026-05-17",
+            total=100,
+        )
+        venta_2 = Venta.objects.create(
+            cliente=cliente,
+            metodo_de_pago=metodo,
+            fecha="2026-05-17",
+            total=150,
+        )
+        venta_anterior = Venta.objects.create(
+            cliente=cliente,
+            metodo_de_pago=metodo,
+            fecha="2026-05-13",
+            total=80,
+        )
+
+        response = self.client.get(reverse("ventas:venta-list"))
+
+        self.assertEqual(response.status_code, 200)
+        venta_ids = [venta.id for venta in response.context["ventas"]]
+        self.assertEqual(venta_ids, [venta_2.id, venta_1.id, venta_anterior.id])
 
 
 class VentaServicioCommissionTests(TestCase):
@@ -145,6 +179,64 @@ class VentaServicioCommissionTests(TestCase):
         self.assertEqual(comision.porcentaje, 80)
         self.assertEqual(comision.monto, 120)
         self.assertEqual(comision.venta_detalle_servicio.subtotal, 150)
+
+    def test_venta_de_servicio_admin_sin_empleado_no_crea_comision(self):
+        response = self.client.post(
+            reverse("ventas:venta-create"),
+            data={
+                "empleado": "",
+                "cliente": self.cliente.id,
+                "metodo_de_pago": self.metodo.id,
+                "fecha": "2026-04-29",
+                "item_type": ["servicio"],
+                "item_id": [self.servicio.id],
+                "item_quantity": ["1"],
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        venta = Venta.objects.get()
+        visita = Visita.objects.get(venta=venta)
+
+        self.assertIsNone(venta.empleado)
+        self.assertIsNone(visita.empleado)
+        self.assertEqual(venta.total, 150)
+        self.assertEqual(Comision.objects.count(), 0)
+
+        detail_response = self.client.get(reverse("ventas:venta-detail", kwargs={"pk": venta.pk}))
+
+        self.assertContains(detail_response, "ADMIN")
+        self.assertNotContains(detail_response, "Empleado (80%)")
+        self.assertNotContains(detail_response, "Ganancia administrador (20%)")
+
+    def test_venta_de_servicio_admin_con_su_perfil_no_crea_comision(self):
+        admin_empleado = Empleado.objects.create(
+            nombre="Admin",
+            apellido="General",
+            telefono="6620000000",
+            estado=Empleado.ACTIVO,
+            usuario=self.user,
+        )
+
+        response = self.client.post(
+            reverse("ventas:venta-create"),
+            data={
+                "empleado": admin_empleado.id,
+                "cliente": self.cliente.id,
+                "metodo_de_pago": self.metodo.id,
+                "fecha": "2026-04-29",
+                "item_type": ["servicio"],
+                "item_id": [self.servicio.id],
+                "item_quantity": ["1"],
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        venta = Venta.objects.get()
+
+        self.assertEqual(venta.empleado, admin_empleado)
+        self.assertEqual(venta.total, 150)
+        self.assertEqual(Comision.objects.count(), 0)
 
     def test_detalle_muestra_distribucion_de_servicio(self):
         self.client.post(

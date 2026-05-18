@@ -20,10 +20,16 @@
                         <td>{{ com.porcentaje }}%</td>
                         <td>${{ com.monto }}</td>
                         <td>
-                            <div class="table-actions">
-                                <a href="{% url 'ventas:comision-detail' com.pk %}" class="btn btn-secondary btn-sm">Ver</a>
-                                <a href="{% url 'ventas:comision-update' com.pk %}" class="btn btn-secondary btn-sm">Editar</a>
-                                <a href="{% url 'ventas:comision-delete' com.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            <div class="icon-action-group">
+                                <a href="{% url 'ventas:comision-detail' com.pk %}" class="icon-action-btn" title="Ver comisión" aria-label="Ver comisión">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'ventas:comision-update' com.pk %}" class="icon-action-btn" title="Editar comisión" aria-label="Editar comisión">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'ventas:comision-delete' com.pk %}" class="icon-action-btn icon-action-btn-danger" title="Eliminar comisión" aria-label="Eliminar comisión">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>

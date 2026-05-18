@@ -234,6 +234,50 @@ table tbody tr:hover {
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    flex-wrap: wrap;
+}
+
+.icon-action-group {
+    display: flex;
+    gap: 0.7rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.icon-action-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background: #fff;
+    color: #17233f;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.icon-action-btn:hover {
+    transform: translateY(-1px);
+    border-color: #c7d3e5;
+    box-shadow: 0 10px 18px rgba(18, 43, 76, 0.1);
+    color: #17233f;
+}
+
+.icon-action-btn i {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.icon-action-btn-danger {
+    background: linear-gradient(135deg, #ff4d4f, #d91f34);
+    color: #fff;
+    border-color: transparent;
+}
+
+.icon-action-btn-danger:hover {
+    color: #fff;
 }
 
 .badge {

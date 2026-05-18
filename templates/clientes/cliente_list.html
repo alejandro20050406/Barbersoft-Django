@@ -41,10 +41,16 @@
                         <td>{{ cliente.fecha_registro|date:"d/m/Y" }}</td>
                         <td>{{ cliente.total_visitas|default:0 }}</td>
                         <td>
-                            <div class="table-actions">
-                                <a href="{% url 'clientes:cliente-detail' cliente.pk %}" class="btn btn-secondary btn-sm">Ver</a>
-                                <a href="{% url 'clientes:cliente-update' cliente.pk %}" class="btn btn-secondary btn-sm">Editar</a>
-                                <a href="{% url 'clientes:cliente-delete' cliente.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            <div class="icon-action-group">
+                                <a href="{% url 'clientes:cliente-detail' cliente.pk %}" class="icon-action-btn" title="Ver cliente" aria-label="Ver cliente">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'clientes:cliente-update' cliente.pk %}" class="icon-action-btn" title="Editar cliente" aria-label="Editar cliente">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'clientes:cliente-delete' cliente.pk %}" class="icon-action-btn icon-action-btn-danger" title="Eliminar cliente" aria-label="Eliminar cliente">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>

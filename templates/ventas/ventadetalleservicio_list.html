@@ -19,7 +19,11 @@
                         <td>${{ det.precio_unitario }}</td>
                         <td>${{ det.subtotal }}</td>
                         <td>
-                            <a href="{% url 'ventas:ventadetalleservicio-delete' det.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            <div class="icon-action-group">
+                                <a href="{% url 'ventas:ventadetalleservicio-delete' det.pk %}" class="icon-action-btn icon-action-btn-danger" title="Eliminar detalle de servicio" aria-label="Eliminar detalle de servicio">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                 {% endfor %}

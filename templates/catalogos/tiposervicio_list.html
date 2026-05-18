@@ -18,10 +18,16 @@
                         <td><strong>{{ tipo.nombre|upper }}</strong></td>
                         <td>{{ tipo.descripcion|truncatewords:10 }}</td>
                         <td>
-                            <div class="table-actions">
-                                <a href="{% url 'catalogos:tiposervicio-detail' tipo.pk %}" class="btn btn-secondary btn-sm">Ver</a>
-                                <a href="{% url 'catalogos:tiposervicio-update' tipo.pk %}" class="btn btn-secondary btn-sm">Editar</a>
-                                <a href="{% url 'catalogos:tiposervicio-delete' tipo.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            <div class="icon-action-group">
+                                <a href="{% url 'catalogos:tiposervicio-detail' tipo.pk %}" class="icon-action-btn" title="Ver tipo de servicio" aria-label="Ver tipo de servicio">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'catalogos:tiposervicio-update' tipo.pk %}" class="icon-action-btn" title="Editar tipo de servicio" aria-label="Editar tipo de servicio">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'catalogos:tiposervicio-delete' tipo.pk %}" class="icon-action-btn icon-action-btn-danger" title="Eliminar tipo de servicio" aria-label="Eliminar tipo de servicio">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>

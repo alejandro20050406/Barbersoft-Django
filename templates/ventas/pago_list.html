@@ -20,10 +20,16 @@
                         <td>${{ pago.monto }}</td>
                         <td>{{ pago.fecha|date:"d/m/Y" }}</td>
                         <td>
-                            <div class="table-actions">
-                                <a href="{% url 'ventas:pago-detail' pago.pk %}" class="btn btn-secondary btn-sm">Ver</a>
-                                <a href="{% url 'ventas:pago-update' pago.pk %}" class="btn btn-secondary btn-sm">Editar</a>
-                                <a href="{% url 'ventas:pago-delete' pago.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            <div class="icon-action-group">
+                                <a href="{% url 'ventas:pago-detail' pago.pk %}" class="icon-action-btn" title="Ver pago" aria-label="Ver pago">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'ventas:pago-update' pago.pk %}" class="icon-action-btn" title="Editar pago" aria-label="Editar pago">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'ventas:pago-delete' pago.pk %}" class="icon-action-btn icon-action-btn-danger" title="Eliminar pago" aria-label="Eliminar pago">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>

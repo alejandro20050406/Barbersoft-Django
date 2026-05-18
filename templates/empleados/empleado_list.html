@@ -32,10 +32,16 @@
                         <td><span class="badge {% if emp.estado == 'activo' %}badge-success{% else %}badge-danger{% endif %}">{{ emp.get_estado_display }}</span></td>
                         <td>{{ emp.fecha_ingreso|date:"d/m/Y"|default:"-" }}</td>
                         <td>
-                            <div class="table-actions">
-                                <a href="{% url 'empleados:empleado-detail' emp.pk %}" class="btn btn-secondary btn-sm">Ver</a>
-                                <a href="{% url 'empleados:empleado-update' emp.pk %}" class="btn btn-secondary btn-sm">Editar</a>
-                                <a href="{% url 'empleados:empleado-delete' emp.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            <div class="icon-action-group">
+                                <a href="{% url 'empleados:empleado-detail' emp.pk %}" class="icon-action-btn" title="Ver empleado" aria-label="Ver empleado">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'empleados:empleado-update' emp.pk %}" class="icon-action-btn" title="Editar empleado" aria-label="Editar empleado">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'empleados:empleado-delete' emp.pk %}" class="icon-action-btn icon-action-btn-danger" title="Eliminar empleado" aria-label="Eliminar empleado">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>

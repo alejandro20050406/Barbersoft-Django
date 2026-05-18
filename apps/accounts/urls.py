@@ -1,7 +1,6 @@
 from django.urls import path
 
 from .views import (
-    home,
     login_admin,
     login_empleado,
     logout_view,
@@ -19,5 +18,4 @@ urlpatterns = [
     path("logout/", logout_view, name="logout"),
     path("menu/administrador/", menu_admin, name="menu-admin"),
     path("menu/empleado/", menu_empleado, name="menu-empleado"),
-    path("inicio/", home, name="home"),
 ]

@@ -65,15 +65,21 @@
                             </td>
                         {% endfor %}
                         <td>
-                            <div class="table-actions">
+                            <div class="icon-action-group">
                                 {% if detail_url %}
-                                    <a href="{% url detail_url object.pk %}" class="btn btn-secondary btn-sm">Ver</a>
+                                    <a href="{% url detail_url object.pk %}" class="icon-action-btn" title="Ver registro" aria-label="Ver registro">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                 {% endif %}
                                 {% if update_url %}
-                                    <a href="{% url update_url object.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+                                    <a href="{% url update_url object.pk %}" class="icon-action-btn" title="Editar registro" aria-label="Editar registro">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
                                 {% endif %}
                                 {% if delete_url %}
-                                    <a href="{% url delete_url object.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                                    <a href="{% url delete_url object.pk %}" class="icon-action-btn icon-action-btn-danger" title="Eliminar registro" aria-label="Eliminar registro">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
                                 {% endif %}
                             </div>
                         </td>

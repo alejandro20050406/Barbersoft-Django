@@ -208,7 +208,7 @@
                         <td>#{{ venta.id }}</td>
                         <td>{{ venta.fecha|date:"d/m/Y" }}</td>
                         <td>{{ venta.cliente|upper }}</td>
-                        <td>{{ venta.empleado|upper }}</td>
+                        <td>{% if venta.empleado %}{{ venta.empleado|upper }}{% else %}ADMIN{% endif %}</td>
                         <td>{{ venta.metodo_de_pago|upper }}</td>
                         <td class="amount">${{ venta.total|floatformat:2 }}</td>
                     </tr>

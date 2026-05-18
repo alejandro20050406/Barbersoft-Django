@@ -39,6 +39,28 @@ EMPLOYEE_SERVICE_PERCENTAGE = Decimal("80.00")
 ADMIN_SERVICE_PERCENTAGE = Decimal("20.00")
 
 
+def _employee_is_admin_user(empleado):
+    if empleado is None:
+        return False
+    usuario = getattr(empleado, "usuario", None)
+    return is_admin_user(usuario)
+
+
+def _sale_generates_service_commission(venta):
+    empleado = getattr(venta, "empleado", None)
+    return bool(empleado and not _employee_is_admin_user(empleado))
+
+
+def _admin_employee_ids_for_user(user):
+    if not is_admin_user(user):
+        return []
+    return list(
+        Empleado.objects.filter(usuario=user, estado=Empleado.ACTIVO).values_list(
+            "id", flat=True
+        )
+    )
+
+
 def _parse_iso_date(raw_value):
     if not raw_value:
         return None
@@ -305,6 +327,9 @@ def _apply_lines_to_sale(venta, lines):
 
 
 def _create_service_commission(venta, detalle_servicio):
+    if not _sale_generates_service_commission(venta):
+        return
+
     Comision.objects.create(
         empleado=venta.empleado,
         venta=venta,
@@ -357,14 +382,25 @@ def _service_profit_summary(venta):
         venta.detalles_servicio.aggregate(total=Sum("subtotal")).get("total")
         or Decimal("0.00")
     )
-    empleado_total = (service_total * EMPLOYEE_SERVICE_PERCENTAGE) / Decimal("100")
-    admin_total = (service_total * ADMIN_SERVICE_PERCENTAGE) / Decimal("100")
+    show_commission_breakdown = _sale_generates_service_commission(venta)
+    if show_commission_breakdown:
+        empleado_total = (service_total * EMPLOYEE_SERVICE_PERCENTAGE) / Decimal("100")
+        admin_total = (service_total * ADMIN_SERVICE_PERCENTAGE) / Decimal("100")
+        empleado_percentage = EMPLOYEE_SERVICE_PERCENTAGE
+        admin_percentage = ADMIN_SERVICE_PERCENTAGE
+    else:
+        empleado_total = Decimal("0.00")
+        admin_total = service_total
+        empleado_percentage = Decimal("0.00")
+        admin_percentage = Decimal("100.00")
+
     return {
         "service_total": service_total,
         "empleado_total": empleado_total,
         "admin_total": admin_total,
-        "empleado_percentage": EMPLOYEE_SERVICE_PERCENTAGE,
-        "admin_percentage": ADMIN_SERVICE_PERCENTAGE,
+        "empleado_percentage": empleado_percentage,
+        "admin_percentage": admin_percentage,
+        "show_commission_breakdown": show_commission_breakdown,
     }
 
 
@@ -454,7 +490,7 @@ def dashboard_ventas(request):
         "total_pagos": Pago.objects.filter(venta__in=ventas_qs).count(),
         "total_visitas": Visita.objects.filter(venta__in=ventas_qs).count(),
         "total_comisiones": Comision.objects.filter(venta__in=ventas_qs).count(),
-        "ultimas_ventas": ventas_qs.order_by("-fecha")[:10],
+        "ultimas_ventas": ventas_qs.order_by("-fecha", "-id")[:10],
     }
     return render(request, "ventas/dashboard.html", context)
 
@@ -466,7 +502,9 @@ class VentaListView(ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        queryset = Venta.objects.select_related("cliente", "empleado", "metodo_de_pago")
+        queryset = Venta.objects.select_related(
+            "cliente", "empleado", "empleado__usuario", "metodo_de_pago"
+        )
         queryset = _scope_ventas_queryset(self.request, queryset)
 
         search = self.request.GET.get("search")
@@ -493,7 +531,7 @@ class VentaListView(ListView):
         if fecha_hasta:
             queryset = queryset.filter(fecha__lte=fecha_hasta)
 
-        return queryset.order_by("-fecha")
+        return queryset.order_by("-fecha", "-id")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -553,7 +591,9 @@ class VentaDetailView(DetailView):
     context_object_name = "venta"
 
     def get_queryset(self):
-        queryset = Venta.objects.select_related("cliente", "empleado", "metodo_de_pago")
+        queryset = Venta.objects.select_related(
+            "cliente", "empleado", "empleado__usuario", "metodo_de_pago"
+        )
         return _scope_ventas_queryset(self.request, queryset)
 
     def get_context_data(self, **kwargs):
@@ -571,7 +611,9 @@ class VentaDetailView(DetailView):
 
 
 def venta_ticket_pdf(request, pk):
-    queryset = Venta.objects.select_related("cliente", "empleado", "metodo_de_pago")
+    queryset = Venta.objects.select_related(
+        "cliente", "empleado", "empleado__usuario", "metodo_de_pago"
+    )
     queryset = _scope_ventas_queryset(request, queryset)
     venta = get_object_or_404(queryset, pk=pk)
 
@@ -656,6 +698,7 @@ class VentaCreateView(SuccessMessageMixin, CreateView):
         context["servicios"] = list(
             Servicio.objects.filter(activo=True).values("id", "nombre", "precio", "tipo_id")
         )
+        context["admin_employee_ids"] = _admin_employee_ids_for_user(self.request.user)
         
         # Check if user is an employee (not admin)
         context["is_employee"] = is_employee_user(self.request.user) and not is_admin_user(self.request.user)

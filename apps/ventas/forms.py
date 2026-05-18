@@ -35,12 +35,14 @@ class VentaForm(forms.ModelForm):
 
         self.request_user = request_user
         self.fields["empleado"].queryset = Empleado.objects.filter(estado=Empleado.ACTIVO)
+        self.fields["empleado"].required = True
         clientes = Cliente.objects.filter(activo=True)
         if self.instance.pk and self.instance.cliente_id:
             clientes = Cliente.objects.filter(pk=self.instance.cliente_id) | clientes
         self.fields["cliente"].queryset = clientes.distinct().order_by("apellido", "nombre")
         if is_admin_user(request_user):
             self.fields["empleado"].empty_label = "admin"
+            self.fields["empleado"].required = False
         self.fields["metodo_de_pago"].queryset = MetodoDePago.objects.filter(activo=True)
         self.fields["metodo_de_pago"].empty_label = None
         if getattr(self.instance, "total", None) is None:
@@ -49,6 +51,8 @@ class VentaForm(forms.ModelForm):
     def clean_empleado(self):
         empleado = self.cleaned_data.get("empleado")
         if empleado is None:
+            if is_admin_user(self.request_user):
+                return None
             raise ValidationError("El empleado es obligatorio.")
         if empleado.estado != Empleado.ACTIVO:
             raise ValidationError("Solo puedes registrar ventas con empleados activos.")

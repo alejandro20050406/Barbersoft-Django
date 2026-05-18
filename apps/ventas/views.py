@@ -5,11 +5,10 @@ from datetime import timedelta
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models import Q, Sum
 from django.db.models import Avg
-from django.http import FileResponse, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
@@ -438,19 +437,6 @@ def _render_sale_ticket_pdf(venta, request=None):
     return HTML(string=html_string, base_url=base_url).write_pdf()
 
 
-def _save_sale_ticket_pdf(venta, request=None):
-    pdf_file = _render_sale_ticket_pdf(venta, request=request)
-    if venta.ticket_pdf:
-        venta.ticket_pdf.delete(save=False)
-    venta.ticket_pdf.save(
-        f"ticket-venta-{venta.pk}.pdf",
-        ContentFile(pdf_file),
-        save=False,
-    )
-    venta.save(update_fields=["ticket_pdf"])
-    return venta.ticket_pdf
-
-
 def _sale_is_cancelled(venta):
     if venta.total != Decimal("0.00"):
         return False
@@ -589,23 +575,16 @@ def venta_ticket_pdf(request, pk):
     queryset = _scope_ventas_queryset(request, queryset)
     venta = get_object_or_404(queryset, pk=pk)
 
-    if not venta.ticket_pdf or not venta.ticket_pdf.storage.exists(venta.ticket_pdf.name):
-        try:
-            _save_sale_ticket_pdf(venta, request=request)
-        except RuntimeError as exc:
-            return HttpResponse(
-                str(exc),
-                status=503,
-                content_type="text/plain; charset=utf-8",
-            )
+    try:
+        pdf_file = _render_sale_ticket_pdf(venta, request=request)
+    except RuntimeError as exc:
+        return HttpResponse(
+            str(exc),
+            status=503,
+            content_type="text/plain; charset=utf-8",
+        )
 
-    venta.ticket_pdf.open("rb")
-    response = FileResponse(
-        venta.ticket_pdf,
-        content_type="application/pdf",
-        filename=f"ticket-venta-{venta.pk}.pdf",
-        as_attachment=False,
-    )
+    response = HttpResponse(pdf_file, content_type="application/pdf")
     response["Content-Disposition"] = (
         f'inline; filename="ticket-venta-{venta.pk}.pdf"'
     )
@@ -743,11 +722,6 @@ class VentaCreateView(SuccessMessageMixin, CreateView):
         except ValidationError as exc:
             form.add_error(None, _validation_error_text(exc))
             return self.form_invalid(form)
-
-        try:
-            _save_sale_ticket_pdf(self.object, request=self.request)
-        except RuntimeError as exc:
-            messages.warning(self.request, str(exc))
 
         messages.success(self.request, self.success_message)
         return HttpResponseRedirect(self.get_success_url())

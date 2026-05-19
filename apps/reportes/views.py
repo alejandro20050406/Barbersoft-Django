@@ -15,7 +15,6 @@ except (ImportError, OSError):  # pragma: no cover - depende del entorno local
 
 from apps.ventas.models import (
     Comision,
-    Pago,
     Venta,
     VentaDetalleProducto,
     VentaDetalleServicio,
@@ -54,15 +53,16 @@ def _build_dashboard_context(periodo):
     periodo, periodo_label, start_date, end_date = _periodo_corte(
         periodo
     )
-    ventas_periodo = Venta.objects.filter(fecha__range=(start_date, end_date))
-    pagos_periodo = Pago.objects.filter(fecha__range=(start_date, end_date))
+    ventas_base = Venta.objects.filter(fecha__range=(start_date, end_date))
+    ventas_periodo = ventas_base.filter(cancelada=False)
+    ventas_reporte = ventas_periodo.select_related(
+        "cliente", "empleado", "metodo_de_pago"
+    ).order_by("-fecha", "-id")
 
     ingresos_venta = _money(
         ventas_periodo.aggregate(total=Coalesce(Sum("total"), Decimal("0.00")))["total"]
     )
-    ingresos_pago = _money(
-        pagos_periodo.aggregate(total=Coalesce(Sum("monto"), Decimal("0.00")))["total"]
-    )
+    ingresos_pago = ingresos_venta
     ingresos_productos = _money(
         VentaDetalleProducto.objects.filter(venta__in=ventas_periodo).aggregate(
             total=Coalesce(Sum("subtotal"), Decimal("0.00"))
@@ -89,15 +89,15 @@ def _build_dashboard_context(periodo):
         )["total"]
     )
     ganancia_neta = ingresos_venta - costo_productos - comisiones
-    total_ventas = ventas_periodo.count()
-    total_pagos = pagos_periodo.count()
+    total_ventas = ventas_base.count()
+    total_pagos = ventas_periodo.count()
     ticket_promedio = (
         ingresos_venta / total_ventas if total_ventas else Decimal("0.00")
     )
 
     desglose_pagos = (
-        pagos_periodo.values("metodo_de_pago__nombre")
-        .annotate(total=Coalesce(Sum("monto"), Decimal("0.00")))
+        ventas_periodo.values("metodo_de_pago__nombre")
+        .annotate(total=Coalesce(Sum("total"), Decimal("0.00")))
         .order_by("-total", "metodo_de_pago__nombre")
     )
 
@@ -118,9 +118,7 @@ def _build_dashboard_context(periodo):
         "ganancia_neta": ganancia_neta,
         "ticket_promedio": ticket_promedio,
         "desglose_pagos": desglose_pagos,
-        "ultimas_ventas": ventas_periodo.select_related(
-            "cliente", "empleado", "metodo_de_pago"
-        ).order_by("-fecha", "-id")[:8],
+        "ultimas_ventas": ventas_reporte,
     }
 
 

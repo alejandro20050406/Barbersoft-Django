@@ -1,2 +1,40 @@
-{% extends "crud_confirm_delete.html" %}
-{% block title %}Eliminar Venta - BarberSoft{% endblock %}
+{% extends "crud_base.html" %}
+
+{% block title %}Cancelar Venta - BarberSoft{% endblock %}
+
+{% block content %}
+<div class="confirm-delete">
+    <h2>Cancelar venta #{{ object.id }}</h2>
+
+    {% if sale_is_cancelled %}
+        <p>Esta venta ya esta cancelada y se conserva visible en el listado.</p>
+    {% else %}
+        <p>Al cancelar <strong>{{ object }}</strong>, la venta seguira visible con el estado <strong>Cancelada</strong> y se repondra el inventario de productos.</p>
+    {% endif %}
+
+    {% if is_admin %}
+        <p style="color: #9f1d1d; font-weight: 600;">
+            Como administrador tambien puedes eliminarla definitivamente del registro.
+        </p>
+    {% endif %}
+
+    <form method="post" style="margin-top: 2rem;">
+        {% csrf_token %}
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{{ back_url }}" class="btn btn-secondary">Volver</a>
+
+            {% if not sale_is_cancelled %}
+                <button type="submit" name="action" value="cancel_keep" class="btn btn-danger">
+                    Cancelar y conservar visible
+                </button>
+            {% endif %}
+
+            {% if is_admin %}
+                <button type="submit" name="action" value="delete_permanent" class="btn btn-danger">
+                    Eliminar definitivamente
+                </button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}

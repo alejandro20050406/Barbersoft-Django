@@ -7,7 +7,9 @@
     <h1 class="page-title">Venta #{{ venta.id }}</h1>
     <div class="action-buttons">
         <a href="{% url 'ventas:venta-list' %}" class="btn btn-secondary">← Volver</a>
-        <a href="{% url 'ventas:venta-update' venta.pk %}" class="btn btn-secondary">Editar</a>
+        {% if not venta.cancelada %}
+            <a href="{% url 'ventas:venta-update' venta.pk %}" class="btn btn-secondary">Editar</a>
+        {% endif %}
     </div>
 </div>
 
@@ -19,6 +21,7 @@
         <div class="detail-item"><span class="detail-label">Cliente</span><span class="detail-value">{{ venta.cliente.nombre|upper }} {{ venta.cliente.apellido|upper }}</span></div>
         <div class="detail-item"><span class="detail-label">Empleado</span><span class="detail-value">{% if venta.empleado %}{{ venta.empleado.nombre|upper }} {{ venta.empleado.apellido|upper }}{% else %}ADMIN{% endif %}</span></div>
         <div class="detail-item"><span class="detail-label">Método de Pago</span><span class="detail-value">{{ venta.metodo_de_pago.nombre|upper }}</span></div>
+        <div class="detail-item"><span class="detail-label">Estado</span><span class="detail-value">{% if venta.cancelada %}Cancelada{% else %}Activa{% endif %}</span></div>
         <div class="detail-item"><span class="detail-label">Total</span><span class="detail-value" style="font-weight: bold; font-size: 1.2rem;">${{ venta.total }}</span></div>
     </div>
 </div>

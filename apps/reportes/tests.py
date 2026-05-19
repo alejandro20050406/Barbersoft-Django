@@ -110,6 +110,50 @@ class CorteCajaDashboardTests(TestCase):
         self.assertContains(response, "Ganancia neta")
         self.assertContains(response, "$100.00")
 
+    def test_corte_de_caja_desglosa_ventas_activas_por_metodo_de_pago(self):
+        today = timezone.localdate()
+        transferencia = MetodoDePago.objects.create(
+            nombre="Transferencia",
+            activo=True,
+        )
+        venta_efectivo = Venta.objects.create(
+            empleado=self.empleado,
+            cliente=self.cliente,
+            metodo_de_pago=self.metodo,
+            fecha=today,
+            total=180,
+        )
+        venta_transferencia = Venta.objects.create(
+            empleado=self.empleado,
+            cliente=self.cliente,
+            metodo_de_pago=transferencia,
+            fecha=today,
+            total=835,
+        )
+        venta_cancelada = Venta.objects.create(
+            empleado=self.empleado,
+            cliente=self.cliente,
+            metodo_de_pago=transferencia,
+            fecha=today,
+            total=1000,
+            cancelada=True,
+        )
+
+        response = self.client.get(reverse("reportes:dashboard"), {"periodo": "dia"})
+
+        desglose = {
+            item["metodo_de_pago__nombre"]: item["total"]
+            for item in response.context["desglose_pagos"]
+        }
+        ventas_reporte_ids = [venta.id for venta in response.context["ultimas_ventas"]]
+
+        self.assertEqual(desglose["EFECTIVO"], Decimal("180"))
+        self.assertEqual(desglose["TRANSFERENCIA"], Decimal("835"))
+        self.assertEqual(response.context["ingresos_pago"], Decimal("1015"))
+        self.assertIn(venta_efectivo.id, ventas_reporte_ids)
+        self.assertIn(venta_transferencia.id, ventas_reporte_ids)
+        self.assertNotIn(venta_cancelada.id, ventas_reporte_ids)
+
     def test_periodo_dia_excluye_ventas_anteriores(self):
         old_date = timezone.localdate() - timedelta(days=1)
         Venta.objects.create(

@@ -141,7 +141,7 @@ class PagoForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         venta = cleaned_data.get("venta")
-        if venta and venta.total == 0:
+        if venta and venta.cancelada:
             raise ValidationError("No puedes registrar pagos sobre una venta cancelada.")
         return cleaned_data
 

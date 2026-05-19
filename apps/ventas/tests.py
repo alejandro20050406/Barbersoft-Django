@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.urls import reverse
 
@@ -145,6 +146,106 @@ class VentaProductAvailabilityTests(TestCase):
         self.assertEqual(response.status_code, 200)
         venta_ids = [venta.id for venta in response.context["ventas"]]
         self.assertEqual(venta_ids, [venta_2.id, venta_1.id, venta_anterior.id])
+
+
+class VentaCancellationTests(TestCase):
+    def setUp(self):
+        self.admin_user = get_user_model().objects.create_user(
+            username="admin-cancel",
+            password="admin123",
+            is_staff=True,
+        )
+        self.client.force_login(self.admin_user)
+        self.client.defaults["HTTP_HOST"] = "localhost"
+
+        self.cliente = Cliente.objects.create(
+            nombre="Mario",
+            apellido="Rossi",
+            telefono="6621234567",
+        )
+        self.empleado = Empleado.objects.create(
+            nombre="Luis",
+            apellido="Perez",
+            telefono="6621234567",
+            estado=Empleado.ACTIVO,
+        )
+        self.metodo = MetodoDePago.objects.create(nombre="Efectivo", activo=True)
+
+    def create_sale(self, empleado=None):
+        return Venta.objects.create(
+            cliente=self.cliente,
+            empleado=empleado if empleado is not None else self.empleado,
+            metodo_de_pago=self.metodo,
+            fecha="2026-05-18",
+            total=180,
+        )
+
+    def test_cancel_sale_keeps_record_visible_with_cancelled_badge(self):
+        venta = self.create_sale()
+
+        response = self.client.post(
+            reverse("ventas:venta-delete", kwargs={"pk": venta.pk}),
+            data={"action": "cancel_keep"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        venta.refresh_from_db()
+        self.assertTrue(venta.cancelada)
+        self.assertEqual(venta.total, 180)
+
+        list_response = self.client.get(reverse("ventas:venta-list"))
+        self.assertContains(list_response, "Cancelada")
+
+    def test_admin_can_delete_sale_permanently(self):
+        venta = self.create_sale()
+
+        response = self.client.post(
+            reverse("ventas:venta-delete", kwargs={"pk": venta.pk}),
+            data={"action": "delete_permanent"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Venta.objects.filter(pk=venta.pk).exists())
+
+    def test_employee_cannot_delete_sale_permanently(self):
+        employee_user = get_user_model().objects.create_user(
+            username="empleado-cancel",
+            password="admin123",
+        )
+        employee_user.groups.add(Group.objects.create(name="Empleado"))
+        self.empleado.usuario = employee_user
+        self.empleado.save(update_fields=["usuario"])
+        venta = self.create_sale(empleado=self.empleado)
+        self.client.force_login(employee_user)
+
+        response = self.client.post(
+            reverse("ventas:venta-delete", kwargs={"pk": venta.pk}),
+            data={"action": "delete_permanent"},
+        )
+
+        self.assertEqual(response.status_code, 403)
+        venta.refresh_from_db()
+        self.assertFalse(venta.cancelada)
+
+    def test_employee_can_only_cancel_sale(self):
+        employee_user = get_user_model().objects.create_user(
+            username="empleado-soft-cancel",
+            password="admin123",
+        )
+        employee_user.groups.add(Group.objects.create(name="Empleado"))
+        self.empleado.usuario = employee_user
+        self.empleado.save(update_fields=["usuario"])
+        venta = self.create_sale(empleado=self.empleado)
+        self.client.force_login(employee_user)
+
+        response = self.client.post(
+            reverse("ventas:venta-delete", kwargs={"pk": venta.pk}),
+            data={"action": "cancel_keep"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        venta.refresh_from_db()
+        self.assertTrue(venta.cancelada)
 
 
 class VentaServicioCommissionTests(TestCase):

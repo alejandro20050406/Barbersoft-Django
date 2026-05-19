@@ -118,7 +118,7 @@
             <span><strong>Desde:</strong> {{ start_date|date:"d/m/Y" }}</span>
             <span><strong>Hasta:</strong> {{ end_date|date:"d/m/Y" }}</span>
             <span><strong>Ventas:</strong> {{ total_ventas }}</span>
-            <span><strong>Pagos:</strong> {{ total_pagos }}</span>
+            <span><strong>Ventas activas:</strong> {{ total_pagos }}</span>
         </div>
     </div>
 
@@ -164,7 +164,7 @@
 
     <div class="section">
         <h2>Desglose de pagos</h2>
-        <p class="muted">Pagos registrados dentro del periodo seleccionado.</p>
+        <p class="muted">Ventas activas incluidas en este corte.</p>
         <table>
             <thead>
                 <tr>
@@ -180,7 +180,7 @@
                     </tr>
                 {% empty %}
                     <tr>
-                        <td>Sin pagos registrados</td>
+                        <td>Sin ventas registradas</td>
                         <td class="amount">$0.00</td>
                     </tr>
                 {% endfor %}
@@ -189,8 +189,8 @@
     </div>
 
     <div class="section">
-        <h2>Ultimas ventas del periodo</h2>
-        <p class="muted">Movimientos considerados dentro de este reporte.</p>
+        <h2>Ventas del periodo</h2>
+        <p class="muted">Movimientos activos considerados dentro de este reporte.</p>
         <table>
             <thead>
                 <tr>

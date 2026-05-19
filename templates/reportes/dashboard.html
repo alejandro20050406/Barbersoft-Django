@@ -38,7 +38,7 @@
             <strong>{{ total_ventas }}</strong>
         </div>
         <div class="report-filter-item">
-            <span>Pagos</span>
+            <span>Ventas activas</span>
             <strong>{{ total_pagos }}</strong>
         </div>
         <div class="report-filter-cta">
@@ -93,7 +93,7 @@
         <aside class="report-panel">
             <div class="report-panel-head">
                 <h2>Cobro por metodo</h2>
-                <p>Pagos registrados dentro del periodo.</p>
+                <p>Ventas activas incluidas en este corte.</p>
             </div>
             <ul class="summary-side-list">
                 {% for item in desglose_pagos %}
@@ -102,7 +102,7 @@
                         <strong>${{ item.total|floatformat:2 }}</strong>
                     </li>
                 {% empty %}
-                    <li><span>Sin pagos registrados</span><strong>$0.00</strong></li>
+                    <li><span>Sin ventas registradas</span><strong>$0.00</strong></li>
                 {% endfor %}
             </ul>
         </aside>
@@ -110,8 +110,8 @@
 
     <article class="report-panel">
         <div class="report-panel-head">
-            <h2>Ultimas ventas del periodo</h2>
-            <p>Movimientos incluidos en este corte.</p>
+            <h2>Ventas del periodo</h2>
+            <p>Movimientos activos incluidos en este corte.</p>
         </div>
         <div class="table-wrap">
             <table class="dashboard-table">

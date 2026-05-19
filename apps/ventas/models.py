@@ -34,6 +34,10 @@ class Venta(models.Model):
         decimal_places=2,
         verbose_name="Total de la venta",
     )
+    cancelada = models.BooleanField(
+        default=False,
+        verbose_name="Venta cancelada",
+    )
     ticket_pdf = models.FileField(
         upload_to="ventas/tickets/",
         blank=True,

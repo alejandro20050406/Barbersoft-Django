@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models import Q, Sum
 from django.db.models import Avg
@@ -474,9 +474,25 @@ def _render_sale_ticket_pdf(venta, request=None):
 
 
 def _sale_is_cancelled(venta):
-    if venta.total != Decimal("0.00"):
+    return bool(venta.cancelada)
+
+
+def _cancel_sale(venta):
+    if _sale_is_cancelled(venta):
         return False
-    return venta.detalles_productos.exists() or venta.detalles_servicio.exists()
+
+    _restore_stock_for_sale(venta)
+    venta.cancelada = True
+    venta.save(update_fields=["cancelada"])
+    return True
+
+
+def _delete_sale_permanently(venta):
+    if not _sale_is_cancelled(venta):
+        _restore_stock_for_sale(venta)
+
+    Comision.objects.filter(venta=venta).delete()
+    venta.delete()
 
 
 def dashboard_ventas(request):
@@ -543,10 +559,11 @@ class VentaListView(ListView):
         previous_month_end = month_start - timedelta(days=1)
         previous_month_start = previous_month_end.replace(day=1)
 
-        ventas_hoy = queryset.filter(fecha=today)
-        ventas_ayer = queryset.filter(fecha=yesterday)
-        ventas_mes = queryset.filter(fecha__gte=month_start, fecha__lte=today)
-        ventas_mes_anterior = queryset.filter(
+        active_queryset = queryset.filter(cancelada=False)
+        ventas_hoy = active_queryset.filter(fecha=today)
+        ventas_ayer = active_queryset.filter(fecha=yesterday)
+        ventas_mes = active_queryset.filter(fecha__gte=month_start, fecha__lte=today)
+        ventas_mes_anterior = active_queryset.filter(
             fecha__gte=previous_month_start,
             fecha__lte=previous_month_end,
         )
@@ -558,7 +575,9 @@ class VentaListView(ListView):
         )
         clientes_hoy = ventas_hoy.values("cliente_id").distinct().count()
         clientes_ayer = ventas_ayer.values("cliente_id").distinct().count()
-        ticket_promedio = queryset.aggregate(avg=Avg("total"))["avg"] or Decimal("0.00")
+        ticket_promedio = (
+            active_queryset.aggregate(avg=Avg("total"))["avg"] or Decimal("0.00")
+        )
 
         def percent_change(current, previous):
             if not previous:
@@ -579,6 +598,7 @@ class VentaListView(ListView):
             "total_filtradas": queryset.count(),
             "fecha_hoy": today,
         }
+        context["can_delete_sales_permanently"] = is_admin_user(self.request.user)
         page_query = self.request.GET.copy()
         page_query.pop("page", None)
         context["page_query"] = page_query.urlencode()
@@ -892,7 +912,7 @@ class VentaDeleteView(SuccessMessageMixin, DeleteView):
     model = Venta
     template_name = "ventas/venta_confirm_delete.html"
     success_url = reverse_lazy("ventas:venta-list")
-    success_message = "Venta eliminada exitosamente"
+    success_message = "Venta cancelada exitosamente"
 
     def get_queryset(self):
         queryset = Venta.objects.select_related("cliente", "empleado", "metodo_de_pago")
@@ -901,28 +921,44 @@ class VentaDeleteView(SuccessMessageMixin, DeleteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["back_url"] = self.success_url
+        context["is_admin"] = is_admin_user(self.request.user)
+        context["sale_is_cancelled"] = _sale_is_cancelled(self.object)
         return context
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
+        action = request.POST.get("action", "cancel_keep")
 
-        if _sale_is_cancelled(self.object):
-            messages.info(request, "La venta ya estaba cancelada.")
+        if action == "delete_permanent":
+            if not is_admin_user(request.user):
+                raise PermissionDenied(
+                    "Solo el administrador puede eliminar ventas definitivamente."
+                )
+
+            try:
+                with transaction.atomic():
+                    _delete_sale_permanently(self.object)
+            except ValidationError as exc:
+                messages.error(request, _validation_error_text(exc))
+                return HttpResponseRedirect(self.success_url)
+
+            messages.success(request, "Venta eliminada definitivamente.")
             return HttpResponseRedirect(self.success_url)
 
         try:
             with transaction.atomic():
-                _restore_stock_for_sale(self.object)
-                self.object.total = Decimal("0.00")
-                self.object.save(update_fields=["total"])
+                was_cancelled = _cancel_sale(self.object)
         except ValidationError as exc:
             messages.error(request, _validation_error_text(exc))
             return HttpResponseRedirect(self.success_url)
 
-        messages.success(
-            request,
-            "Venta cancelada correctamente. Se conservo el historico y se repuso inventario de productos.",
-        )
+        if was_cancelled:
+            messages.success(
+                request,
+                "Venta cancelada correctamente. Se conservo visible y se repuso el inventario de productos.",
+            )
+        else:
+            messages.info(request, "La venta ya estaba cancelada y se conserva visible.")
         return HttpResponseRedirect(self.success_url)
 
 

@@ -238,6 +238,7 @@
         .sales-status {
             display: inline-flex;
             align-items: center;
+            border: 1px solid transparent;
             border-radius: 999px;
             padding: 0.35rem 0.75rem;
             font-size: 0.82rem;
@@ -250,8 +251,9 @@
         }
 
         .sales-status-cancelled {
-            background: #ffebee;
-            color: #d91f34;
+            background: #fdecec;
+            border-color: #f8c9c5;
+            color: #b42318;
         }
 
         .sales-actions {
@@ -514,6 +516,9 @@
                             <th>Cliente</th>
                             <th>Empleado</th>
                             <th>Fecha</th>
+                            <th>Metodo</th>
+                            <th>Total</th>
+                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -524,6 +529,15 @@
                                 <td>{{ venta.cliente.nombre|upper }}</td>
                                 <td>{% if venta.empleado %}{{ venta.empleado.nombre|upper }}{% else %}ADMIN{% endif %}</td>
                                 <td>{{ venta.fecha|date:"d/m/Y" }}</td>
+                                <td><span class="sales-payment">{{ venta.metodo_de_pago.nombre|upper }}</span></td>
+                                <td><span class="sales-total">${{ venta.total|floatformat:2 }}</span></td>
+                                <td>
+                                    {% if venta.cancelada %}
+                                        <span class="sales-status sales-status-cancelled">Cancelada</span>
+                                    {% else %}
+                                        <span class="sales-status sales-status-active">Activa</span>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     <div class="sales-actions">
                                         <a href="{% url 'ventas:venta-detail' venta.pk %}" class="sales-action-btn" title="Ver detalle">
@@ -532,12 +546,18 @@
                                         <a href="{% url 'ventas:venta-ticket-pdf' venta.pk %}" class="sales-action-btn" target="_blank" rel="noopener" title="Consultar ticket">
                                             <i class="bi bi-receipt"></i>
                                         </a>
-                                        <a href="{% url 'ventas:venta-update' venta.pk %}" class="sales-action-btn" title="Editar venta">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a href="{% url 'ventas:venta-delete' venta.pk %}" class="sales-action-btn sales-action-btn-danger" title="Cancelar venta">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
+                                        {% if not venta.cancelada %}
+                                            <a href="{% url 'ventas:venta-update' venta.pk %}" class="sales-action-btn" title="Editar venta">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a href="{% url 'ventas:venta-delete' venta.pk %}" class="sales-action-btn sales-action-btn-danger" title="Cancelar venta">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        {% elif can_delete_sales_permanently %}
+                                            <a href="{% url 'ventas:venta-delete' venta.pk %}" class="sales-action-btn sales-action-btn-danger" title="Eliminar definitivamente">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        {% endif %}
                                     </div>
                                 </td>
                             </tr>

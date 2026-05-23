@@ -52,6 +52,8 @@
     </article>
 </section>
 
+{% comment %}Se oculta temporalmente la segunda fila del dashboard de catalogos.{% endcomment %}
+{% comment %}
 <section class="split-grid">
     <article class="panel catalog-card">
         <a href="{% url 'catalogos:producto-list' %}" class="catalog-card-link" aria-label="Ver productos"></a>
@@ -110,4 +112,5 @@
         </table>
     </article>
 </section>
+{% endcomment %}
 {% endblock content %}

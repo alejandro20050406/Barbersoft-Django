@@ -4,15 +4,19 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>{% block title %}BarberSoft{% endblock title %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/ui.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ui.css' %}?v=20260524b">
     {% block extra_css %}{% endblock extra_css %}
 </head>
 <body>
-    <div class="d-flex">
+    <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
+    <div class="app-layout">
         <!-- Sidebar -->
-        <nav class="sidebar">
+        <nav class="sidebar" id="appSidebar" aria-label="Navegacion principal">
             <div class="brand-sidebar">
                 <img
                     src="{% static 'img/logo-monkeys.png' %}"
@@ -91,7 +95,14 @@
         <div class="flex-grow-1">
             <header class="topbar">
                 <div class="topbar-inner">
-                    <button class="btn-sidebar-toggle d-lg-none" id="sidebarToggle">
+                    <button
+                        class="btn-sidebar-toggle"
+                        id="sidebarToggle"
+                        type="button"
+                        aria-controls="appSidebar"
+                        aria-expanded="false"
+                        aria-label="Abrir menu lateral"
+                    >
                         <i class="bi bi-list"></i>
                     </button>
                     <p class="topbar-title">BarberSoft</p>
@@ -117,24 +128,69 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Sidebar toggle for mobile
         const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebar = document.querySelector('.sidebar');
-        
-        if (sidebarToggle) {
+        const sidebar = document.getElementById('appSidebar');
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+        const mobileSidebarQuery = window.matchMedia('(max-width: 991px)');
+
+        function setSidebarOpenState(isOpen) {
+            if (!sidebar || !sidebarToggle) {
+                return;
+            }
+
+            sidebar.classList.toggle('sidebar-active', isOpen);
+            sidebarToggle.setAttribute('aria-expanded', String(isOpen));
+            sidebarToggle.setAttribute('aria-label', isOpen ? 'Cerrar menu lateral' : 'Abrir menu lateral');
+            document.body.classList.toggle('sidebar-open', isOpen && mobileSidebarQuery.matches);
+
+            if (sidebarBackdrop) {
+                sidebarBackdrop.hidden = !isOpen || !mobileSidebarQuery.matches;
+            }
+        }
+
+        if (sidebarToggle && sidebar) {
             sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('sidebar-active');
+                const isOpen = sidebar.classList.contains('sidebar-active');
+                setSidebarOpenState(!isOpen);
             });
         }
 
-        // Close sidebar when a link is clicked
+        if (sidebarBackdrop) {
+            sidebarBackdrop.addEventListener('click', function() {
+                setSidebarOpenState(false);
+            });
+        }
+
         document.querySelectorAll('.sidebar-link').forEach(link => {
             link.addEventListener('click', function() {
-                if (window.innerWidth < 992) {
-                    sidebar.classList.remove('sidebar-active');
+                if (mobileSidebarQuery.matches) {
+                    setSidebarOpenState(false);
                 }
             });
         });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && sidebar?.classList.contains('sidebar-active')) {
+                setSidebarOpenState(false);
+            }
+        });
+
+        function syncSidebarWithViewport() {
+            if (!mobileSidebarQuery.matches) {
+                setSidebarOpenState(false);
+                if (sidebarBackdrop) {
+                    sidebarBackdrop.hidden = true;
+                }
+            }
+        }
+
+        if (typeof mobileSidebarQuery.addEventListener === 'function') {
+            mobileSidebarQuery.addEventListener('change', syncSidebarWithViewport);
+        } else if (typeof mobileSidebarQuery.addListener === 'function') {
+            mobileSidebarQuery.addListener(syncSidebarWithViewport);
+        }
+
+        syncSidebarWithViewport();
 
         function setMaxDateToToday() {
             const today = new Date();

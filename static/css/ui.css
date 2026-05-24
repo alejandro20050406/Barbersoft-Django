@@ -21,6 +21,10 @@ body {
     font-family: "Segoe UI", "Trebuchet MS", sans-serif;
 }
 
+body.sidebar-open {
+    overflow: hidden;
+}
+
 .topbar {
     position: sticky;
     top: 0;
@@ -1059,8 +1063,9 @@ select option,
 }
 
 /* Sidebar Navigation */
-.d-flex {
+.app-layout {
     display: flex;
+    min-height: 100vh;
 }
 
 .flex-grow-1 {
@@ -1083,6 +1088,8 @@ select option,
     z-index: 1000;
     overflow-y: auto;
     height: 100vh;
+    flex: 0 0 280px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .brand-sidebar {
@@ -1091,6 +1098,7 @@ select option,
     gap: 0.75rem;
     padding: 1rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    min-height: 82px;
 }
 
 .brand-logo-sidebar {
@@ -1127,7 +1135,7 @@ select option,
     color: #e8f0ff;
     text-decoration: none;
     padding: 0.75rem 1rem;
-    border-radius: 8px;
+    border-radius: 14px;
     font-size: 0.95rem;
     transition: all 0.2s ease;
     white-space: nowrap;
@@ -1178,6 +1186,14 @@ select option,
     background: rgba(255, 77, 77, 0.2);
 }
 
+.sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 960;
+    background: rgba(7, 18, 36, 0.46);
+    backdrop-filter: blur(4px);
+}
+
 /* Top bar */
 .topbar {
     background: linear-gradient(120deg, #1a1a2e, #0f3460);
@@ -1208,15 +1224,17 @@ select option,
     background: transparent;
     border: none;
     color: #fff;
-    font-size: 1.5rem;
+    font-size: 1.35rem;
     cursor: pointer;
-    padding: 0.4rem;
+    padding: 0.4rem 0.55rem;
     display: none;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, background 0.2s ease;
+    border-radius: 12px;
 }
 
 .btn-sidebar-toggle:hover {
     opacity: 0.8;
+    background: rgba(255, 255, 255, 0.12);
 }
 
 /* Page shell adjustments */
@@ -1230,37 +1248,71 @@ select option,
 
 /* Responsive */
 @media (max-width: 991px) {
+    .app-layout {
+        display: block;
+    }
+
+    .flex-grow-1 {
+        width: 100%;
+        max-width: 100%;
+    }
+
     .sidebar {
-        width: 260px;
-        position: sticky;
+        width: min(82vw, 304px);
+        min-width: 0;
+        max-width: min(82vw, 304px);
+        flex: none;
+        position: fixed;
         left: 0;
         top: 0;
         height: 100vh;
-        transition: none;
+        transform: translateX(-100%);
+        box-shadow: 0 22px 48px rgba(4, 18, 38, 0.28);
+    }
+
+    .sidebar.sidebar-active {
+        transform: translateX(0);
+    }
+
+    .topbar,
+    .page-shell {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
     }
 
     .btn-sidebar-toggle {
-        display: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    .d-lg-none {
-        display: none !important;
-    }
-}
-
-@media (max-width: 700px) {
-    .sidebar {
-        width: 240px;
-    }
-
-    .sidebar-link {
-        padding: 0.65rem 0.8rem;
-        font-size: 0.9rem;
+    .sidebar-footer {
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
     }
 
     .page-shell {
         margin: 1rem auto 2rem;
-        padding: 0 1rem 2rem;
+        padding: 0 0.85rem 2rem;
+    }
+}
+
+@media (max-width: 700px) {
+    .brand-sidebar {
+        padding: 0.95rem 1rem;
+    }
+
+    .sidebar-link {
+        padding: 0.75rem 0.9rem;
+        font-size: 0.9rem;
+    }
+
+    .topbar {
+        padding: 0.8rem 0.9rem;
+    }
+
+    .topbar-title {
+        font-size: 1.08rem;
     }
 
     .report-topbar,
@@ -1284,7 +1336,6 @@ select option,
     .page-shell {
         margin: 1.5rem auto 2rem;
         padding: 0 1rem 2rem;
-        align-items: center;
     }
 }
 

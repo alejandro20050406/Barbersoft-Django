@@ -93,6 +93,12 @@ class Producto(models.Model):
         self.nombre = _upper_clean(self.nombre)
         super().save(*args, **kwargs)
 
+    @property
+    def margen_ganancia(self):
+        if self.precio_venta and self.precio_compra and self.precio_venta > 0:
+            return ((self.precio_venta - self.precio_compra) / self.precio_venta) * 100
+        return 0
+
 
 class TipoServicio(models.Model):
     nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre")

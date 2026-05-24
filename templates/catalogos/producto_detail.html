@@ -57,9 +57,7 @@
         </div>
         <div class="detail-item">
             <span class="detail-label">Margen de Ganancia</span>
-            <span class="detail-value">
-                {% widthratio producto.precio_venta producto.precio_compra 100 %}%
-            </span>
+            <span class="detail-value">{{ producto.margen_ganancia|floatformat:2 }}%</span>
         </div>
     </div>
 </div>
